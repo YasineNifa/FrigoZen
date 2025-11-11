@@ -13,6 +13,7 @@ class ShoppingScreen extends StatefulWidget {
 
 class _ShoppingScreenState extends State<ShoppingScreen> {
   final _textController = TextEditingController();
+  List<QueryDocumentSnapshot> _checkedItems = [];
 
   // Return the CollectionReference for the shopping list for the current user
   CollectionReference _getShoppingListCollection() {
@@ -85,6 +86,62 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     _getShoppingListCollection().doc(docId).delete();
   }
 
+  void _moveCheckedItemsToInventory(
+    List<QueryDocumentSnapshot> checkedItems,
+  ) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final firestore = FirebaseFirestore.instance;
+    final userDocRef = firestore.collection('users').doc(user.uid);
+    final inventoryCollection = userDocRef.collection('inventory');
+    final shoppingListCollection = userDocRef.collection('shopping_list');
+
+    // Create a batch to perform multiple writes
+    final batch = firestore.batch();
+
+    for (final itemDoc in checkedItems) {
+      final data = itemDoc.data() as Map<String, dynamic>;
+      final itemName = data['name'];
+
+      // Add to the inventory collection
+      final newInventoryItemRef = inventoryCollection.doc();
+      batch.set(newInventoryItemRef, {
+        'name': itemName,
+        'location':
+            'Frigo', //By default, we place new items in the fridge (TODO: let user choose)
+        'createdAt': Timestamp.now(),
+      });
+
+      // Delete from the shopping list collection
+      batch.delete(shoppingListCollection.doc(itemDoc.id));
+    }
+
+    // Execute all the operations at once
+    try {
+      await batch.commit(); // Execute the batch
+
+      // Display a success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "${checkedItems.length} item(s) moved to Inventory successfully!",
+            ),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
+        );
+      }
+    } catch (error) {
+      // Gérer les erreurs
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error moving items: ${error.toString()}")),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,6 +189,20 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 }
 
                 final items = snapshot.data!.docs;
+                final localCheckedItems = items.where((item) {
+                  final data = item.data() as Map<String, dynamic>;
+                  return data['isChecked'];
+                }).toList();
+
+                // Mettre à jour l'état local des articles cochés
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  // On vérifie si la liste a changé pour éviter des rebuilds infinis
+                  if (_checkedItems.length != localCheckedItems.length) {
+                    setState(() {
+                      _checkedItems = localCheckedItems;
+                    });
+                  }
+                });
 
                 return ListView.builder(
                   itemCount: items.length,
@@ -181,6 +252,15 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           ),
         ],
       ),
+      floatingActionButton: _checkedItems.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              icon: const Icon(Icons.check),
+              label: Text('Add ${_checkedItems.length} item(s) to Inventory'),
+              onPressed: () {
+                _moveCheckedItemsToInventory(_checkedItems);
+              },
+            ),
     );
   }
 }
