@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
@@ -62,6 +64,18 @@ class InventoryScreen extends StatelessWidget {
 
           // Construct the list of items
           final items = snapshot.data!.docs;
+
+          // Mettre à jour le Provider avec les noms
+          // On utilise "addPostFrameCallback" pour le faire après la construction du widget
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            // On récupère la liste des noms
+            final itemNames = items.map((item) {
+              final data = item.data() as Map<String, dynamic>;
+              return data['name'] as String;
+            }).toList();
+            // On met à jour le provider (sans déclencher de re-build de cet écran)
+            context.read<InventoryProvider>().updateInventory(itemNames);
+          });
 
           return ListView.builder(
             itemCount: items.length,
