@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "720908435851",
+    "project_id": "frigozen-app",
+    "storage_bucket": "frigozen-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:720908435851:android:02bda924e159be631c6f8e",
+        "android_client_info": {
+          "package_name": "com.example.frigo_zen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIztgSME0QT_g1UP1WcubAi6MJODWRaeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
