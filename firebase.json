@@ -1,1 +1,40 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"frigozen-app","appId":"1:720908435851:android:02bda924e159be631c6f8e","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"frigozen-app","configurations":{"android":"1:720908435851:android:02bda924e159be631c6f8e","ios":"1:720908435851:ios:29c9ddcb3f3cd1741c6f8e"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "frigozen-app",
+          "appId": "1:720908435851:android:02bda924e159be631c6f8e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "frigozen-app",
+          "configurations": {
+            "android": "1:720908435851:android:02bda924e159be631c6f8e",
+            "ios": "1:720908435851:ios:29c9ddcb3f3cd1741c6f8e"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
+}
