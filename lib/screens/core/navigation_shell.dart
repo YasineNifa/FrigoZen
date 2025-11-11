@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+import 'package:frigo_zen/screens/inventory/inventory_screen.dart';
+import 'package:frigo_zen/screens/settings/settings_screen.dart';
+import 'package:frigo_zen/screens/shopping/shopping_screen.dart';
+
+class NavigationShell extends StatefulWidget {
+  const NavigationShell({super.key});
+
+  @override
+  State<NavigationShell> createState() => _NavigationShellState();
+}
+
+class _NavigationShellState extends State<NavigationShell> {
+  // State: we keep in memory the index of the selected tab
+  int _selectedIndex = 0;
+
+  // List of the three screens
+  final List<Widget> _screens = [
+    const InventoryScreen(),
+    const ShoppingScreen(),
+    const SettingsScreen(),
+  ];
+
+  // Update the state of the activated tab.
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // The body of the application change based in the selected tab
+      body: _screens[_selectedIndex],
+
+      // Navigation Bar
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex, // Selected tab
+        onDestinationSelected: _onItemTapped, // Clic function
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2),
+            label: 'Inventory',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_cart_outlined),
+            selectedIcon: Icon(Icons.shopping_cart),
+            label: 'List',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
+    );
+  }
+}
