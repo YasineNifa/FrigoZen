@@ -82,7 +82,8 @@ class _ValidationScreenState extends State<ValidationScreen> {
         'quantity': item['quantity'] ?? 1,
         'location': item['location'] ?? 'Placard',
         'createdAt': now,
-        'expirationDate': expirationDate, // Notre date "intelligente" !
+        'expirationDate': expirationDate,
+        'category': item['category'] ?? 'Other',
       });
     }
 

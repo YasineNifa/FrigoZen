@@ -145,13 +145,17 @@ export const processReceiptGemini = onCall(
         en *jours* après l'achat. (ex: Lait=7, Poulet=3, Conserve=365).
         4. "location": L'emplacement de stockage le plus probable 
         (Frigo, Placard, Congélateur).
+        5. "category": La catégorie de l'article en **anglais**
+        (ex: "Vegetable", "Dairy", "Meat", "Fruit", "Pantry", "Beverage").
 
         Réponds OBLIGATOIREMENT et UNIQUEMENT avec un objet JSON.
         Le format doit être:
         {
           "items": [
-            { "name": "...", "quantity": 1, "dvm": 7, "location": "Frigo" },
-            { "name": "...", "quantity": 2, "dvm": 365, "location": "Placard" }
+            { "name": "...", "quantity": 1, "dvm": 7, "location": "Frigo"
+            , "category": "Dairy" },
+            { "name": "...", "quantity": 2, "dvm": 365, "location": "Placard"
+            , "category": "Pantry" }
           ]
         }
         Si tu ne trouves aucun article alimentaire, retourne {"items": []}.
