@@ -128,48 +128,79 @@ class _ValidationScreenState extends State<ValidationScreen> {
         itemCount: _editableItems.length,
         itemBuilder: (context, index) {
           final item = _editableItems[index];
-          // On utilise un "TextEditingController" pour rendre le nom modifiable
           final nameController = TextEditingController(text: item['name']);
 
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  // Bouton pour supprimer
-                  IconButton(
-                    icon: Icon(Icons.delete_outline, color: Colors.red[700]),
-                    onPressed: () => _removeItem(index),
-                  ),
+          // return Card(
+          //   margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          //   child: Padding(
+          //     padding: const EdgeInsets.all(8.0),
+          //     child: Row(
+          //       children: [
+          //         IconButton(
+          //           icon: Icon(Icons.delete_outline, color: Colors.red[700]),
+          //           onPressed: () => _removeItem(index),
+          //         ),
                   
-                  // Champ Nom (modifiable)
-                  Expanded(
-                    child: TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(border: InputBorder.none),
-                      onChanged: (newName) {
-                        // On met à jour le nom dans notre état local
-                        _editableItems[index]['name'] = newName;
-                      },
-                    ),
-                  ),
+          //         Expanded(
+          //           child: TextField(
+          //             controller: nameController,
+          //             decoration: const InputDecoration(border: InputBorder.none),
+          //             onChanged: (newName) {
+          //               _editableItems[index]['name'] = newName;
+          //             },
+          //           ),
+          //         ),
                   
-                  // Sélecteur de Quantité
-                  IconButton(
-                    icon: const Icon(Icons.remove),
-                    onPressed: () => _updateQuantity(index, -1),
-                  ),
-                  Text(
-                    item['quantity'].toString(),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () => _updateQuantity(index, 1),
-                  ),
-                ],
+          //         IconButton(
+          //           icon: const Icon(Icons.remove),
+          //           onPressed: () => _updateQuantity(index, -1),
+          //         ),
+          //         Text(
+          //           item['quantity'].toString(),
+          //           style: Theme.of(context).textTheme.titleMedium,
+          //         ),
+          //         IconButton(
+          //           icon: const Icon(Icons.add),
+          //           onPressed: () => _updateQuantity(index, 1),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // );
+
+          return ListTile(
+            leading: IconButton(
+              icon: Icon(Icons.delete_outline, color: Colors.red[700]),
+              onPressed: () => _removeItem(index),
+            ),
+            
+            title: TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
               ),
+              onChanged: (newName) {
+                _editableItems[index]['name'] = newName;
+              },
+            ),
+            
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: () => _updateQuantity(index, -1),
+                ),
+                Text(
+                  item['quantity'].toString(),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () => _updateQuantity(index, 1),
+                ),
+              ],
             ),
           );
         },

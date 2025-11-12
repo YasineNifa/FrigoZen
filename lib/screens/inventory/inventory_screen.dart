@@ -6,9 +6,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
 
-class InventoryScreen extends StatelessWidget {
+class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
 
+  @override
+  State<InventoryScreen> createState() => _InventoryScreenState();
+}
+
+class _InventoryScreenState extends State<InventoryScreen> {
+  final Set<String> _loadingItems = {};
   // Get a stream of the user's inventory items
   Stream<QuerySnapshot> _getInventoryStream() {
     final user = FirebaseAuth.instance.currentUser;
@@ -24,11 +30,11 @@ class InventoryScreen extends StatelessWidget {
   }
 
   // Delete an item from the inventory
-  void _deleteItem(String docId) {
+  void _deleteItem(String docId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('inventory')
@@ -36,31 +42,48 @@ class InventoryScreen extends StatelessWidget {
         .delete();
   }
 
-  void _incrementItem(String docId, int currentQuantity) {
+  void _incrementItem(String docId, int currentQuantity) async {
+    setState(() {
+      _loadingItems.add(docId);
+    });
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('inventory')
         .doc(docId)
         .update({'quantity': currentQuantity + 1});
+
+    if (mounted) {
+      setState(() {
+        _loadingItems.remove(docId); 
+      });
+    }
   }
 
-  void _decrementItem(String docId, int currentQuantity) {
+  void _decrementItem(String docId, int currentQuantity) async {
+    setState(() {
+      _loadingItems.add(docId);
+    });
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     if (currentQuantity <= 1) {
       _deleteItem(docId);
     } else {
-      FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .collection('inventory')
           .doc(docId)
           .update({'quantity': currentQuantity - 1});
+    }
+    if (mounted) {
+      setState(() {
+        _loadingItems.remove(docId);
+      });
     }
   }
 
@@ -109,6 +132,7 @@ class InventoryScreen extends StatelessWidget {
       ))
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,10 +158,37 @@ class InventoryScreen extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text(
-                "No items in your inventory. Tap + to add some!",
-                textAlign: TextAlign.center,
+            // return const Center(
+            //   child: Text(
+            //     "No items in your inventory. Tap + to add some!",
+            //     textAlign: TextAlign.center,
+            //   ),
+            // );
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.kitchen_outlined,
+                      size: 80,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Your inventory is empty",
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Tap the + button to add an item or scan a receipt with the icon above.",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -159,6 +210,7 @@ class InventoryScreen extends StatelessWidget {
               final data = item.data() as Map<String, dynamic>;
               final String itemName = data['name'] ?? 'Unnamed Item';
               final int itemQuantity = data["quantity"] ?? 1;
+              final bool isLoading = _loadingItems.contains(item.id);
 
               return Dismissible(
                 key: Key(item.id),
@@ -189,23 +241,38 @@ class InventoryScreen extends StatelessWidget {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove_circle_outline),
-                        onPressed: () {
-                          _decrementItem(item.id, itemQuantity);
-                        },
-                      ),
-                      Text(
-                        itemQuantity.toString(),
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_circle_outline),
-                        onPressed: () {
-                          _incrementItem(item.id, itemQuantity);
-                        },
-                      ),
-                    ],
+                        // Show spinner OR button
+                        isLoading
+                            ? const SizedBox( // A sized box to hold the place
+                                width: 24, 
+                                height: 24, 
+                                child: CircularProgressIndicator(strokeWidth: 2)
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.remove_circle_outline),
+                                onPressed: () {
+                                  _decrementItem(item.id, itemQuantity);
+                                },
+                              ),
+                        
+                        // We can gray out the text
+                        Text(
+                          itemQuantity.toString(),
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: isLoading ? Colors.grey : null,
+                          ),
+                        ),
+                        
+                        // Show spinner OR button
+                        isLoading
+                            ? const SizedBox(width: 24, height: 24) // Just a spacer
+                            : IconButton(
+                                icon: const Icon(Icons.add_circle_outline),
+                                onPressed: () {
+                                  _incrementItem(item.id, itemQuantity);
+                                },
+                              ),
+                      ],
                   ),
                 )
               );
