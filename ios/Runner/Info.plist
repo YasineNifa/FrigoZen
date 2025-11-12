@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>FrigoZen a besoin d'accéder à votre caméra pour scanner les tickets de caisse.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>FrigoZen a besoin d'accéder à votre galerie pour importer des photos de tickets.</string>
 </dict>
 </plist>
