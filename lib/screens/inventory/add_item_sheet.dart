@@ -12,7 +12,7 @@ class AddItemSheet extends StatefulWidget {
 class _AddItemSheetState extends State<AddItemSheet> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  String _selectedLocation = 'Frigo';
+  int _quantity = 1;
   bool _isLoading = false;
 
   // Get the path to the user's inventory collection
@@ -39,7 +39,8 @@ class _AddItemSheetState extends State<AddItemSheet> {
         // Add the new article to the collection
         await _getInventoryCollection().add({
           'name': _nameController.text.trim(),
-          'location': _selectedLocation,
+          'quantity': _quantity,
+          'location': 'Frigo', // TODO: Make dynamic later by using AI
           'createdAt': Timestamp.now(),
         });
 
@@ -101,30 +102,59 @@ class _AddItemSheetState extends State<AddItemSheet> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
-            // Sélecteur d'emplacement
-            ToggleButtons(
-              isSelected: [
-                _selectedLocation == 'Frigo',
-                _selectedLocation == 'Placard',
-              ],
-              onPressed: (index) {
-                setState(() {
-                  _selectedLocation = (index == 0) ? 'Frigo' : 'Placard';
-                });
-              },
-              children: const [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Frigo'),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline),
+                  onPressed: () {
+                    if (_quantity > 1) { // On ne peut pas descendre sous 1
+                      setState(() {
+                        _quantity--;
+                      });
+                    }
+                  },
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Placard'),
+                Text(
+                  'Quantity : $_quantity',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: () {
+                    setState(() {
+                      _quantity++;
+                    });
+                  },
                 ),
               ],
             ),
             const SizedBox(height: 24),
+            // const SizedBox(height: 16),
+            // Sélecteur d'emplacement
+            // ToggleButtons(
+            //   isSelected: [
+            //     _selectedLocation == 'Frigo',
+            //     _selectedLocation == 'Placard',
+            //   ],
+            //   onPressed: (index) {
+            //     setState(() {
+            //       _selectedLocation = (index == 0) ? 'Frigo' : 'Placard';
+            //     });
+            //   },
+            //   children: const [
+            //     Padding(
+            //       padding: EdgeInsets.symmetric(horizontal: 16),
+            //       child: Text('Frigo'),
+            //     ),
+            //     Padding(
+            //       padding: EdgeInsets.symmetric(horizontal: 16),
+            //       child: Text('Placard'),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 24),
             if (_isLoading)
               const CircularProgressIndicator()
             else
