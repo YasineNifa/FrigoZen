@@ -36,8 +36,11 @@ class _NavigationShellState extends State<NavigationShell> {
 
       // Navigation Bar
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex, // Selected tab
-        onDestinationSelected: _onItemTapped, // Clic function
+        backgroundColor: Colors.grey[150],
+        animationDuration: const Duration(milliseconds: 200),
+        indicatorColor: Colors.green[100],
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onItemTapped,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.inventory_2_outlined),

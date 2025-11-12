@@ -1,6 +1,7 @@
 // lib/screens/inventory/inventory_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -162,36 +163,55 @@ class _InventoryScreenState extends State<InventoryScreen>
       builder: (ctx) => SafeArea(child: Wrap(
         children: [
           // TODO: Uncomment the following lines to enable camera and gallery options
-          /*
+          /**/
           ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text('Take a Photo'),
+            leading: const CircleAvatar(
+              backgroundColor: Color.fromARGB(255, 165, 214, 167),
+              child: Icon(Icons.receipt_long, color: Color.fromARGB(255, 32, 32, 32)),
+            ),//camera_alt
+            title: const Text('Scan a receipt with camera'),
             onTap: () {
               Navigator.of(ctx).pop();
-              // This function call will need to be updated when the hack is removed
-              // ocrService.pickAndProcessReceipt(context, ImageSource.camera); 
+              ocrService.pickAndProcessReceipt(context, ImageSource.camera); 
             },
           ),
           ListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text('Choose from Gallery'),
+            leading: const CircleAvatar(
+              backgroundColor: Color.fromARGB(255, 165, 214, 167),
+              child: Icon(Icons.photo_library, color: Color.fromARGB(255, 32, 32, 32)),
+            ),
+            title: const Text('Select a receipt from gallery'),
             onTap: () {
               Navigator.of(ctx).pop();
-              // This function call will need to be updated when the hack is removed
-              // ocrService.pickAndProcessReceipt(context, ImageSource.gallery);
+              ocrService.pickAndProcessReceipt(context, ImageSource.gallery);
             },
           ),
-          */
+          /**/
           // TODO: comment the following lines to enable camera and gallery options
+            // ListTile(
+            //   leading: const Icon(Icons.photo),
+            //   title: const Text('Use a testing Receipts'),
+            //   onTap: () {
+            //     Navigator.of(ctx).pop();
+            //     final String fullBase64String = "iVBORw0KGgoAAAAN"; // Your test string
+            //     final String base64Image = fullBase64String.split(',').last;
+            //     ocrService.pickAndProcessReceipt(context, base64Image);
+            //   },
+            // ),
             ListTile(
-              leading: const Icon(Icons.photo),
-              title: const Text('Use a testing Receipts'),
-              onTap: () {
+              leading: const CircleAvatar(
+                backgroundColor: Color.fromARGB(255, 165, 214, 167),
+                child: Icon(Icons.add, color: Color.fromARGB(255, 32, 32, 32)),
+              ),
+              title: const Text('Add manually'),
+              onTap: (){
                 Navigator.of(ctx).pop();
-                final String fullBase64String = "iVBORw0KGgoAAAAN"; // Your test string
-                final String base64Image = fullBase64String.split(',').last;
-                ocrService.pickAndProcessReceipt(context, base64Image);
-              },
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (ctx) => const AddItemSheet(),
+                );
+              }
             )
         ]
       ))
@@ -222,7 +242,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     } else if (difference <= 7) {
       return {'text': 'Expires in $difference days', 'color': Colors.green[700]!};
     } else {
-      return {'text': 'Fresh', 'color': Colors.grey[700]!}; // Changed from "OK"
+      return {'text': 'Fresh', 'color': Colors.grey[700]!};
     }
   }
 
@@ -337,13 +357,13 @@ class _InventoryScreenState extends State<InventoryScreen>
           //   onPressed: () { /* Open Notifications */ },
           // ),
           // Scan button (your existing logic)
-          IconButton(
-            icon: const Icon(Icons.receipt_long),
-            tooltip: 'Scan Receipt',
-            onPressed: () {
-              _showImageSourceDialog(context);
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.receipt_long),
+          //   tooltip: 'Scan Receipt',
+          //   onPressed: () {
+          //     _showImageSourceDialog(context);
+          //   },
+          // ),
         ],
         // 13. The Tabs from your design
         bottom: TabBar(
@@ -354,6 +374,9 @@ class _InventoryScreenState extends State<InventoryScreen>
             Tab(text: 'Placard'),
             Tab(text: 'Congélateur'),
           ],
+          indicatorColor: Colors.green[400],
+          labelColor: Colors.black,
+          unselectedLabelColor: Colors.grey
         ),
       ),
 
@@ -437,15 +460,11 @@ class _InventoryScreenState extends State<InventoryScreen>
         ],
       ),
 
-      // FAB (your existing logic)
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (ctx) => const AddItemSheet(),
-          );
+          _showImageSourceDialog(context);
         },
+        backgroundColor: Colors.green[400],
         child: const Icon(Icons.add),
       ),
     );
@@ -532,8 +551,8 @@ class _InventoryScreenState extends State<InventoryScreen>
 
               // Quantity Counter
               trailing: isLoading
-                  ? const SizedBox( // Spinner
-                      width: 48, // Match button size
+                  ? const SizedBox(
+                      width: 48,
                       height: 48,
                       child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                     )

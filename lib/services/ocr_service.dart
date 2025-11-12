@@ -12,9 +12,9 @@ class OcrService {
   /// This is the main function that handles the entire OCR flow.
   /// It is moved from inventory_screen.dart.
   /// We pass BuildContext here for showing SnackBars and Navigating.
-  Future<void> pickAndProcessReceipt(BuildContext context, String base64Image) async {
+  Future<void> pickAndProcessReceipt(BuildContext context, ImageSource source) async {
     /*
-    arg must change to ImageSource source
+    arg must change to ImageSource source String base64Image
     */
     // Loading snackbar
     final loadingSnackbar = SnackBar(
@@ -31,7 +31,7 @@ class OcrService {
 
     try {
       // TODO: Uncomment the following lines to enable camera and gallery options + Modify the code above
-      /*
+      /**/
       final imagePicker = ImagePicker();
       final XFile? pickedImage = await imagePicker.pickImage(
       source: source,
@@ -56,7 +56,7 @@ class OcrService {
 
       final String base64Image = base64Encode(img.encodeJpg(resizedImage));
 
-      */
+      /**/
 
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
       final callable = functions.httpsCallable('processReceiptGemini');

@@ -167,7 +167,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   icon: const Icon(Icons.add_shopping_cart),
                   onPressed: _addItem,
                   style: IconButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: Colors.green[400],
                     foregroundColor: Colors.white,
                   ),
                 ),

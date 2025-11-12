@@ -88,7 +88,6 @@ class _AddItemSheetState extends State<AddItemSheet> {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 24),
-            // Champ Nom
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -109,7 +108,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
                 IconButton(
                   icon: const Icon(Icons.remove_circle_outline),
                   onPressed: () {
-                    if (_quantity > 1) { // On ne peut pas descendre sous 1
+                    if (_quantity > 1) {
                       setState(() {
                         _quantity--;
                       });
@@ -161,9 +160,11 @@ class _AddItemSheetState extends State<AddItemSheet> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
+                  backgroundColor: Colors.green,
                 ),
                 onPressed: _saveItem,
-                child: const Text('Save'),
+
+                child: const Text('Save', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
               ),
             const SizedBox(height: 16),
           ],
