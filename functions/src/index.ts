@@ -1,23 +1,27 @@
-// On importe depuis "v2/https" (la nouvelle version)
 import {onCall, HttpsError} from "firebase-functions/v2/https";
-// Le logger s'importe comme ça en v2
 import * as logger from "firebase-functions/logger";
 import {ImageAnnotatorClient} from "@google-cloud/vision";
+import {VertexAI} from "@google-cloud/vertexai";
 
 // Initialiser le client de l'IA (on le met ici, en dehors de la fonction)
 // C'est une "bonne pratique" pour la performance (Cold Starts)
 const visionClient = new ImageAnnotatorClient();
+const PROJECT_ID = "frigozen-app";
+const LOCATION = "us-central1";
+const vertexAI = new VertexAI(
+  {project: PROJECT_ID, location: LOCATION}
+);
+const generativeModel = vertexAI.getGenerativeModel({
+  model: "gemini-2.0-flash-lite",
+});
 
 
 export const helloWorld = onCall(
-  // La v2 n'a qu'UN SEUL paramètre : "request"
   (request) => {
-    // 1. La garde de sécurité
-    // L'authentification est maintenant dans "request.auth"
     if (!request.auth) {
       throw new HttpsError(
         "unauthenticated",
-        "Vous devez être connecté.",
+        "You must be authenticated.",
       );
     }
 
@@ -36,60 +40,142 @@ export const helloWorld = onCall(
 );
 
 
-export const processReceipt = onCall(
-  // On s'attend à recevoir une donnée "imageBase64"
+export const processReceiptV2 = onCall(
+  // we need a "imageBase64" field in request.data
   async (request) => {
-    // 1. Garde de sécurité (comme helloWorld)
+    // Securety check
     if (!request.auth) {
-      throw new HttpsError("unauthenticated", "Vous devez être connecté.");
+      throw new HttpsError("unauthenticated", "You must be authenticated.");
     }
 
-    // 2. Récupérer l'image envoyée par Flutter
-    // L'image sera une très longue chaîne de texte (Base64)
+    // Get the image in Base64 from the request
     const imageBase64 = request.data.imageBase64;
     if (!imageBase64) {
-      throw new HttpsError("invalid-argument", "Aucune image fournie.");
+      throw new HttpsError("invalid-argument", "No image provided.");
     }
 
-    logger.info("Réception d'une image, appel de l'API Vision...");
+    logger.info("We are processing the receipt..");
 
     try {
-      // 3. Préparer la requête pour l'API Vision
-      const [result] = await visionClient.textDetection({
+      // const [result] = await visionClient.textDetection({
+      //   image: {
+      //     content: imageBase64,
+      //   },
+      // });
+      const [result] = await visionClient.documentTextDetection({
         image: {
-          content: imageBase64, // On envoie l'image en Base64
+          content: imageBase64,
         },
       });
 
-      // 4. Analyser la réponse
-      const detections = result.textAnnotations;
-      if (!detections || detections.length === 0) {
-        throw new HttpsError("not-found", "Aucun texte détecté.");
+      // const detections = result.textAnnotations;
+      // if (!detections || detections.length === 0) {
+      //   throw new HttpsError("not-found", "Aucun texte détecté.");
+      // }
+      const annotation = result.fullTextAnnotation;
+      if (!annotation || !annotation.text) {
+        throw new HttpsError("not-found", "No text detected.");
       }
-
-      // 5. LE "PARSING" (le plus important !)
-      // Le premier résultat (detections[0]) est TOUT le texte en un bloc.
-      const fullText = detections[0].description || "";
-
-      // On sépare le bloc de texte en lignes individuelles
+      // const fullText = detections[0].description || "";
+      // const allLines = fullText.split("\n");
+      const fullText = annotation.text;
       const allLines = fullText.split("\n");
 
-      // Pour ce MVP, nous renvoyons simplement *toutes les lignes*.
-      // L'étape de validation se fera dans l'app Flutter.
-      // Dans le futur, on pourrait filtrer ici pour enlever les lignes
-      // qui ne contiennent pas de chiffres (prix), etc.
-      logger.info(`Texte détecté, ${allLines.length} lignes trouvées.`);
+      const nonEmptyLines = allLines.filter((line) => line.trim().length > 0);
 
-      // 6. Renvoyer la liste des lignes à Flutter
+      logger.info(`Detected Text, ${allLines.length} lines.`);
+
       return {
         success: true,
-        lines: allLines,
+        lines: nonEmptyLines,
       };
     } catch (error) {
-      logger.error("Erreur de l'API Vision:", error);
+      logger.error("Error in Vision API:", error);
       throw new HttpsError(
         "internal",
-        "Erreur lors de l'analyse de l'image.",
+        "Error while processing the receipt.",
+      );
+    }
+  },
+);
+
+export const processReceiptGemini = onCall(
+  {timeoutSeconds: 60},
+  async (request) => {
+    // Securety check
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "You must be authenticated.");
+    }
+
+    // Get the image in Base64 from the request
+    const imageBase64 = request.data.imageBase64;
+    if (!imageBase64) {
+      throw new HttpsError("invalid-argument", "No image provided.");
+    }
+
+    logger.info("We are processing the receipt..");
+
+    try {
+      const imagePart = {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: imageBase64,
+        },
+      };
+
+      const prompt = `
+        Tu es un assistant de gestion de frigo pour l'application FrigoZen.
+        Analyse l'image de ce ticket de caisse.
+
+        Ta mission est d'extraire TOUS les articles ALIMENTAIRES.
+        - Ignore les articles non-alimentaires (vêtements, sacs poubelle, 
+          appareils, etc.).
+        - Ignore les totaux, la TVA, les réductions, les numéros de carte, etc.
+        - Ignore les éléments de l'interface de l'application
+          (comme "Accueil", "Coupons").
+
+        Pour chaque article alimentaire trouvé, extrais les informations 
+        suivantes :
+        1. "name": Le nom canonique et simple du produit, **en anglais**, 
+        simplifié (ex: "Milk" au lieu de "LAIT UHT 1/2 ECR", 
+        "Lime" au lieu de "Citrons Verts").
+        2. "quantity": La quantité (par défaut 1). Si tu vois "x 2" ou 
+        "Pack de 6", utilise ce chiffre.
+        3. "dvm": Une estimation de la Durée de Vie Moyenne (DVM) 
+        en *jours* après l'achat. (ex: Lait=7, Poulet=3, Conserve=365).
+        4. "location": L'emplacement de stockage le plus probable 
+        (Frigo, Placard, Congélateur).
+
+        Réponds OBLIGATOIREMENT et UNIQUEMENT avec un objet JSON.
+        Le format doit être:
+        {
+          "items": [
+            { "name": "...", "quantity": 1, "dvm": 7, "location": "Frigo" },
+            { "name": "...", "quantity": 2, "dvm": 365, "location": "Placard" }
+          ]
+        }
+        Si tu ne trouves aucun article alimentaire, retourne {"items": []}.
+      `;
+
+      const result = await generativeModel.generateContent({
+        contents: [{role: "user", parts: [imagePart, {text: prompt}]}],
+      });
+
+      // Nettoyer la réponse
+      // Gemini renvoie souvent le JSON entouré de "```json ... ```"
+      let jsonText =
+        result.response.candidates?.[0].content.parts[0].text || "{}";
+      jsonText = jsonText.replace(/```json/g, "").replace(/```/g, "").trim();
+
+      logger.info("Brut JSON from Gemini:", jsonText);
+      const jsonData = JSON.parse(jsonText);
+      // Renvoyer le JSON propre à Flutter
+      return {success: true, data: jsonData};
+    } catch (error) {
+      logger.error("Error in Gemini API:", error);
+      throw new HttpsError(
+        "internal",
+        "Error while processing the receipt.",
       );
     }
   },
