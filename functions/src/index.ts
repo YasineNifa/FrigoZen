@@ -184,3 +184,76 @@ export const processReceiptGemini = onCall(
     }
   },
 );
+
+// ---------------------------------------------
+// NOUVELLE FONCTION : CANONICALIZE NAME
+// ---------------------------------------------
+export const canonicalizeName = onCall(
+  {timeoutSeconds: 15},
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "You must be logged in.");
+    }
+
+    const productName = request.data.productName;
+    if (
+      !productName || typeof productName !== "string" ||
+      productName.trim() === ""
+    ) {
+      throw new HttpsError(
+        "invalid-argument", "Product name must be a non-empty string."
+      );
+    }
+
+    logger.info(`Canonicalizing name for: "${productName}"`);
+
+    try {
+      const prompt = `
+        You are a database normalizer. The user will provide a product name,
+        possibly with misspellings, descriptions, or in a different language.
+        
+        Your job is to correct, translate, and return the single, 
+        simplest, canonical English name for this product.
+
+        Respond ONLY with a JSON object in the format:
+        {"canonicalName": "..."}
+
+        Example 1:
+        Input: "liat"
+        Output: {"canonicalName": "Milk"}
+
+        Example 2:
+        Input: "Bâtonnets poisson"
+        Output: {"canonicalName": "Fish Stick"}
+
+        Example 3:
+        Input: "Pommes de terre"
+        Output: {"canonicalName": "Potato"}
+        
+        Input: "${productName}"
+        Output:
+      `;
+
+      const result = await generativeModel.generateContent({
+        contents: [{role: "user", parts: [{text: prompt}]}],
+      });
+
+      let jsonText =
+        result.response.candidates?.[0].content.parts[0].text || "{}";
+
+      jsonText = jsonText.replace(/```json/g, "").replace(/```/g, "").trim();
+
+      logger.info(`Gemini Response: ${jsonText}`);
+
+      const jsonData = JSON.parse(jsonText);
+      const canonicalName = jsonData.canonicalName;
+      return {success: true, canonicalName: canonicalName || productName};
+    } catch (error) {
+      logger.error("Error Gemini API (canonicalize):", error);
+      throw new HttpsError(
+        "internal",
+        "Error during name normalization.",
+      );
+    }
+  },
+);
