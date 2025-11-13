@@ -1,5 +1,3 @@
-// lib/screens/inventory/inventory_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +7,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
 
-// 1. Converted to StatefulWidget to manage Tabs, Search, and Loading
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
 
@@ -17,26 +14,21 @@ class InventoryScreen extends StatefulWidget {
   State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
-// 2. Added "with SingleTickerProviderStateMixin" for the TabController
 class _InventoryScreenState extends State<InventoryScreen>
     with SingleTickerProviderStateMixin {
       
-  // 3. Controllers for UI state
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
 
-  // 4. State variables
-  String _selectedLocation = "Tout"; // The active tab
-  String _searchQuery = ""; // The active search
-  final Set<String> _loadingItems = {}; // Your existing loading set, now part of the state
+  String _selectedLocation = "Tout";
+  String _searchQuery = "";
+  final Set<String> _loadingItems = {};
 
   @override
   void initState() {
     super.initState();
-    // 5. Initialize controllers
     _tabController = TabController(length: 4, vsync: this);
 
-    // Add listeners to rebuild the UI on change
     _tabController.addListener(_handleTabSelection);
     _searchController.addListener(_handleSearch);
   }
@@ -48,7 +40,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     super.dispose();
   }
 
-  // 6. State update handlers
   void _handleTabSelection() {
     if (_tabController.indexIsChanging) return;
     setState(() {
@@ -76,13 +67,12 @@ class _InventoryScreenState extends State<InventoryScreen>
       return Stream.empty();
     }
 
-    // Base query
     Query query = FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .collection('inventory');
 
-    // 8. Apply the Tab filter (Firestore query)
+    // Apply the Tab filter (Firestore query)
     if (_selectedLocation != "Tout") {
       query = query.where('location', isEqualTo: _selectedLocation);
     }
@@ -93,8 +83,6 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     return query.snapshots();
   }
-
-  // --- Your existing data functions (unchanged, just moved) ---
 
   // Delete an item from the inventory
   void _deleteItem(String docId) async {
@@ -138,7 +126,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     if (user == null) return;
 
     if (currentQuantity <= 1) {
-      _deleteItem(docId); // Use await here
+      _deleteItem(docId);
     } else {
       await FirebaseFirestore.instance
           .collection('users')
@@ -154,7 +142,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
   }
 
-  // Your existing OCR/Image Dialog function (unchanged)
   void _showImageSourceDialog(BuildContext context) {
     final OcrService ocrService = OcrService();
 
@@ -162,8 +149,6 @@ class _InventoryScreenState extends State<InventoryScreen>
       context: context,
       builder: (ctx) => SafeArea(child: Wrap(
         children: [
-          // TODO: Uncomment the following lines to enable camera and gallery options
-          /**/
           ListTile(
             leading: const CircleAvatar(
               backgroundColor: Color.fromARGB(255, 165, 214, 167),
@@ -186,18 +171,6 @@ class _InventoryScreenState extends State<InventoryScreen>
               ocrService.pickAndProcessReceipt(context, ImageSource.gallery);
             },
           ),
-          /**/
-          // TODO: comment the following lines to enable camera and gallery options
-            // ListTile(
-            //   leading: const Icon(Icons.photo),
-            //   title: const Text('Use a testing Receipts'),
-            //   onTap: () {
-            //     Navigator.of(ctx).pop();
-            //     final String fullBase64String = "iVBORw0KGgoAAAAN"; // Your test string
-            //     final String base64Image = fullBase64String.split(',').last;
-            //     ocrService.pickAndProcessReceipt(context, base64Image);
-            //   },
-            // ),
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: Color.fromARGB(255, 165, 214, 167),
@@ -218,9 +191,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
   }
 
-  // --- New UI Helper Functions ---
-
-  // 9. Calculates the expiration status text and color
   Map<String, dynamic> _getExpirationStatus(Timestamp? expirationDate) {
     if (expirationDate == null) {
       return {'text': 'Unknown', 'color': Colors.grey};
@@ -246,7 +216,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
   }
 
-  // 10. Groups items by category AND filters by search query
+  // Groups items by category AND filters by search query
   Map<String, List<QueryDocumentSnapshot>> _groupItems(List<QueryDocumentSnapshot> items) {
     final Map<String, List<QueryDocumentSnapshot>> groupedItems = {};
 
@@ -256,7 +226,7 @@ class _InventoryScreenState extends State<InventoryScreen>
       // Client-side search filter
       final itemName = (data['name'] as String? ?? 'Unnamed Item').toLowerCase();
       if (_searchQuery.isNotEmpty && !itemName.contains(_searchQuery)) {
-        continue; // Skip item if it doesn't match search
+        continue;
       }
       
       final category = data['category'] as String? ?? 'Other';
@@ -269,7 +239,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     return groupedItems;
   }
   
-  // 11. Helper to get an icon for each category
   IconData _getIconForCategory(String? category) {
     switch (category) {
       case 'Dairy': return Icons.icecream_outlined;
@@ -278,26 +247,24 @@ class _InventoryScreenState extends State<InventoryScreen>
       case 'Meat': return Icons.kebab_dining_outlined;
       case 'Pantry': return Icons.store_mall_directory_outlined;
       case 'Beverage': return Icons.local_bar_outlined;
-      case 'Congélateur': return Icons.ac_unit; // Freezer
-      default: return Icons.takeout_dining_outlined; // Other
+      case 'Congélateur': return Icons.ac_unit;
+      default: return Icons.takeout_dining_outlined;
     }
   }
 
-  // 12. New widget for the "Empty State" from your design
   Widget _buildEmptyState({bool isSearch = false}) {
-    // Selects the icon based on context
-    IconData icon = Icons.eco_outlined; // Default
+    String image = "assets/images/discu.png";
     if (isSearch) {
-      icon = Icons.search_off;
+      image = "assets/images/discu.png";
     } else if (_selectedLocation == "Congélateur") {
-      icon = Icons.ac_unit_outlined;
+      image = "assets/images/conge.png";
     } else if (_selectedLocation == "Frigo") {
-      icon = Icons.kitchen_outlined;
+      image = "assets/images/fridge.png";
     } else if (_selectedLocation == "Placard") {
-      icon = Icons.store_mall_directory_outlined;
+      image = "assets/images/pant.png";
     }
 
-    String title = isSearch 
+    String title = isSearch
       ? "No results found" 
       : "Your ${_selectedLocation.toLowerCase()} is empty";
       
@@ -305,18 +272,20 @@ class _InventoryScreenState extends State<InventoryScreen>
       ? "Try a different search term."
       : "Tap the + button to add an item or scan a receipt.";
 
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 80,
-              color: Colors.grey[400],
+            Image.asset(
+              image,
+              width: 250,
+              height: 250,
+              fit: BoxFit.contain,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Text(
               title,
               style: Theme.of(context).textTheme.headlineSmall,
@@ -336,20 +305,12 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
   }
 
-  // ---------------------------------
-  // THE NEW BUILD() METHOD
-  // ---------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Inventory'),
         centerTitle: true,
-        // TODO: Implement navigation drawer
-        // leading: IconButton(
-        //   icon: const Icon(Icons.menu),
-        //   onPressed: () { /* Open Drawer */ },
-        // ),
         actions: [
           // TODO: Implement notifications screen
           // IconButton(
@@ -380,10 +341,8 @@ class _InventoryScreenState extends State<InventoryScreen>
         ),
       ),
 
-      // 14. The body with Search + List
       body: Column(
         children: [
-          // 15. The Search Bar from your design
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -404,7 +363,6 @@ class _InventoryScreenState extends State<InventoryScreen>
             ),
           ),
 
-          // 16. The Filtered & Grouped List
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _getInventoryStream(),
@@ -416,10 +374,9 @@ class _InventoryScreenState extends State<InventoryScreen>
                   return const Center(child: Text("An error occurred."));
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return _buildEmptyState(); // Empty state for the current tab
+                  return _buildEmptyState();
                 }
 
-                // Update the Provider (your existing logic)
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   final itemNames = snapshot.data!.docs.map((item) {
                     final data = item.data() as Map<String, dynamic>;
@@ -428,18 +385,14 @@ class _InventoryScreenState extends State<InventoryScreen>
                   context.read<InventoryProvider>().updateInventory(itemNames);
                 });
                 
-                // 17. Group items by Category AND filter by Search
                 final groupedItems = _groupItems(snapshot.data!.docs);
                 
                 if (groupedItems.isEmpty) {
-                  // If search returns no results
                   return _buildEmptyState(isSearch: true);
                 }
 
-                // 18. Build the grouped list
-                // We use ListView.separated for clean dividers
                 return ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 80), // Space for FAB
+                  padding: const EdgeInsets.only(bottom: 80),
                   itemCount: groupedItems.keys.length,
                   separatorBuilder: (context, index) => const Divider(
                     height: 1, 
@@ -449,8 +402,6 @@ class _InventoryScreenState extends State<InventoryScreen>
                   itemBuilder: (context, index) {
                     final category = groupedItems.keys.elementAt(index);
                     final itemsInCategory = groupedItems[category]!;
-
-                    // Return a full section (Title + Items)
                     return _buildCategorySection(category, itemsInCategory);
                   },
                 );
@@ -470,7 +421,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
   }
 
-  // 19. Widget for the Category Section (Title + Items)
   Widget _buildCategorySection(String category, List<QueryDocumentSnapshot> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,28 +447,24 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
   }
 
-  // 20. Widget for the individual Item Card (New Design)
   Widget _buildItemCard(QueryDocumentSnapshot item) {
     final data = item.data() as Map<String, dynamic>;
     final String itemName = data['name'] ?? 'Unnamed Item';
     final int itemQuantity = data["quantity"] ?? 1;
     final Timestamp? expirationDate = data['expirationDate'];
     
-    // Calculate status
     final status = _getExpirationStatus(expirationDate);
     final statusText = status['text'] as String;
     final statusColor = status['color'] as Color;
-
     final bool isLoading = _loadingItems.contains(item.id);
 
-    // Using a "Card" to match the design
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: Card(
-        elevation: 0, // Flat design
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
-          side: BorderSide(color: Colors.grey[300]!), // Light border
+          side: BorderSide(color: Colors.grey[300]!),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -533,7 +479,6 @@ class _InventoryScreenState extends State<InventoryScreen>
               child: const Icon(Icons.delete, color: Colors.white),
             ),
             child: ListTile(
-              // Icon from design
               leading: CircleAvatar(
                 backgroundColor: Colors.green[50],
                 child: Icon(
@@ -542,14 +487,12 @@ class _InventoryScreenState extends State<InventoryScreen>
                 ),
               ),
               
-              // Title and Expiration
               title: Text(itemName, style: const TextStyle(fontWeight: FontWeight.w600)),
               subtitle: Text(
                 statusText,
                 style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
               ),
 
-              // Quantity Counter
               trailing: isLoading
                   ? const SizedBox(
                       width: 48,

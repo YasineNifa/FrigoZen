@@ -142,6 +142,39 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     }
   }
 
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/shopping.png',
+              width: 250,
+              height: 250,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Your shopping list is empty",
+              style: Theme.of(context).textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Add an item using the field above to get started.",
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Colors.grey[600]
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,18 +186,27 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: 
+                  TextField(
                     controller: _textController,
-                    decoration: const InputDecoration(
-                      labelText: 'Add to shopping list...',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      hintText: 'Add to shopping list...',
+                      prefixIcon: const Icon(Icons.shop),
+                      filled: true,
+                      fillColor: Theme.of(context).brightness == Brightness.light 
+                            ? Colors.grey[200] 
+                            : Colors.grey[800],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                        borderSide: BorderSide.none,
                     ),
-                    onSubmitted: (_) => _addItem(),
+                  ),
+                  onSubmitted: (_) => _addItem(),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.add_shopping_cart),
+                  icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
                   onPressed: _addItem,
                   style: IconButton.styleFrom(
                     backgroundColor: Colors.green[400],
@@ -172,8 +214,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   ),
                 ),
               ],
-            ),
+            )
           ),
+
 
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -183,9 +226,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    child: Text("The shopping list is empty."),
-                  );
+                  return _buildEmptyState();
                 }
 
                 final items = snapshot.data!.docs;
@@ -223,8 +264,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                         child: const Icon(Icons.delete, color: Colors.white),
                       ),
                       child: ListTile(
-                        // La case à cocher
                         leading: Checkbox(
+                          activeColor: Colors.green[400],
                           value: isChecked,
                           onChanged: (_) => _toggleItem(item.id, isChecked),
                         ),
@@ -233,12 +274,11 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                           style: TextStyle(
                             decoration: isChecked
                                 ? TextDecoration
-                                      .lineThrough // Barré si coché
+                                      .lineThrough
                                 : TextDecoration.none,
-                            color: isChecked ? Colors.grey[600] : null,
+                            color: isChecked ? Colors.grey[600] : Colors.black,
                           ),
                         ),
-                        // Bouton pour supprimer (alternative au swipe)
                         trailing: IconButton(
                           icon: const Icon(Icons.clear),
                           onPressed: () => _deleteItem(item.id),
@@ -255,8 +295,17 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       floatingActionButton: _checkedItems.isEmpty
           ? null
           : FloatingActionButton.extended(
-              icon: const Icon(Icons.check),
-              label: Text('Add ${_checkedItems.length} item(s) to Inventory'),
+              icon: const Icon(
+                Icons.check,
+                color: Color.fromARGB(237, 255, 255, 255),
+              ),
+              label: Text(
+                'Add ${_checkedItems.length} item(s) to Inventory', 
+                style: const TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.w600, color: Color.fromARGB(237, 255, 255, 255)
+                )
+              ),
+              backgroundColor: Colors.green[400],
               onPressed: () {
                 _moveCheckedItemsToInventory(_checkedItems);
               },

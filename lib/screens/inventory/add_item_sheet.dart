@@ -81,7 +81,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
       child: Form(
         key: _formKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Take the least vertical space
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Add New Item',
