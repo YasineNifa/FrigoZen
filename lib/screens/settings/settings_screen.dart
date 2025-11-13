@@ -65,27 +65,18 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.cloud_upload),
             title: const Text('Tester le Backend (helloWorld)'),
             onTap: () async {
-              // 3. C'est ici qu'on appelle la fonction
               try {
-                // Initialiser l'instance des fonctions
-                final functions = FirebaseFunctions.instanceFor(region: "us-central1"); // Mettez votre région si différente
-
-                // Obtenir la référence de notre fonction par son nom
+                final functions = FirebaseFunctions.instanceFor(region: "us-central1");
                 final callable = functions.httpsCallable('helloWorld');
 
-                // Afficher un "loading"
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Appel au backend en cours...')),
                 );
 
-                // Appeler la fonction (on n'envoie pas de données)
                 final result = await callable.call();
-
-                // 4. On a la réponse !
                 final data = result.data as Map<String, dynamic>;
                 final message = data['message'];
-                
-                // Afficher le message de succès
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Succès : $message'),
@@ -94,7 +85,6 @@ class SettingsScreen extends StatelessWidget {
                 );
 
               } on FirebaseFunctionsException catch (error) {
-                // 5. Gérer les erreurs (ex: non connecté)
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Erreur : ${error.message}'),
@@ -102,7 +92,46 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 );
               } catch (error) {
-                // Gérer les autres erreurs
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Erreur inconnue : $error'),
+                    backgroundColor: Colors.red[700],
+                  ),
+                );
+              }
+            },
+          ),
+
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.cloud_upload),
+            title: const Text('Tester le Backend (Canonicalize Name)'),
+            onTap: () async {
+              try {
+                final functions = FirebaseFunctions.instanceFor(region: "us-central1");
+                final callable = functions.httpsCallable('canonicalizeName');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Appel au backend en cours...')),
+                );
+                final result = await callable.call({'productName': 'mlik'});
+                final data = result.data as Map<String, dynamic>;
+                final message = data['canonicalName'];
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Succès : $message'),
+                    backgroundColor: Colors.green[700],
+                  ),
+                );
+
+              } on FirebaseFunctionsException catch (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Erreur : ${error.message}'),
+                    backgroundColor: Colors.red[700],
+                  ),
+                );
+              } catch (error) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Erreur inconnue : $error'),
@@ -114,6 +143,10 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
+
+
+
+      
     );
   }
 }
