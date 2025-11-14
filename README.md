@@ -19,6 +19,11 @@ samples, guidance on mobile development, and a full API reference.
 
 # TODO:
 - Donner la possibilité à l'utilisateur de changer la date péremption
+- Traduction
+- Freemium & Premium
+- Update the name of the product
+
+- Ausgaben
 
 
 {items: [{quantity: 3, name: Limes, dvm: 7, location: Frigo}, {quantity: 1, name: Jumbo Fries, dvm: 7, location: Congélateur}, {quantity: 1, name: Wafer Salami, dvm: 14, location: Frigo}, {quantity: 1, name: Choco Puffs, dvm: 365, location: Placard}, {quantity: 1, name: Sugar, dvm: 365, location: Placard}, {quantity: 1, name: Pasta Sauce, dvm: 365, location: Placard}, {quantity: 1, name: Veg. Fat Spread, dvm: 30, location: Frigo}, {quantity: 1, name: Olives, dvm: 365, location: Placard}, {quantity: 1, name: Premium Cola, dvm: 30, location: Placard}, {quantity: 1, name: Choc Chip, dvm: 30, location: Placard}, {quantity: 1, name: RaspCherryCakes, dvm: 14, location: Placard}, {quantity: 1, name: Dry Roasted Peanut, dvm: 365, location: Placard}]}
