@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/services/inventory_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/main.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
@@ -14,9 +14,8 @@ class InventoryScreen extends StatefulWidget {
   State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
-class _InventoryScreenState extends State<InventoryScreen>
-    with SingleTickerProviderStateMixin {
-      
+class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProviderStateMixin {
+  final _inventoryService = InventoryService();
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
 
@@ -56,142 +55,33 @@ class _InventoryScreenState extends State<InventoryScreen>
   void _handleSearch() {
     setState(() {
       _searchQuery = _searchController.text.toLowerCase().trim();
-      // Rebuilds the StreamBuilder by applying the search query in the _groupItems function
     });
-  }
-
-  // 7. Modified Stream function to filter by Tab (location)
-  Stream<QuerySnapshot> _getInventoryStream() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return Stream.empty();
-    }
-
-    Query query = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('inventory');
-
-    // Apply the Tab filter (Firestore query)
-    if (_selectedLocation != "Tout") {
-      query = query.where('location', isEqualTo: _selectedLocation);
-    }
-    
-    // We will order by name to make grouping easier
-    // The search filter itself will be applied client-side
-    query = query.orderBy('name');
-
-    return query.snapshots();
-  }
-
-  // Delete an item from the inventory
-  void _deleteItem(String docId) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('inventory')
-        .doc(docId)
-        .delete();
   }
 
   void _incrementItem(String docId, int currentQuantity) async {
-    setState(() {
-      _loadingItems.add(docId);
-    });
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('inventory')
-        .doc(docId)
-        .update({'quantity': currentQuantity + 1});
-
-    if (mounted) {
-      setState(() {
-        _loadingItems.remove(docId);
-      });
+    setState(() => _loadingItems.add(docId));
+    try {
+      await _inventoryService.incrementItemQuantity(docId, currentQuantity);
+    } catch (e) {
+      print("Error incrementing item: $e");
+    } finally {
+      if (mounted) {
+        setState(() => _loadingItems.remove(docId));
+      }
     }
   }
 
   void _decrementItem(String docId, int currentQuantity) async {
-    setState(() {
-      _loadingItems.add(docId);
-    });
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final docRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('inventory')
-        .doc(docId);
-
-    if (currentQuantity <= 1) {
-      _deleteItem(docId);
-      return;
-    } 
+    setState(() => _loadingItems.add(docId));
     try {
-      // LOGIQUE FIFO (Premier Entré, Premier Sorti)
-      
-      // On récupère l'état actuel des lots
-      final doc = await docRef.get();
-      if (!doc.exists) {
-        throw Exception("Document not found");
-      }
-      
-      final data = doc.data() as Map<String, dynamic>;
-      List<dynamic> batches = List<dynamic>.from(data['batches'] ?? []);
-      
-      // On trie les lots pour avoir le plus ancien en premier
-      batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
-      
-      if (batches.isEmpty) {
-        throw Exception("No batches to decrement");
-      }
-      
-      // On modifie le premier lot (le plus ancien)
-      if (batches.first['quantity'] > 1) {
-        // Cas A: Le lot a > 1 : on décrémente juste sa quantité
-        batches.first['quantity'] = batches.first['quantity'] - 1;
-      } else {
-        // Cas B: Le lot a 1 : on supprime ce lot du tableau
-        batches.removeAt(0);
-      }
-      
-      // On recalcule la quantité totale
-      int newTotalQuantity = currentQuantity - 1;
-      
-      // On met à jour le document dans Firestore
-      await docRef.update({
-        'batches': batches,
-        'totalQuantity': newTotalQuantity,
-        'earliestExpirationDate': _getEarliestDate(batches),
-      });
-
-    } catch(e) {
-      // Gérer l'erreur
+      await _inventoryService.decrementItemQuantity(docId, currentQuantity);
+    } catch (e) {
       print("Error decrementing item: $e");
     } finally {
       if (mounted) {
-        setState(() {
-          _loadingItems.remove(docId);
-        });
+        setState(() => _loadingItems.remove(docId));
       }
     }
-  }
-
-  Timestamp _getEarliestDate(List<dynamic> batches) {
-    if (batches.isEmpty) {
-      // S'il n'y a plus de lots, on met une date dans le futur lointain
-      return Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch + 99999999999);
-    }
-    batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
-    return batches.first['expirationDate'];
   }
 
   void _showImageSourceDialog(BuildContext context) {
@@ -417,7 +307,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _getInventoryStream(),
+              stream: _inventoryService.getInventoryStream(location: _selectedLocation),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -523,7 +413,7 @@ class _InventoryScreenState extends State<InventoryScreen>
           child: Dismissible(
             key: Key(item.id),
             direction: DismissDirection.endToStart,
-            onDismissed: (direction) => _deleteItem(item.id),
+            onDismissed: (direction) => _inventoryService.removeItemFromInventory(item.id),
             background: Container(
               color: Colors.red[700],
               alignment: Alignment.centerRight,

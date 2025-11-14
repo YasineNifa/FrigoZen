@@ -8,6 +8,18 @@ class InventoryService {
       .doc(FirebaseAuth.instance.currentUser?.uid)
       .collection('inventory');
 
+  Future<void> removeItemFromInventory(String documentId) async {
+    await _inventoryCollection.doc(documentId).delete();
+  }
+
+  Future<void> updateItem(String documentId, Map<String, dynamic> data) async {
+    await _inventoryCollection.doc(documentId).update(data);
+  }
+
+  Future<DocumentSnapshot> getInventoryDocument(String documentId) async {
+    return await _inventoryCollection.doc(documentId).get();
+  }
+
   Future<void> upsertItemToInventory({
     required String name,
     required String canonicalName,
@@ -38,7 +50,7 @@ class InventoryService {
       await _inventoryCollection.doc(existingDoc.id).update({
         'batches': newBatches,
         'totalQuantity': newTotalQuantity,
-        'earliestExpirationDate': _getEarliestDate(newBatches),
+        'earliestExpirationDate': getEarliestDate(newBatches),
         'name': name, 
         'category': category ?? data['category'] ?? 'Other',
         'location': location ?? data['location'] ?? 'Fridge',
@@ -69,12 +81,65 @@ class InventoryService {
     return null;
   }
 
-  Timestamp _getEarliestDate(List<dynamic> batches) {
+  Timestamp getEarliestDate(List<dynamic> batches) {
     if (batches.isEmpty) {
       return Timestamp.now();
     }
     // Sort to find the earliest (closest) date
     batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
     return batches.first['expirationDate'];
+  }
+
+  Stream<QuerySnapshot> getInventoryStream({String location = "Tout"}) {
+    if (_userId == null) {
+      return Stream.empty();
+    }
+
+    Query query = _inventoryCollection;
+
+    if (location != "Tout") {
+      query = query.where('location', isEqualTo: location);
+    }
+    
+    query = query.orderBy('name');
+
+    return query.snapshots();
+  }
+
+  Future<void> incrementItemQuantity(String docId, int currentQuantity) async {
+    await updateItem(docId, {'totalQuantity': currentQuantity + 1});
+  }
+
+  Future<void> decrementItemQuantity(String docId, int currentQuantity) async {
+    if (currentQuantity <= 1) {
+      await removeItemFromInventory(docId);
+      return;
+    }
+
+    final doc = await getInventoryDocument(docId);
+    if (!doc.exists) {
+      throw Exception("Document not found");
+    }
+    
+    final data = doc.data() as Map<String, dynamic>;
+    List<dynamic> batches = List<dynamic>.from(data['batches'] ?? []);
+    
+    batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
+    
+    if (batches.isEmpty) {
+      throw Exception("No batches to decrement");
+    }
+    
+    if (batches.first['quantity'] > 1) {
+      batches.first['quantity'] = batches.first['quantity'] - 1;
+    } else {
+      batches.removeAt(0);
+    }
+    
+    await updateItem(docId, {
+      'totalQuantity': currentQuantity - 1,
+      'batches': batches,
+      'earliestExpirationDate': getEarliestDate(batches),
+    });
   }
 }
