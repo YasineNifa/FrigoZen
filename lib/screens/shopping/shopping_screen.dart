@@ -15,6 +15,7 @@ class ShoppingScreen extends StatefulWidget {
 class _ShoppingScreenState extends State<ShoppingScreen> {
   final _textController = TextEditingController();
   bool _isAddingItem = false;
+  bool _isMovingItems = false;
   List<QueryDocumentSnapshot> _checkedItems = [];
 
   // Return the CollectionReference for the shopping list for the current user
@@ -113,6 +114,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   void _moveCheckedItemsToInventory(
     List<QueryDocumentSnapshot> checkedItems,
   ) async {
+    if (_isMovingItems) return;
+    setState(() { _isMovingItems = true; });
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -159,11 +163,17 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         );
       }
     } catch (error) {
-      // Gérer les erreurs
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error moving items: ${error.toString()}")),
         );
+      }
+    } finally{
+      if (mounted) {
+        setState(() { 
+          _isMovingItems = false;
+          _checkedItems.clear();
+        });
       }
     }
   }
@@ -327,13 +337,13 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 color: Color.fromARGB(237, 255, 255, 255),
               ),
               label: Text(
-                'Add ${_checkedItems.length} item(s) to Inventory', 
+                _isMovingItems ? "Adding..." : 'Add ${_checkedItems.length} item(s) to Inventory', 
                 style: const TextStyle(
                   fontSize: 14, fontWeight: FontWeight.w600, color: Color.fromARGB(237, 255, 255, 255)
                 )
               ),
               backgroundColor: Colors.green[400],
-              onPressed: () {
+              onPressed: _isMovingItems ? null : () {
                 _moveCheckedItemsToInventory(_checkedItems);
               },
             ),
