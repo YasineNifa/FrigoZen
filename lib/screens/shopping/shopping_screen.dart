@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/main.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
@@ -13,6 +14,7 @@ class ShoppingScreen extends StatefulWidget {
 
 class _ShoppingScreenState extends State<ShoppingScreen> {
   final _textController = TextEditingController();
+  bool _isAddingItem = false;
   List<QueryDocumentSnapshot> _checkedItems = [];
 
   // Return the CollectionReference for the shopping list for the current user
@@ -36,40 +38,62 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     final itemName = _textController.text.trim();
     if (itemName.isEmpty) return;
 
-    // "listen: false" est important, on ne fait que lire la donnée
-    // Get the provider
-    final inventory = context.read<InventoryProvider>();
+    setState(() { _isAddingItem = true; });
+    FocusScope.of(context).unfocus(); // Ferme le clavier
 
-    // VÉRIFICATION "ANTI-DOUBLON"
-    if (inventory.doesItemExist(itemName)) {
-      // Alert
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "💡 Attention ! You already have \"$itemName\" in your inventory !",
+    try{
+      final functions = FirebaseFunctions.instanceFor(region: "us-central1");
+      final callable = functions.httpsCallable('canonicalizeName');
+      final result = await callable.call({'productName': itemName});
+      final String canonicalName = result.data['canonicalName'] ?? itemName;
+
+      // "listen: false" est important, on ne fait que lire la donnée
+      // Get the provider
+      final inventory = context.read<InventoryProvider>();
+      // VÉRIFICATION "ANTI-DOUBLON"
+      if (inventory.doesItemExist(canonicalName)) {
+        // Alert
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "💡 Attention ! You already have \"$itemName\" in your inventory !",
+            ),
+            backgroundColor: Colors.blue[700],
+            action: SnackBarAction(
+              label: "Add Anyway",
+              textColor: Colors.white,
+              onPressed: () {
+                // _saveItemToFirebase(itemName);
+                _saveItemToFirebase(itemName, canonicalName);
+              },
+            ),
           ),
-          backgroundColor: Colors.blue[700],
-          action: SnackBarAction(
-            label: "Add Anyway",
-            textColor: Colors.white,
-            onPressed: () {
-              _saveItemToFirebase(itemName);
-            },
-          ),
-        ),
-      );
-      // On n'ajoute pas tout de suite, on attend que l'utilisateur clique "Ajouter quand même"
+        );
+        // On n'ajoute pas tout de suite, on attend que l'utilisateur clique "Ajouter quand même"
+        _textController.clear();
+        FocusScope.of(context).unfocus(); // Ferme le clavier
+      } else {
+        // Save directly to Firebase if no duplicate found
+        // _saveItemToFirebase(itemName);
+        _saveItemToFirebase(itemName, canonicalName);
+        
+      }
+    }catch (error) {
+       ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${error.toString()}"), backgroundColor: Colors.red[700]),
+        );
+    } finally {
+      if (mounted) {
+        setState(() { _isAddingItem = false; });
+      }
       _textController.clear();
-      FocusScope.of(context).unfocus(); // Ferme le clavier
-    } else {
-      // Save directly to Firebase if no duplicate found
-      _saveItemToFirebase(itemName);
     }
   }
 
-  void _saveItemToFirebase(String itemName) {
+  void _saveItemToFirebase(String itemName, String canonicalName) {
     _getShoppingListCollection().add({
       'name': itemName,
+      'canonicalName': canonicalName,
       'isChecked': false,
       'createdAt': Timestamp.now(),
     });
@@ -102,12 +126,14 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
     for (final itemDoc in checkedItems) {
       final data = itemDoc.data() as Map<String, dynamic>;
-      final itemName = data['name'];
+      final String itemName = data['name'] ?? 'Unknown Item';
+      final String canonicalName = data['canonicalName'] ?? itemName;
 
       // Add to the inventory collection
       final newInventoryItemRef = inventoryCollection.doc();
       batch.set(newInventoryItemRef, {
         'name': itemName,
+        'canonicalName': canonicalName,
         'location':
             'Frigo', //By default, we place new items in the fridge (TODO: let user choose)
         'createdAt': Timestamp.now(),
@@ -128,7 +154,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             content: Text(
               "${checkedItems.length} item(s) moved to Inventory successfully!",
             ),
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: Colors.green[700],
           ),
         );
       }
@@ -201,7 +227,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                         borderSide: BorderSide.none,
                     ),
                   ),
-                  onSubmitted: (_) => _addItem(),
+                  enabled: !_isAddingItem, 
+                  onSubmitted: (_) => _isAddingItem ? null : _addItem(),
                   ),
                 ),
                 const SizedBox(width: 8),

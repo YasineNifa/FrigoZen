@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+ import 'package:cloud_functions/cloud_functions.dart';
 
 class AddItemSheet extends StatefulWidget {
   const AddItemSheet({super.key});
@@ -35,10 +36,17 @@ class _AddItemSheetState extends State<AddItemSheet> {
         _isLoading = true;
       });
 
+      final String userTypedName = _nameController.text.trim();
       try {
+        final functions = FirebaseFunctions.instanceFor(region: "us-central1");
+        final callable = functions.httpsCallable('canonicalizeName');
+        final result = await callable.call({'productName': userTypedName});
+
+        final String canonicalName = result.data['canonicalName'] ?? userTypedName;
         // Add the new article to the collection
         await _getInventoryCollection().add({
-          'name': _nameController.text.trim(),
+          'name': userTypedName,
+          'canonicalName': canonicalName,
           'quantity': _quantity,
           'location': 'Frigo', // TODO: Make dynamic later by using AI
           'createdAt': Timestamp.now(),

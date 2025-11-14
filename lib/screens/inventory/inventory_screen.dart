@@ -380,7 +380,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   final itemNames = snapshot.data!.docs.map((item) {
                     final data = item.data() as Map<String, dynamic>;
-                    return data['name'] as String;
+                    return data['canonicalName'] as String? ?? data['name'] as String;
                   }).toList();
                   context.read<InventoryProvider>().updateInventory(itemNames);
                 });
