@@ -125,21 +125,73 @@ class _InventoryScreenState extends State<InventoryScreen>
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    final docRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .collection('inventory')
+        .doc(docId);
+
     if (currentQuantity <= 1) {
       _deleteItem(docId);
-    } else {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('inventory')
-          .doc(docId)
-          .update({'quantity': currentQuantity - 1});
-    }
-    if (mounted) {
-      setState(() {
-        _loadingItems.remove(docId);
+      return;
+    } 
+    try {
+      // LOGIQUE FIFO (Premier Entré, Premier Sorti)
+      
+      // On récupère l'état actuel des lots
+      final doc = await docRef.get();
+      if (!doc.exists) {
+        throw Exception("Document not found");
+      }
+      
+      final data = doc.data() as Map<String, dynamic>;
+      List<dynamic> batches = List<dynamic>.from(data['batches'] ?? []);
+      
+      // On trie les lots pour avoir le plus ancien en premier
+      batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
+      
+      if (batches.isEmpty) {
+        throw Exception("No batches to decrement");
+      }
+      
+      // On modifie le premier lot (le plus ancien)
+      if (batches.first['quantity'] > 1) {
+        // Cas A: Le lot a > 1 : on décrémente juste sa quantité
+        batches.first['quantity'] = batches.first['quantity'] - 1;
+      } else {
+        // Cas B: Le lot a 1 : on supprime ce lot du tableau
+        batches.removeAt(0);
+      }
+      
+      // On recalcule la quantité totale
+      int newTotalQuantity = currentQuantity - 1;
+      
+      // On met à jour le document dans Firestore
+      await docRef.update({
+        'batches': batches,
+        'totalQuantity': newTotalQuantity,
+        'earliestExpirationDate': _getEarliestDate(batches),
       });
+
+    } catch(e) {
+      // Gérer l'erreur
+      print("Error decrementing item: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingItems.remove(docId);
+        });
+      }
     }
+  }
+
+  Timestamp _getEarliestDate(List<dynamic> batches) {
+    if (batches.isEmpty) {
+      // S'il n'y a plus de lots, on met une date dans le futur lointain
+      return Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch + 99999999999);
+    }
+    batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
+    return batches.first['expirationDate'];
   }
 
   void _showImageSourceDialog(BuildContext context) {
@@ -450,8 +502,8 @@ class _InventoryScreenState extends State<InventoryScreen>
   Widget _buildItemCard(QueryDocumentSnapshot item) {
     final data = item.data() as Map<String, dynamic>;
     final String itemName = data['name'] ?? 'Unnamed Item';
-    final int itemQuantity = data["quantity"] ?? 1;
-    final Timestamp? expirationDate = data['expirationDate'];
+    final int itemQuantity = data["totalQuantity"] ?? 1;
+    final Timestamp? expirationDate = data['earliestExpirationDate'];
     
     final status = _getExpirationStatus(expirationDate);
     final statusText = status['text'] as String;

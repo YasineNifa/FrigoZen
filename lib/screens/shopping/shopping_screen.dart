@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frigo_zen/main.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:frigo_zen/main.dart';
+import 'package:frigo_zen/services/inventory_service.dart';
+
 
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
@@ -64,7 +66,6 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
               label: "Add Anyway",
               textColor: Colors.white,
               onPressed: () {
-                // _saveItemToFirebase(itemName);
                 _saveItemToFirebase(itemName, canonicalName);
               },
             ),
@@ -74,8 +75,6 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         _textController.clear();
         FocusScope.of(context).unfocus(); // Ferme le clavier
       } else {
-        // Save directly to Firebase if no duplicate found
-        // _saveItemToFirebase(itemName);
         _saveItemToFirebase(itemName, canonicalName);
         
       }
@@ -111,53 +110,101 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     _getShoppingListCollection().doc(docId).delete();
   }
 
-  void _moveCheckedItemsToInventory(
-    List<QueryDocumentSnapshot> checkedItems,
-  ) async {
-    if (_isMovingItems) return;
+  // void _moveCheckedItemsToInventory(
+  //   List<QueryDocumentSnapshot> checkedItems,
+  // ) async {
+  //   if (_isMovingItems) return;
+  //   setState(() { _isMovingItems = true; });
+
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return;
+
+  //   final firestore = FirebaseFirestore.instance;
+  //   final userDocRef = firestore.collection('users').doc(user.uid);
+  //   final inventoryCollection = userDocRef.collection('inventory');
+  //   final shoppingListCollection = userDocRef.collection('shopping_list');
+
+  //   // Create a batch to perform multiple writes
+  //   final batch = firestore.batch();
+
+  //   for (final itemDoc in checkedItems) {
+  //     final data = itemDoc.data() as Map<String, dynamic>;
+  //     final String itemName = data['name'] ?? 'Unknown Item';
+  //     final String canonicalName = data['canonicalName'] ?? itemName;
+
+  //     // Add to the inventory collection
+  //     final newInventoryItemRef = inventoryCollection.doc();
+  //     batch.set(newInventoryItemRef, {
+  //       'name': itemName,
+  //       'canonicalName': canonicalName,
+  //       'location':
+  //           'Frigo', //By default, we place new items in the fridge (TODO: let user choose)
+  //       'createdAt': Timestamp.now(),
+  //     });
+
+  //     // Delete from the shopping list collection
+  //     batch.delete(shoppingListCollection.doc(itemDoc.id));
+  //   }
+
+  //   // Execute all the operations at once
+  //   try {
+  //     await batch.commit(); // Execute the batch
+
+  //     // Display a success message
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text(
+  //             "${checkedItems.length} item(s) moved to Inventory successfully!",
+  //           ),
+  //           backgroundColor: Colors.green[700],
+  //         ),
+  //       );
+  //     }
+  //   } catch (error) {
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Error moving items: ${error.toString()}")),
+  //       );
+  //     }
+  //   } finally{
+  //     if (mounted) {
+  //       setState(() { 
+  //         _isMovingItems = false;
+  //         _checkedItems.clear();
+  //       });
+  //     }
+  //   }
+  // }
+
+  void _moveCheckedItemsToInventory(List<QueryDocumentSnapshot> checkedItems) async {
+    if (_isMovingItems) return; 
     setState(() { _isMovingItems = true; });
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final firestore = FirebaseFirestore.instance;
-    final userDocRef = firestore.collection('users').doc(user.uid);
-    final inventoryCollection = userDocRef.collection('inventory');
-    final shoppingListCollection = userDocRef.collection('shopping_list');
-
-    // Create a batch to perform multiple writes
-    final batch = firestore.batch();
-
-    for (final itemDoc in checkedItems) {
-      final data = itemDoc.data() as Map<String, dynamic>;
-      final String itemName = data['name'] ?? 'Unknown Item';
-      final String canonicalName = data['canonicalName'] ?? itemName;
-
-      // Add to the inventory collection
-      final newInventoryItemRef = inventoryCollection.doc();
-      batch.set(newInventoryItemRef, {
-        'name': itemName,
-        'canonicalName': canonicalName,
-        'location':
-            'Frigo', //By default, we place new items in the fridge (TODO: let user choose)
-        'createdAt': Timestamp.now(),
-      });
-
-      // Delete from the shopping list collection
-      batch.delete(shoppingListCollection.doc(itemDoc.id));
-    }
-
-    // Execute all the operations at once
     try {
-      await batch.commit(); // Execute the batch
+      final inventoryService = InventoryService();
+      final shoppingListCollection = _getShoppingListCollection();
 
-      // Display a success message
+      for (final itemDoc in checkedItems) {
+        final data = itemDoc.data() as Map<String, dynamic>;
+        
+        final String name = data['name'] ?? 'Unknown Item';
+        final String canonicalName = data['canonicalName'] ?? name;
+        final int quantity = data['quantity'] ?? 1;
+
+        await inventoryService.upsertItemToInventory(
+          name: name,
+          canonicalName: canonicalName,
+          quantity: quantity,
+        );
+        
+        await shoppingListCollection.doc(itemDoc.id).delete();
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              "${checkedItems.length} item(s) moved to Inventory successfully!",
-            ),
+            content: Text("${checkedItems.length} item(s) moved to Inventory successfully!"),
             backgroundColor: Colors.green[700],
           ),
         );
@@ -168,9 +215,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           SnackBar(content: Text("Error moving items: ${error.toString()}")),
         );
       }
-    } finally{
+    } finally {
       if (mounted) {
-        setState(() { 
+        setState(() {
           _isMovingItems = false;
           _checkedItems.clear();
         });

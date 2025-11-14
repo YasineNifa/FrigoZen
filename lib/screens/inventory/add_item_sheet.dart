@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
- import 'package:cloud_functions/cloud_functions.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:frigo_zen/services/inventory_service.dart';
+
 
 class AddItemSheet extends StatefulWidget {
   const AddItemSheet({super.key});
@@ -16,20 +16,6 @@ class _AddItemSheetState extends State<AddItemSheet> {
   int _quantity = 1;
   bool _isLoading = false;
 
-  // Get the path to the user's inventory collection
-  CollectionReference _getInventoryCollection() {
-    // Get the currently logged-in user
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception("No user is currently logged in.");
-    }
-    // Return the path to THEIR inventory sub-collection
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('inventory');
-  }
-
   void _saveItem() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -37,21 +23,19 @@ class _AddItemSheetState extends State<AddItemSheet> {
       });
 
       final String userTypedName = _nameController.text.trim();
+      final int userQuantity = _quantity;
       try {
         final functions = FirebaseFunctions.instanceFor(region: "us-central1");
         final callable = functions.httpsCallable('canonicalizeName');
         final result = await callable.call({'productName': userTypedName});
-
         final String canonicalName = result.data['canonicalName'] ?? userTypedName;
-        // Add the new article to the collection
-        await _getInventoryCollection().add({
-          'name': userTypedName,
-          'canonicalName': canonicalName,
-          'quantity': _quantity,
-          'location': 'Frigo', // TODO: Make dynamic later by using AI
-          'createdAt': Timestamp.now(),
-        });
+        final inventoryService = InventoryService();
 
+        await inventoryService.upsertItemToInventory(
+        name: userTypedName,
+        canonicalName: canonicalName,
+        quantity: userQuantity,
+      );
         if (mounted) {
           Navigator.of(context).pop();
         }

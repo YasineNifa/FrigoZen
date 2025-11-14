@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frigo_zen/services/inventory_service.dart';
 
 // C'est notre nouvel écran. Il accepte la liste des articles de Gemini.
 class ValidationScreen extends StatefulWidget {
@@ -52,61 +53,139 @@ class _ValidationScreenState extends State<ValidationScreen> {
   // (On le fera dans une v2, pour l'instant on se concentre sur la validation)
 
   // La fonction finale : tout ajouter à l'inventaire
+  // Future<void> _addItemsToInventory() async {
+  //   setState(() { _isLoading = true; });
+
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return;
+
+  //   final batch = FirebaseFirestore.instance.batch();
+  //   final inventoryCollection = FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(user.uid)
+  //       .collection('inventory');
+
+  //   final now = Timestamp.now();
+  //   final nowMillis = now.millisecondsSinceEpoch;
+
+  //   try {
+  //     for (final item in _editableItems) {
+  //       final String canonicalName = item['canonicalName'] ?? item['name'];
+  //       final existingDoc = await _findExistingItem(canonicalName);
+  //       final int dvm = item['dvm'] ?? 7;
+  //       final int dvmMillis = dvm * 24 * 60 * 60 * 1000;
+  //       final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(nowMillis + dvmMillis);
+
+  //       final newBatch = {
+  //         'quantity': item['quantity'] ?? 1,
+  //         'expirationDate': expirationDate,
+  //         'addedAt': now,
+  //       };
+
+  //       if (existingDoc != null) {
+  //         final data = existingDoc.data() as Map<String, dynamic>;          
+  //         final List<dynamic> oldBatches = data['batches'] ?? [];
+  //         final newBatches = [...oldBatches, newBatch];
+          
+  //         // On recalcule la quantité totale
+  //         int newTotalQuantity = 0;
+  //         for (var batch in newBatches) {
+  //           newTotalQuantity += (batch['quantity'] as int? ?? 0);
+  //         }
+          
+  //         // On met à jour le document existant
+  //         await inventoryCollection.doc(existingDoc.id).update({
+  //           'batches': newBatches,
+  //           'totalQuantity': newTotalQuantity,
+  //           // On met à jour la date la plus proche (pour les alertes)
+  //           'earliestExpirationDate': _getEarliestDate(newBatches),
+  //         });
+
+  //       } else {
+  //         // CAS B : L'ARTICLE N'EXISTE PAS -> ON CRÉE (SET)
+  //         await inventoryCollection.add({
+  //           'name': item['name'] ?? 'Article inconnu',
+  //           'canonicalName': canonicalName,
+  //           'category': item['category'] ?? 'Other',
+  //           'location': item['location'] ?? 'Placard',
+  //           'totalQuantity': item['quantity'] ?? 1,
+  //           'batches': [newBatch], // On crée le tableau de lots
+  //           'earliestExpirationDate': expirationDate, // La date la plus proche est celle-ci
+  //           'createdAt': now,
+  //         });
+  //       }
+  //     }
+
+  //     if (mounted) {
+  //       // Afficher un succès
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text("${_editableItems.length} articles ajoutés à l'inventaire !"),
+  //           backgroundColor: Colors.green[700],
+  //         ),
+  //       );
+  //       // On ferme l'écran de validation
+  //       Navigator.of(context).pop();
+  //     }
+  //   } catch (error) {
+  //     if (mounted) {
+  //       setState(() { _isLoading = false; });
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Error : $error")),
+  //       );
+  //     }
+  //   }
+  // }
+
   Future<void> _addItemsToInventory() async {
     setState(() { _isLoading = true; });
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    // On utilise une "WriteBatch" pour tout ajouter en une seule opération
-    final batch = FirebaseFirestore.instance.batch();
-    final inventoryCollection = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('inventory');
-
-    final now = Timestamp.now();
-    final nowMillis = now.millisecondsSinceEpoch;
-
-    for (final item in _editableItems) {
-      // On crée une référence pour le nouvel article
-      final docRef = inventoryCollection.doc();
-
-      // On calcule la date de péremption estimée
-      final int dvm = item['dvm'] ?? 7; // 7 jours par défaut
-      final int dvmMillis = dvm * 24 * 60 * 60 * 1000; // DVM en millisecondes
-      final expirationDate = Timestamp.fromMillisecondsSinceEpoch(nowMillis + dvmMillis);
-
-      batch.set(docRef, {
-        'name': item['name'] ?? 'Article inconnu',
-        'quantity': item['quantity'] ?? 1,
-        'location': item['location'] ?? 'Placard',
-        'createdAt': now,
-        'expirationDate': expirationDate,
-        'category': item['category'] ?? 'Other',
-      });
-    }
-
     try {
-      // On "commit" le lot à la base de données
-      await batch.commit();
+      final inventoryService = InventoryService();
+      final now = Timestamp.now();
+      final nowMillis = now.millisecondsSinceEpoch;
 
+      for (final item in _editableItems) {
+        // 1. Get all the data from the IA
+        final String name = item['name'] ?? 'Article inconnu';
+        final String canonicalName = item['canonicalName'] ?? name;
+        final int quantity = item['quantity'] ?? 1;
+        final String category = item['category'] ?? 'Other';
+        final String location = item['location'] ?? 'Placard';
+        
+        // 2. Calculate expiration date
+        final int dvm = item['dvm'] ?? 7;
+        final int dvmMillis = dvm * 24 * 60 * 60 * 1000;
+        final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(nowMillis + dvmMillis);
+
+        // 3. Call the single service function
+        await inventoryService.upsertItemToInventory(
+          name: name,
+          canonicalName: canonicalName,
+          quantity: quantity,
+          expirationDate: expirationDate,
+          category: category,
+          location: location,
+        );
+      }
+
+      // 4. Tout a réussi
       if (mounted) {
-        // Afficher un succès
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("${_editableItems.length} articles ajoutés à l'inventaire !"),
+            content: Text('${_editableItems.length} articles mis à jour dans l\'inventaire !'),
             backgroundColor: Colors.green[700],
           ),
         );
-        // On ferme l'écran de validation
         Navigator.of(context).pop();
       }
     } catch (error) {
-      setState(() { _isLoading = false; });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur lors de l'ajout : $error")),
-      );
+      if (mounted) {
+        setState(() { _isLoading = false; });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur lors de la fusion : $error")),
+        );
+      }
     }
   }
 
@@ -216,7 +295,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
           : FloatingActionButton.extended(
               icon: const Icon(Icons.check),
               label: Text('Ajouter ${_editableItems.length} articles'),
-              onPressed: _addItemsToInventory, // Appelle notre fonction WriteBatch
+              onPressed: _addItemsToInventory,
             ),
     );
   }
