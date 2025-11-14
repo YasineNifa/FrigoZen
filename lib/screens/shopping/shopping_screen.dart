@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/main.dart';
+import 'package:frigo_zen/services/shopping_service.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 
 
@@ -15,26 +16,15 @@ class ShoppingScreen extends StatefulWidget {
 }
 
 class _ShoppingScreenState extends State<ShoppingScreen> {
+  final _shoppingService = ShoppingService();
   final _textController = TextEditingController();
   bool _isAddingItem = false;
   bool _isMovingItems = false;
   List<QueryDocumentSnapshot> _checkedItems = [];
 
-  // Return the CollectionReference for the shopping list for the current user
-  CollectionReference _getShoppingListCollection() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) throw Exception("No user logged in.");
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('shopping_list');
-  }
-
-  // Get a stream of the shopping list items
-  Stream<QuerySnapshot> _getShoppingListStream() {
-    return _getShoppingListCollection()
-        .orderBy('createdAt', descending: false) // Les plus anciens en haut
-        .snapshots();
+  void _saveItemToFirebase(String itemName, String canonicalName) {
+    _shoppingService.addItemToShoppingList(name: itemName, canonicalName: canonicalName);
+    _textController.clear();
   }
 
   void _addItem() async {
@@ -42,7 +32,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     if (itemName.isEmpty) return;
 
     setState(() { _isAddingItem = true; });
-    FocusScope.of(context).unfocus(); // Ferme le clavier
+    FocusScope.of(context).unfocus();
 
     try{
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
@@ -71,9 +61,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             ),
           ),
         );
-        // On n'ajoute pas tout de suite, on attend que l'utilisateur clique "Ajouter quand même"
         _textController.clear();
-        FocusScope.of(context).unfocus(); // Ferme le clavier
+        FocusScope.of(context).unfocus();
       } else {
         _saveItemToFirebase(itemName, canonicalName);
         
@@ -90,100 +79,12 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     }
   }
 
-  void _saveItemToFirebase(String itemName, String canonicalName) {
-    _getShoppingListCollection().add({
-      'name': itemName,
-      'canonicalName': canonicalName,
-      'isChecked': false,
-      'createdAt': Timestamp.now(),
-    });
-    _textController.clear();
-  }
-
-  void _toggleItem(String docId, bool currentStatus) {
-    _getShoppingListCollection().doc(docId).update({
-      'isChecked': !currentStatus,
-    });
-  }
-
-  void _deleteItem(String docId) {
-    _getShoppingListCollection().doc(docId).delete();
-  }
-
-  // void _moveCheckedItemsToInventory(
-  //   List<QueryDocumentSnapshot> checkedItems,
-  // ) async {
-  //   if (_isMovingItems) return;
-  //   setState(() { _isMovingItems = true; });
-
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   if (user == null) return;
-
-  //   final firestore = FirebaseFirestore.instance;
-  //   final userDocRef = firestore.collection('users').doc(user.uid);
-  //   final inventoryCollection = userDocRef.collection('inventory');
-  //   final shoppingListCollection = userDocRef.collection('shopping_list');
-
-  //   // Create a batch to perform multiple writes
-  //   final batch = firestore.batch();
-
-  //   for (final itemDoc in checkedItems) {
-  //     final data = itemDoc.data() as Map<String, dynamic>;
-  //     final String itemName = data['name'] ?? 'Unknown Item';
-  //     final String canonicalName = data['canonicalName'] ?? itemName;
-
-  //     // Add to the inventory collection
-  //     final newInventoryItemRef = inventoryCollection.doc();
-  //     batch.set(newInventoryItemRef, {
-  //       'name': itemName,
-  //       'canonicalName': canonicalName,
-  //       'location':
-  //           'Frigo', //By default, we place new items in the fridge (TODO: let user choose)
-  //       'createdAt': Timestamp.now(),
-  //     });
-
-  //     // Delete from the shopping list collection
-  //     batch.delete(shoppingListCollection.doc(itemDoc.id));
-  //   }
-
-  //   // Execute all the operations at once
-  //   try {
-  //     await batch.commit(); // Execute the batch
-
-  //     // Display a success message
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text(
-  //             "${checkedItems.length} item(s) moved to Inventory successfully!",
-  //           ),
-  //           backgroundColor: Colors.green[700],
-  //         ),
-  //       );
-  //     }
-  //   } catch (error) {
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text("Error moving items: ${error.toString()}")),
-  //       );
-  //     }
-  //   } finally{
-  //     if (mounted) {
-  //       setState(() { 
-  //         _isMovingItems = false;
-  //         _checkedItems.clear();
-  //       });
-  //     }
-  //   }
-  // }
-
   void _moveCheckedItemsToInventory(List<QueryDocumentSnapshot> checkedItems) async {
     if (_isMovingItems) return; 
     setState(() { _isMovingItems = true; });
 
     try {
       final inventoryService = InventoryService();
-      final shoppingListCollection = _getShoppingListCollection();
 
       for (final itemDoc in checkedItems) {
         final data = itemDoc.data() as Map<String, dynamic>;
@@ -197,8 +98,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           canonicalName: canonicalName,
           quantity: quantity,
         );
-        
-        await shoppingListCollection.doc(itemDoc.id).delete();
+        await _shoppingService.removeItemFromShoppingList(itemDoc.id);
       }
 
       if (mounted) {
@@ -304,7 +204,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _getShoppingListStream(),
+              stream: _shoppingService.getShoppingListStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -340,7 +240,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                     return Dismissible(
                       key: Key(item.id),
                       direction: DismissDirection.endToStart,
-                      onDismissed: (_) => _deleteItem(item.id),
+                      onDismissed: (_) => _shoppingService.removeItemFromShoppingList(item.id),
                       background: Container(
                         color: Colors.red[700],
                         alignment: Alignment.centerRight,
@@ -351,7 +251,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                         leading: Checkbox(
                           activeColor: Colors.green[400],
                           value: isChecked,
-                          onChanged: (_) => _toggleItem(item.id, isChecked),
+                          onChanged: (_) => _shoppingService.updateItem(item.id, {'isChecked': !isChecked}),
                         ),
                         title: Text(
                           itemName,
@@ -365,7 +265,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                         ),
                         trailing: IconButton(
                           icon: const Icon(Icons.clear),
-                          onPressed: () => _deleteItem(item.id),
+                          onPressed: () => _shoppingService.removeItemFromShoppingList(item.id),
                         ),
                       ),
                     );
