@@ -24,6 +24,7 @@ class InventoryService {
     required String name,
     required String canonicalName,
     required int quantity,
+    int? dvm,
     Timestamp? expirationDate,
     String? category,
     String? location,
@@ -31,9 +32,12 @@ class InventoryService {
   async {
     final now = Timestamp.now();
     final existingDoc = await _findExistingItem(canonicalName);
+    final int days = dvm ?? 7;
+    final int dvmMillis = days * 24 * 60 * 60 * 1000;
+    final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(now.millisecondsSinceEpoch + dvmMillis);
     final newBatch = {
       'quantity':quantity,
-      'expirationDate': expirationDate ?? Timestamp.fromMillisecondsSinceEpoch(now.millisecondsSinceEpoch + 7 * 24 * 60 * 60 * 1000),
+      'expirationDate': expirationDate,
       'addedAt': now,
     };
 

@@ -26,15 +26,22 @@ class _AddItemSheetState extends State<AddItemSheet> {
       final int userQuantity = _quantity;
       try {
         final functions = FirebaseFunctions.instanceFor(region: "us-central1");
-        final callable = functions.httpsCallable('canonicalizeName');
+        final callable = functions.httpsCallable('getSmartItemData');
         final result = await callable.call({'productName': userTypedName});
-        final String canonicalName = result.data['canonicalName'] ?? userTypedName;
+        final Map<String, dynamic> itemData = Map<String, dynamic>.from(result.data['item']);
+        final String canonicalName = itemData['canonicalName'] ?? userTypedName;
+        final int dvm = itemData['dvm'] ?? 7;
+        final String category = itemData['category'] ?? 'Other';
+        final String location = itemData['location'] ?? 'Frigo';
         final inventoryService = InventoryService();
 
         await inventoryService.upsertItemToInventory(
         name: userTypedName,
         canonicalName: canonicalName,
         quantity: userQuantity,
+        dvm: dvm,
+        category: category,
+        location: location,
       );
         if (mounted) {
           Navigator.of(context).pop();

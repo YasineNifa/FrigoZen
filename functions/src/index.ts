@@ -188,8 +188,8 @@ export const processReceiptGemini = onCall(
 // ---------------------------------------------
 // NOUVELLE FONCTION : CANONICALIZE NAME
 // ---------------------------------------------
-export const canonicalizeName = onCall(
-  {timeoutSeconds: 15},
+export const getSmartItemData = onCall(
+  {timeoutSeconds: 30},
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "You must be logged in.");
@@ -209,26 +209,34 @@ export const canonicalizeName = onCall(
 
     try {
       const prompt = `
-        You are a database normalizer. The user will provide a product name,
-        possibly with misspellings, descriptions, or in a different language.
+        You are a database normalizer for the FrigoZen app.
+        The user will provide a single product name, possibly with misspellings.
         
-        Your job is to correct, translate, and return the single, 
-        simplest, canonical English name for this product.
+        Your job is to analyze this name and return a structured JSON object.
+        - Correct spelling and translate to English for the canonicalName.
+        - Guess the quantity if specified (e.g., "6 eggs" -> 6).
+        - Estimate its storage location, category, and average shelf life (DVM).
 
         Respond ONLY with a JSON object in the format:
-        {"canonicalName": "..."}
-
+        {
+          "item": {
+            "canonicalName": "...", // English, simple name
+            "quantity": 1,          // Default 1
+            "dvm": 7,               // Default 7
+            "location": "...",      // Frigo, Placard, Congélateur
+            "category": "..."       // Dairy, Vegetable, Pantry, etc.
+          }
+        }
+        
         Example 1:
         Input: "liat"
-        Output: {"canonicalName": "Milk"}
-
+        Output: {"item": {"canonicalName": "Milk", "quantity": 1, "dvm": 7, 
+        "location": "Frigo", "category": "Dairy"}}
+        
         Example 2:
-        Input: "Bâtonnets poisson"
-        Output: {"canonicalName": "Fish Stick"}
-
-        Example 3:
-        Input: "Pommes de terre"
-        Output: {"canonicalName": "Potato"}
+        Input: "6 oeufs"
+        Output: {"item": {"canonicalName": "Egg", "quantity": 6, "dvm": 21, 
+        "location": "Frigo", "category": "Dairy"}}
         
         Input: "${productName}"
         Output:
@@ -246,8 +254,7 @@ export const canonicalizeName = onCall(
       logger.info(`Gemini Response: ${jsonText}`);
 
       const jsonData = JSON.parse(jsonText);
-      const canonicalName = jsonData.canonicalName;
-      return {success: true, canonicalName: canonicalName || productName};
+      return {success: true, item: jsonData.item};
     } catch (error) {
       logger.error("Error Gemini API (canonicalize):", error);
       throw new HttpsError(
