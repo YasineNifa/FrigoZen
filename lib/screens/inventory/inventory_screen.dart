@@ -494,6 +494,7 @@ void _triggerRecipeGeneration(BuildContext context) async {
   Widget _buildItemCard(QueryDocumentSnapshot item) {
     final data = item.data() as Map<String, dynamic>;
     final String itemName = data['name'] ?? 'Unnamed Item';
+    final String canonicalName = data['canonicalName'] ?? itemName;
     final int itemQuantity = data["totalQuantity"] ?? 1;
     final Timestamp? expirationDate = data['earliestExpirationDate'];
     
@@ -536,7 +537,6 @@ void _triggerRecipeGeneration(BuildContext context) async {
                 statusText,
                 style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
               ),
-
               trailing: isLoading
                   ? const SizedBox(
                       width: 48,
