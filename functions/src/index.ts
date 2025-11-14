@@ -2,6 +2,12 @@ import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import {ImageAnnotatorClient} from "@google-cloud/vision";
 import {VertexAI} from "@google-cloud/vertexai";
+// import * as admin from "firebase-admin";
+import {initializeApp} from "firebase-admin/app";
+import {getFirestore, Timestamp} from "firebase-admin/firestore";
+import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
+import {onMessagePublished} from "firebase-functions/v2/pubsub";
+
 
 // Initialiser le client de l'IA (on le met ici, en dehors de la fonction)
 // C'est une "bonne pratique" pour la performance (Cold Starts)
@@ -335,6 +341,121 @@ export const generateRecipes = onCall(
         "internal",
         "Error during recipe generation.",
       );
+    }
+  },
+);
+
+
+initializeApp();
+// LE NOM DE NOTRE SUJET. Il doit être identique dans Google Cloud.
+const EXPIRATION_CHECK_TOPIC = "daily-expiration-check";
+
+// ---------------------------------------------
+// NOUVELLE FONCTION : LE SCANNEUR DE PÉREMPTION
+// ---------------------------------------------
+export const checkExpirations = onMessagePublished(
+  EXPIRATION_CHECK_TOPIC,
+  async (event) => {
+    logger.info("Daily Expirations Scan... Starting.");
+
+    const db = getFirestore();
+    const messaging = getMessaging();
+    const now = new Date();
+
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+
+    // On calcule la date d'il y a 3 jours (pour les "périmés")
+    const threeDaysAgo = new Date(now);
+    threeDaysAgo.setDate(now.getDate() - 3);
+
+    try {
+      // all users
+      const usersSnapshot = await db.collection("users").get();
+      logger.info(`Scan ${usersSnapshot.size} users.`);
+
+      for (const userDoc of usersSnapshot.docs) {
+        const userId = userDoc.id;
+
+        // 3. Trouver les articles qui expirent "demain" pour cet utilisateur
+        // Nous cherchons les articles où la date la plus proche est :
+        // > (Il y a 3 jours) ET < (Demain)
+        const inventorySnapshot = await db
+          .collection("users")
+          .doc(userId)
+          .collection("inventory")
+          .where(
+            "earliestExpirationDate",
+            ">=",
+            Timestamp.fromDate(threeDaysAgo)
+          )
+          .where(
+            "earliestExpirationDate",
+            "<=",
+            Timestamp.fromDate(tomorrow)
+          )
+          .get();
+
+        if (inventorySnapshot.empty) {
+          continue; // Cet utilisateur n'a rien qui périme, on passe au suivant
+        }
+
+        // 4. On a trouvé des articles ! On prépare la notification.
+        const expiringItems = inventorySnapshot.docs.map(
+          (doc) => doc.data().name
+        );
+        const itemCount = expiringItems.length;
+        const messageBody = (
+          `🔔 ${itemCount} article(s) expire sooner` +
+          `: ${expiringItems.join(", ")}`
+        );
+
+        logger.info(
+          `Utilisateur ${userId} a ${itemCount} articles` +
+          `expirant. Corps: ${messageBody}`
+        );
+
+        // 5. Récupérer les "tokens" (adresses) de cet utilisateur
+        const tokensSnapshot = await db
+          .collection("users")
+          .doc(userId)
+          .collection("deviceTokens")
+          .get();
+        if (tokensSnapshot.empty) {
+          continue; // L'utilisateur n'a pas d'appareil enregistré
+        }
+
+        const tokens = tokensSnapshot.docs.map((doc) => doc.id);
+
+        // 6. Construire le message FCM
+        const message: MulticastMessage = {
+          tokens: tokens,
+          notification: {
+            title: "🔔 Alert Anti-Gaspi FrigoZen",
+            body: messageBody,
+            // body: messageBody.length > 220 ?
+            // `${messageBody.substring(0, 220)}...` : messageBody,
+          },
+          // "data" permet d'envoyer des infos à l'app si elle est ouverte
+          data: {screen: "inventory"},
+        };
+
+        // 7. Envoyer la notification !
+        const response = await messaging.sendEachForMulticast(message);
+        if (response.failureCount > 0) {
+          logger.warn(
+            "Échec d'envoi de notification à "+
+            `${response.failureCount} tokens.`
+          );
+          // Dans une V2, on pourrait ici supprimer les
+          // tokens invalides de la DB
+        }
+      }
+      logger.info("Daily Expirations Scan... Done");
+      return null;
+    } catch (error) {
+      logger.error("Error (checkExpirations):", error);
+      return null;
     }
   },
 );
