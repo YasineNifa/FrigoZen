@@ -264,3 +264,77 @@ export const getSmartItemData = onCall(
     }
   },
 );
+
+export const generateRecipes = onCall(
+  {timeoutSeconds: 60},
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "You must be logged in.");
+    }
+    const inventory = request.data.inventory; // JSON
+    if (!inventory) {
+      throw new HttpsError("invalid-argument", "Inventory data is required.");
+    }
+
+    logger.info("Generate recipes...");
+
+    try {
+      const prompt = `
+        Tu es un assistant culinaire pour l'application FrigoZen.
+        Ta mission est d'aider à réduire le gaspillage alimentaire.
+
+        Voici l'inventaire de l'utilisateur (en JSON), qui inclut les lots
+        d'articles et leurs dates de péremption :
+        ${JSON.stringify(inventory)}
+
+        Règles importantes :
+        1. **Priorité absolue :** Propose des recettes qui utilisent les 
+           articles dont la "earliestExpirationDate" est la plus proche.
+        2. **Priorité secondaire :** Utilise au maximum les articles que 
+           l'utilisateur possède déjà ("totalQuantity" > 0).
+        3. **Recettes :** Propose 3 recettes simples et variées.
+
+        Pour chaque recette, réponds OBLIGATOIREMENT et UNIQUEMENT 
+        avec un objet JSON dans ce format :
+        {
+          "recipes": [
+            {
+              "title": "Titre de la recette",
+              "description": "Courte description alléchante.",
+              "usedItems": [ // Articles que l'utilisateur possède
+                {"name": "Poulet", "quantity": "200g", "isExpiringSoon": true},
+                {"name": "Crème", "quantity": "10cl", "isExpiringSoon": false}
+              ],
+              "missingItems": [ // Articles que l'utilisateur n'a pas
+                {"name": "Champignons", "quantity": "50g"},
+                {"name": "Persil", "quantity": "1 brin"}
+              ],
+              "instructions": [
+                "1. Coupez le poulet...",
+                "2. Faites chauffer la crème..."
+              ]
+            }
+          ]
+        }
+      `;
+
+      const result = await generativeModel.generateContent({
+        contents: [{role: "user", parts: [{text: prompt}]}],
+      });
+
+      let jsonText =
+        result.response.candidates?.[0].content.parts[0].text || "{}";
+      jsonText = jsonText.replace(/```json/g, "").replace(/```/g, "").trim();
+
+      logger.info("Gemini Response: ", jsonText);
+      const jsonData = JSON.parse(jsonText);
+      return {success: true, data: jsonData};
+    } catch (error) {
+      logger.error("Error (generateRecipes):", error);
+      throw new HttpsError(
+        "internal",
+        "Error during recipe generation.",
+      );
+    }
+  },
+);

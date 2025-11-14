@@ -1,4 +1,6 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/screens/recipes/recipe_suggestion_screen.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -194,6 +196,93 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
     }
   }
 
+void _triggerRecipeGeneration(BuildContext context) async {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => const Dialog(
+      child: Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Text("Finding recipes..."),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  try {
+    final inventorySnapshot = await _inventoryService.getInventory(); 
+    final inventoryData = inventorySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final List<dynamic> batches = data['batches'] ?? [];
+        final List<dynamic> convertedBatches = batches.map((batch) {
+          final ts = batch['expirationDate'] as Timestamp?;
+          final addedAtTs = batch['addedAt'] as Timestamp?;
+          return {
+            'quantity': batch['quantity'],
+            'expirationDate': ts?.toDate().toIso8601String(),
+            'addedAt': addedAtTs?.toDate().toIso8601String(),
+          };
+        }).toList();
+
+        final earliestTs = data['earliestExpirationDate'] as Timestamp?;
+        final createdTs = data['createdAt'] as Timestamp?;
+
+        return {
+          'name': data['name'],
+          'canonicalName': data['canonicalName'],
+          'category': data['category'],
+          'location': data['location'],
+          'totalQuantity': data['totalQuantity'],
+          'batches': convertedBatches,
+          'earliestExpirationDate': earliestTs?.toDate().toIso8601String(),
+          'createdAt': createdTs?.toDate().toIso8601String(),
+        };
+      }).toList();
+
+    final functions = FirebaseFunctions.instanceFor(region: "us-central1");
+    final callable = functions.httpsCallable('generateRecipes');
+    final result = await callable.call({
+      'inventory': inventoryData,
+    });
+
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+
+    final data = result.data as Map<String, dynamic>;
+    if (data['success'] == true) {
+      final jsonData = data['data'];
+      final List<dynamic> recipes = jsonData['recipes'] ?? [];
+
+      if (recipes.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No recipes found with these ingredients.')),
+        );
+      } else {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (ctx) => RecipeSuggestionScreen(recipes: recipes),
+          ),
+        );
+      }
+    } else {
+      throw Exception("Function failed (success: false)");
+    }
+
+  } catch (error) {
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error: $error"), backgroundColor: Colors.red[700]),
+    );
+  }
+}
+
   Widget _buildEmptyState({bool isSearch = false}) {
     String image = "assets/images/discu.png";
     if (isSearch) {
@@ -267,6 +356,19 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
           //     _showImageSourceDialog(context);
           //   },
           // ),
+          IconButton(
+            color: Colors.yellow[700],
+            // highlightColor: Colors.red[700],
+            // focusColor: Colors.green[700],
+            // splashColor: Colors.blue[700],
+            // disabledColor: Colors.grey[700],
+            // hoverColor: Colors.purple[700],
+            icon: const Icon(Icons.lightbulb), // Ou Icons.restaurant_menu_outlined
+            tooltip: 'Suggest a recipe',
+            onPressed: () {
+              _triggerRecipeGeneration(context);
+            },
+          ),
         ],
         // 13. The Tabs from your design
         bottom: TabBar(

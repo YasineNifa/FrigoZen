@@ -20,6 +20,10 @@ class InventoryService {
     return await _inventoryCollection.doc(documentId).get();
   }
 
+  Future<QuerySnapshot> getInventory() async {
+    return await _inventoryCollection.get();
+  }
+
   Future<void> upsertItemToInventory({
     required String name,
     required String canonicalName,
