@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/main.dart';
@@ -22,8 +21,22 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   bool _isMovingItems = false;
   List<QueryDocumentSnapshot> _checkedItems = [];
 
-  void _saveItemToFirebase(String itemName, String canonicalName) {
-    _shoppingService.addItemToShoppingList(name: itemName, canonicalName: canonicalName);
+  void _saveItemToFirebase(
+    String itemName,
+    String canonicalName,
+    int quantity,
+    int? dvm,
+    String? category,
+    String? location,
+    ) {
+    _shoppingService.addItemToShoppingList(
+      name: itemName,
+      canonicalName: canonicalName,
+      quantity: quantity,
+      dvm: dvm,
+      category: category,
+      location: location,
+    );
     _textController.clear();
   }
 
@@ -36,11 +49,15 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
     try{
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
-      final callable = functions.httpsCallable('canonicalizeName');
+      final callable = functions.httpsCallable('getSmartItemData');
       final result = await callable.call({'productName': itemName});
-      final String canonicalName = result.data['canonicalName'] ?? itemName;
+      final Map<String, dynamic> itemData = Map<String, dynamic>.from(result.data['item']);
+      final String canonicalName = itemData['canonicalName'] ?? itemName;
+      final int dvm = itemData['dvm'] ?? 7;
+      final String category = itemData['category'] ?? 'Other';
+      final String location = itemData['location'] ?? 'Frigo';
+      final int quantity = itemData['quantity'] ?? 1;
 
-      // "listen: false" est important, on ne fait que lire la donnée
       // Get the provider
       final inventory = context.read<InventoryProvider>();
       // VÉRIFICATION "ANTI-DOUBLON"
@@ -56,7 +73,14 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
               label: "Add Anyway",
               textColor: Colors.white,
               onPressed: () {
-                _saveItemToFirebase(itemName, canonicalName);
+                _saveItemToFirebase(
+                  itemName,
+                  canonicalName,
+                  quantity,
+                  dvm,
+                  category,
+                  location,
+                );
               },
             ),
           ),
@@ -64,7 +88,14 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         _textController.clear();
         FocusScope.of(context).unfocus();
       } else {
-        _saveItemToFirebase(itemName, canonicalName);
+        _saveItemToFirebase(
+          itemName,
+          canonicalName,
+          quantity,
+          dvm,
+          category,
+          location,
+        );
         
       }
     }catch (error) {

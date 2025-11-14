@@ -17,13 +17,21 @@ class ShoppingService {
   Future<void> addItemToShoppingList({
     required String name,
     required String canonicalName,
+    required int quantity,
+    int? dvm,
+    String? category,
+    String? location,
     bool? isChecked,
   }) async {
     await _shoppingCollection.add({
       'name': name,
       'canonicalName': canonicalName,
-      'isChecked': isChecked ?? false,
+      'quantity': quantity,
+      'dvm': dvm ?? 7,
+      'category': category ?? 'Other',
+      'location': location ?? 'Frigo',
       'createdAt': Timestamp.now(),
+      'isChecked': isChecked ?? false,
     });
   }
 
