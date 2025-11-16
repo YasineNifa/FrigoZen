@@ -229,28 +229,12 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
   }
 
-  void _triggerRecipeGeneration(BuildContext context) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => const Dialog(
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 20),
-              Text("Finding recipes..."),
-            ],
-          ),
-        ),
-      ),
-    );
-
+  Future<List<Map<String, dynamic>>> _getInventoryData() async {
     try {
       final inventorySnapshot = await _inventoryService.getInventory();
       final inventoryData = inventorySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
+
         final List<dynamic> batches = data['batches'] ?? [];
         final List<dynamic> convertedBatches = batches.map((batch) {
           final ts = batch['expirationDate'] as Timestamp?;
@@ -277,30 +261,97 @@ class _InventoryScreenState extends State<InventoryScreen>
         };
       }).toList();
 
+      return inventoryData;
+    } catch (e) {
+      print("Error fetching inventory data: $e");
+      return [];
+    }
+  }
+
+  String _getCacheKeyFromInventory(List<Map<String, dynamic>> inventoryData) {
+    if (inventoryData.isEmpty) {
+      return "empty";
+    }
+
+    inventoryData.sort((a, b) {
+      final dateA = a['earliestExpirationDate'] ?? '';
+      final dateB = b['earliestExpirationDate'] ?? '';
+      return dateA.compareTo(dateB);
+    });
+
+    // On prend les 2 ingrédients les plus urgents
+    final item1 = inventoryData[0]['canonicalName'] ?? "item1";
+    final item2 = inventoryData.length > 1
+        ? (inventoryData[1]['canonicalName'] ?? "item2")
+        : item1;
+
+    final keys = [item1, item2]..sort();
+    return keys.join('_');
+  }
+
+  List<dynamic> _localRecipeCache = [];
+  void _triggerRecipeGeneration(BuildContext context) async {
+    if (_localRecipeCache.isNotEmpty) {
+      print("Local cache is not empty. let's display the next 3 recipes.");
+      final recipesToShow = _localRecipeCache.take(3).toList();
+      _localRecipeCache.removeRange(0, recipesToShow.length);
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (ctx) => RecipeSuggestionScreen(recipes: recipesToShow),
+        ),
+      );
+      return;
+    }
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Dialog(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text("Finding recipes..."),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final inventoryData = await _getInventoryData();
+      if (inventoryData.isEmpty) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Votre inventaire est vide !')),
+        );
+        return;
+      }
+
+      final String cacheKey = _getCacheKeyFromInventory(inventoryData);
+
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
       final callable = functions.httpsCallable('generateRecipes');
-      final result = await callable.call({'inventory': inventoryData});
+      final result = await callable.call({
+        'inventory': inventoryData,
+        'searchKey': cacheKey,
+        'forceNew': false,
+      });
 
       if (!context.mounted) return;
       Navigator.of(context).pop();
 
       final data = result.data as Map<String, dynamic>;
       if (data['success'] == true) {
-        final jsonData = data['data'];
-        final List<dynamic> recipes = jsonData['recipes'] ?? [];
-
-        if (recipes.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No recipes found with these ingredients.'),
-            ),
-          );
+        _localRecipeCache = List<dynamic>.from(data['data']['recipes'] ?? []);
+        if (_localRecipeCache.isEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('No recipes found.')));
         } else {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (ctx) => RecipeSuggestionScreen(recipes: recipes),
-            ),
-          );
+          _triggerRecipeGeneration(context);
         }
       } else {
         throw Exception("Function failed (success: false)");
