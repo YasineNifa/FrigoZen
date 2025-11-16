@@ -16,7 +16,8 @@ class InventoryScreen extends StatefulWidget {
   State<InventoryScreen> createState() => _InventoryScreenState();
 }
 
-class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProviderStateMixin {
+class _InventoryScreenState extends State<InventoryScreen>
+    with SingleTickerProviderStateMixin {
   final _inventoryService = InventoryService();
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
@@ -45,10 +46,18 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
     if (_tabController.indexIsChanging) return;
     setState(() {
       switch (_tabController.index) {
-        case 0: _selectedLocation = "Tout"; break;
-        case 1: _selectedLocation = "Frigo"; break;
-        case 2: _selectedLocation = "Placard"; break;
-        case 3: _selectedLocation = "Congélateur"; break;
+        case 0:
+          _selectedLocation = "Tout";
+          break;
+        case 1:
+          _selectedLocation = "Frigo";
+          break;
+        case 2:
+          _selectedLocation = "Placard";
+          break;
+        case 3:
+          _selectedLocation = "Congélateur";
+          break;
       }
       // Rebuilds the StreamBuilder with the new location
     });
@@ -91,47 +100,55 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
 
     showModalBottomSheet(
       context: context,
-      builder: (ctx) => SafeArea(child: Wrap(
-        children: [
-          ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Color.fromARGB(255, 165, 214, 167),
-              child: Icon(Icons.receipt_long, color: Color.fromARGB(255, 32, 32, 32)),
-            ),//camera_alt
-            title: const Text('Scan a receipt with camera'),
-            onTap: () {
-              Navigator.of(ctx).pop();
-              ocrService.pickAndProcessReceipt(context, ImageSource.camera); 
-            },
-          ),
-          ListTile(
-            leading: const CircleAvatar(
-              backgroundColor: Color.fromARGB(255, 165, 214, 167),
-              child: Icon(Icons.photo_library, color: Color.fromARGB(255, 32, 32, 32)),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Color.fromARGB(255, 165, 214, 167),
+                child: Icon(
+                  Icons.receipt_long,
+                  color: Color.fromARGB(255, 32, 32, 32),
+                ),
+              ), //camera_alt
+              title: const Text('Scan a receipt with camera'),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                ocrService.pickAndProcessReceipt(context, ImageSource.camera);
+              },
             ),
-            title: const Text('Select a receipt from gallery'),
-            onTap: () {
-              Navigator.of(ctx).pop();
-              ocrService.pickAndProcessReceipt(context, ImageSource.gallery);
-            },
-          ),
+            ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Color.fromARGB(255, 165, 214, 167),
+                child: Icon(
+                  Icons.photo_library,
+                  color: Color.fromARGB(255, 32, 32, 32),
+                ),
+              ),
+              title: const Text('Select a receipt from gallery'),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                ocrService.pickAndProcessReceipt(context, ImageSource.gallery);
+              },
+            ),
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: Color.fromARGB(255, 165, 214, 167),
                 child: Icon(Icons.add, color: Color.fromARGB(255, 32, 32, 32)),
               ),
               title: const Text('Add manually'),
-              onTap: (){
+              onTap: () {
                 Navigator.of(ctx).pop();
                 showModalBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   builder: (ctx) => const AddItemSheet(),
                 );
-              }
-            )
-        ]
-      ))
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -142,10 +159,12 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
 
     final now = DateTime.now();
     // Use `toDate()` to convert Timestamp to DateTime
-    final expiry = expirationDate.toDate(); 
-    
+    final expiry = expirationDate.toDate();
+
     // Calculate difference in days, ignoring time of day
-    final difference = expiry.difference(DateTime(now.year, now.month, now.day)).inDays;
+    final difference = expiry
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
 
     if (difference < 0) {
       return {'text': 'Expired', 'color': Colors.red[700]!};
@@ -154,27 +173,33 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
     } else if (difference <= 3) {
       return {'text': 'Expires soon', 'color': Colors.orange[700]!};
     } else if (difference <= 7) {
-      return {'text': 'Expires in $difference days', 'color': Colors.green[700]!};
+      return {
+        'text': 'Expires in $difference days',
+        'color': Colors.green[700]!,
+      };
     } else {
       return {'text': 'Fresh', 'color': Colors.grey[700]!};
     }
   }
 
   // Groups items by category AND filters by search query
-  Map<String, List<QueryDocumentSnapshot>> _groupItems(List<QueryDocumentSnapshot> items) {
+  Map<String, List<QueryDocumentSnapshot>> _groupItems(
+    List<QueryDocumentSnapshot> items,
+  ) {
     final Map<String, List<QueryDocumentSnapshot>> groupedItems = {};
 
     for (final item in items) {
       final data = item.data() as Map<String, dynamic>;
-      
+
       // Client-side search filter
-      final itemName = (data['name'] as String? ?? 'Unnamed Item').toLowerCase();
+      final itemName = (data['name'] as String? ?? 'Unnamed Item')
+          .toLowerCase();
       if (_searchQuery.isNotEmpty && !itemName.contains(_searchQuery)) {
         continue;
       }
-      
+
       final category = data['category'] as String? ?? 'Other';
-      
+
       if (groupedItems[category] == null) {
         groupedItems[category] = [];
       }
@@ -182,41 +207,49 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
     }
     return groupedItems;
   }
-  
+
   IconData _getIconForCategory(String? category) {
     switch (category) {
-      case 'Dairy': return Icons.icecream_outlined;
-      case 'Vegetable': return Icons.grass_outlined;
-      case 'Fruit': return Icons.apple_outlined;
-      case 'Meat': return Icons.kebab_dining_outlined;
-      case 'Pantry': return Icons.store_mall_directory_outlined;
-      case 'Beverage': return Icons.local_bar_outlined;
-      case 'Congélateur': return Icons.ac_unit;
-      default: return Icons.takeout_dining_outlined;
+      case 'Dairy':
+        return Icons.icecream_outlined;
+      case 'Vegetable':
+        return Icons.grass_outlined;
+      case 'Fruit':
+        return Icons.apple_outlined;
+      case 'Meat':
+        return Icons.kebab_dining_outlined;
+      case 'Pantry':
+        return Icons.store_mall_directory_outlined;
+      case 'Beverage':
+        return Icons.local_bar_outlined;
+      case 'Congélateur':
+        return Icons.ac_unit;
+      default:
+        return Icons.takeout_dining_outlined;
     }
   }
 
-void _triggerRecipeGeneration(BuildContext context) async {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (ctx) => const Dialog(
-      child: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Row(
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(width: 20),
-            Text("Finding recipes..."),
-          ],
+  void _triggerRecipeGeneration(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Dialog(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text("Finding recipes..."),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
 
-  try {
-    final inventorySnapshot = await _inventoryService.getInventory(); 
-    final inventoryData = inventorySnapshot.docs.map((doc) {
+    try {
+      final inventorySnapshot = await _inventoryService.getInventory();
+      final inventoryData = inventorySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         final List<dynamic> batches = data['batches'] ?? [];
         final List<dynamic> convertedBatches = batches.map((batch) {
@@ -244,44 +277,46 @@ void _triggerRecipeGeneration(BuildContext context) async {
         };
       }).toList();
 
-    final functions = FirebaseFunctions.instanceFor(region: "us-central1");
-    final callable = functions.httpsCallable('generateRecipes');
-    final result = await callable.call({
-      'inventory': inventoryData,
-    });
+      final functions = FirebaseFunctions.instanceFor(region: "us-central1");
+      final callable = functions.httpsCallable('generateRecipes');
+      final result = await callable.call({'inventory': inventoryData});
 
-    if (!context.mounted) return;
-    Navigator.of(context).pop();
-
-    final data = result.data as Map<String, dynamic>;
-    if (data['success'] == true) {
-      final jsonData = data['data'];
-      final List<dynamic> recipes = jsonData['recipes'] ?? [];
-
-      if (recipes.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No recipes found with these ingredients.')),
-        );
-      } else {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (ctx) => RecipeSuggestionScreen(recipes: recipes),
-          ),
-        );
-      }
-    } else {
-      throw Exception("Function failed (success: false)");
-    }
-
-  } catch (error) {
-    if (context.mounted) {
+      if (!context.mounted) return;
       Navigator.of(context).pop();
+
+      final data = result.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        final jsonData = data['data'];
+        final List<dynamic> recipes = jsonData['recipes'] ?? [];
+
+        if (recipes.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No recipes found with these ingredients.'),
+            ),
+          );
+        } else {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => RecipeSuggestionScreen(recipes: recipes),
+            ),
+          );
+        }
+      } else {
+        throw Exception("Function failed (success: false)");
+      }
+    } catch (error) {
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $error"),
+          backgroundColor: Colors.red[700],
+        ),
+      );
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error: $error"), backgroundColor: Colors.red[700]),
-    );
   }
-}
 
   Widget _buildEmptyState({bool isSearch = false}) {
     String image = "assets/images/discu.png";
@@ -296,13 +331,12 @@ void _triggerRecipeGeneration(BuildContext context) async {
     }
 
     String title = isSearch
-      ? "No results found" 
-      : "Your ${_selectedLocation.toLowerCase()} is empty";
-      
-    String subtitle = isSearch
-      ? "Try a different search term."
-      : "Tap the + button to add an item or scan a receipt.";
+        ? "No results found"
+        : "Your ${_selectedLocation.toLowerCase()} is empty";
 
+    String subtitle = isSearch
+        ? "Try a different search term."
+        : "Tap the + button to add an item or scan a receipt.";
 
     return Center(
       child: Padding(
@@ -310,12 +344,7 @@ void _triggerRecipeGeneration(BuildContext context) async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              image,
-              width: 250,
-              height: 250,
-              fit: BoxFit.contain,
-            ),
+            Image.asset(image, width: 250, height: 250, fit: BoxFit.contain),
             const SizedBox(height: 24),
             Text(
               title,
@@ -325,9 +354,9 @@ void _triggerRecipeGeneration(BuildContext context) async {
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600]
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -358,12 +387,7 @@ void _triggerRecipeGeneration(BuildContext context) async {
           // ),
           IconButton(
             color: Colors.yellow[700],
-            // highlightColor: Colors.red[700],
-            // focusColor: Colors.green[700],
-            // splashColor: Colors.blue[700],
-            // disabledColor: Colors.grey[700],
-            // hoverColor: Colors.purple[700],
-            icon: const Icon(Icons.lightbulb), // Ou Icons.restaurant_menu_outlined
+            icon: const Icon(Icons.lightbulb),
             tooltip: 'Suggest a recipe',
             onPressed: () {
               _triggerRecipeGeneration(context);
@@ -381,7 +405,7 @@ void _triggerRecipeGeneration(BuildContext context) async {
           ],
           indicatorColor: Colors.green[400],
           labelColor: Colors.black,
-          unselectedLabelColor: Colors.grey
+          unselectedLabelColor: Colors.grey,
         ),
       ),
 
@@ -400,16 +424,18 @@ void _triggerRecipeGeneration(BuildContext context) async {
                 ),
                 filled: true,
                 // Use platform-adaptive colors
-                fillColor: Theme.of(context).brightness == Brightness.light 
-                           ? Colors.grey[200] 
-                           : Colors.grey[800],
+                fillColor: Theme.of(context).brightness == Brightness.light
+                    ? Colors.grey[200]
+                    : Colors.grey[800],
               ),
             ),
           ),
 
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: _inventoryService.getInventoryStream(location: _selectedLocation),
+              stream: _inventoryService.getInventoryStream(
+                location: _selectedLocation,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -424,13 +450,14 @@ void _triggerRecipeGeneration(BuildContext context) async {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   final itemNames = snapshot.data!.docs.map((item) {
                     final data = item.data() as Map<String, dynamic>;
-                    return data['canonicalName'] as String? ?? data['name'] as String;
+                    return data['canonicalName'] as String? ??
+                        data['name'] as String;
                   }).toList();
                   context.read<InventoryProvider>().updateInventory(itemNames);
                 });
-                
+
                 final groupedItems = _groupItems(snapshot.data!.docs);
-                
+
                 if (groupedItems.isEmpty) {
                   return _buildEmptyState(isSearch: true);
                 }
@@ -438,11 +465,8 @@ void _triggerRecipeGeneration(BuildContext context) async {
                 return ListView.separated(
                   padding: const EdgeInsets.only(bottom: 80),
                   itemCount: groupedItems.keys.length,
-                  separatorBuilder: (context, index) => const Divider(
-                    height: 1, 
-                    indent: 16, 
-                    endIndent: 16,
-                  ),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1, indent: 16, endIndent: 16),
                   itemBuilder: (context, index) {
                     final category = groupedItems.keys.elementAt(index);
                     final itemsInCategory = groupedItems[category]!;
@@ -465,7 +489,10 @@ void _triggerRecipeGeneration(BuildContext context) async {
     );
   }
 
-  Widget _buildCategorySection(String category, List<QueryDocumentSnapshot> items) {
+  Widget _buildCategorySection(
+    String category,
+    List<QueryDocumentSnapshot> items,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -497,7 +524,7 @@ void _triggerRecipeGeneration(BuildContext context) async {
     final String canonicalName = data['canonicalName'] ?? itemName;
     final int itemQuantity = data["totalQuantity"] ?? 1;
     final Timestamp? expirationDate = data['earliestExpirationDate'];
-    
+
     final status = _getExpirationStatus(expirationDate);
     final statusText = status['text'] as String;
     final statusColor = status['color'] as Color;
@@ -516,7 +543,8 @@ void _triggerRecipeGeneration(BuildContext context) async {
           child: Dismissible(
             key: Key(item.id),
             direction: DismissDirection.endToStart,
-            onDismissed: (direction) => _inventoryService.removeItemFromInventory(item.id),
+            onDismissed: (direction) =>
+                _inventoryService.removeItemFromInventory(item.id),
             background: Container(
               color: Colors.red[700],
               alignment: Alignment.centerRight,
@@ -531,17 +559,25 @@ void _triggerRecipeGeneration(BuildContext context) async {
                   color: Colors.green[800],
                 ),
               ),
-              
-              title: Text(itemName, style: const TextStyle(fontWeight: FontWeight.w600)),
+
+              title: Text(
+                itemName,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
               subtitle: Text(
                 statusText,
-                style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: statusColor,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               trailing: isLoading
                   ? const SizedBox(
                       width: 48,
                       height: 48,
-                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      child: Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                     )
                   : Row(
                       mainAxisSize: MainAxisSize.min,
@@ -549,7 +585,8 @@ void _triggerRecipeGeneration(BuildContext context) async {
                         IconButton(
                           icon: const Icon(Icons.remove),
                           iconSize: 20,
-                          onPressed: () => _decrementItem(item.id, itemQuantity),
+                          onPressed: () =>
+                              _decrementItem(item.id, itemQuantity),
                         ),
                         Text(
                           itemQuantity.toString(),
@@ -558,7 +595,8 @@ void _triggerRecipeGeneration(BuildContext context) async {
                         IconButton(
                           icon: const Icon(Icons.add),
                           iconSize: 20,
-                          onPressed: () => _incrementItem(item.id, itemQuantity),
+                          onPressed: () =>
+                              _incrementItem(item.id, itemQuantity),
                         ),
                       ],
                     ),

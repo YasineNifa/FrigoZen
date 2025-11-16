@@ -32,21 +32,22 @@ class InventoryService {
     Timestamp? expirationDate,
     String? category,
     String? location,
-  })
-  async {
+  }) async {
     final now = Timestamp.now();
     final existingDoc = await _findExistingItem(canonicalName);
     final int days = dvm ?? 7;
     final int dvmMillis = days * 24 * 60 * 60 * 1000;
-    final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(now.millisecondsSinceEpoch + dvmMillis);
+    final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(
+      now.millisecondsSinceEpoch + dvmMillis,
+    );
     final newBatch = {
-      'quantity':quantity,
+      'quantity': quantity,
       'expirationDate': expirationDate,
       'addedAt': now,
     };
 
-    if(existingDoc != null) {
-      final data = existingDoc.data() as Map<String, dynamic>;     
+    if (existingDoc != null) {
+      final data = existingDoc.data() as Map<String, dynamic>;
       final List<dynamic> oldBatches = data['batches'] ?? [];
       final newBatches = [...oldBatches, newBatch];
 
@@ -59,7 +60,7 @@ class InventoryService {
         'batches': newBatches,
         'totalQuantity': newTotalQuantity,
         'earliestExpirationDate': getEarliestDate(newBatches),
-        'name': name, 
+        'name': name,
         'category': category ?? data['category'] ?? 'Other',
         'location': location ?? data['location'] ?? 'Fridge',
       });
@@ -94,7 +95,10 @@ class InventoryService {
       return Timestamp.now();
     }
     // Sort to find the earliest (closest) date
-    batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
+    batches.sort(
+      (a, b) =>
+          (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']),
+    );
     return batches.first['expirationDate'];
   }
 
@@ -108,7 +112,7 @@ class InventoryService {
     if (location != "Tout") {
       query = query.where('location', isEqualTo: location);
     }
-    
+
     query = query.orderBy('name');
 
     return query.snapshots();
@@ -128,22 +132,25 @@ class InventoryService {
     if (!doc.exists) {
       throw Exception("Document not found");
     }
-    
+
     final data = doc.data() as Map<String, dynamic>;
     List<dynamic> batches = List<dynamic>.from(data['batches'] ?? []);
-    
-    batches.sort((a, b) => (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']));
-    
+
+    batches.sort(
+      (a, b) =>
+          (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']),
+    );
+
     if (batches.isEmpty) {
       throw Exception("No batches to decrement");
     }
-    
+
     if (batches.first['quantity'] > 1) {
       batches.first['quantity'] = batches.first['quantity'] - 1;
     } else {
       batches.removeAt(0);
     }
-    
+
     await updateItem(docId, {
       'totalQuantity': currentQuantity - 1,
       'batches': batches,

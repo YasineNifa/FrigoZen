@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 
-
 class AddItemSheet extends StatefulWidget {
   const AddItemSheet({super.key});
 
@@ -28,7 +27,9 @@ class _AddItemSheetState extends State<AddItemSheet> {
         final functions = FirebaseFunctions.instanceFor(region: "us-central1");
         final callable = functions.httpsCallable('getSmartItemData');
         final result = await callable.call({'productName': userTypedName});
-        final Map<String, dynamic> itemData = Map<String, dynamic>.from(result.data['item']);
+        final Map<String, dynamic> itemData = Map<String, dynamic>.from(
+          result.data['item'],
+        );
         final String canonicalName = itemData['canonicalName'] ?? userTypedName;
         final int dvm = itemData['dvm'] ?? 7;
         final String category = itemData['category'] ?? 'Other';
@@ -36,13 +37,13 @@ class _AddItemSheetState extends State<AddItemSheet> {
         final inventoryService = InventoryService();
 
         await inventoryService.upsertItemToInventory(
-        name: userTypedName,
-        canonicalName: canonicalName,
-        quantity: userQuantity,
-        dvm: dvm,
-        category: category,
-        location: location,
-      );
+          name: userTypedName,
+          canonicalName: canonicalName,
+          quantity: userQuantity,
+          dvm: dvm,
+          category: category,
+          location: location,
+        );
         if (mounted) {
           Navigator.of(context).pop();
         }
@@ -163,7 +164,14 @@ class _AddItemSheetState extends State<AddItemSheet> {
                 ),
                 onPressed: _saveItem,
 
-                child: const Text('Save', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
+                child: const Text(
+                  'Save',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
               ),
             const SizedBox(height: 16),
           ],

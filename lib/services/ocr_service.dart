@@ -8,11 +8,13 @@ import 'package:cloud_functions/cloud_functions.dart';
 /// OcrService handles all logic related to picking images
 /// and processing them via the backend AI.
 class OcrService {
-
   /// This is the main function that handles the entire OCR flow.
   /// It is moved from inventory_screen.dart.
   /// We pass BuildContext here for showing SnackBars and Navigating.
-  Future<void> pickAndProcessReceipt(BuildContext context, ImageSource source) async {
+  Future<void> pickAndProcessReceipt(
+    BuildContext context,
+    ImageSource source,
+  ) async {
     /*
     arg must change to ImageSource source String base64Image
     */
@@ -34,8 +36,8 @@ class OcrService {
       /**/
       final imagePicker = ImagePicker();
       final XFile? pickedImage = await imagePicker.pickImage(
-      source: source,
-      imageQuality: 80,
+        source: source,
+        imageQuality: 80,
       );
 
       if (pickedImage == null) {
@@ -49,10 +51,7 @@ class OcrService {
         throw Exception("Loading image failed.");
       }
 
-      final img.Image resizedImage = img.copyResize(
-        originalImage,
-        width: 800,
-      );
+      final img.Image resizedImage = img.copyResize(originalImage, width: 800);
 
       final String base64Image = base64Encode(img.encodeJpg(resizedImage));
 
@@ -75,14 +74,12 @@ class OcrService {
         print("ITEMS :");
         print(jsonData);
         print("---------------------------------");
-        
+
         // Check if the widget is still mounted before navigating
         if (context.mounted) {
           if (items.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('No items found in the receipt.'),
-              ),
+              const SnackBar(content: Text('No items found in the receipt.')),
             );
           } else {
             Navigator.of(context).push(
@@ -93,7 +90,9 @@ class OcrService {
           }
         }
       } else {
-        throw Exception("Function failed (success: false)"); // Changed to English
+        throw Exception(
+          "Function failed (success: false)",
+        ); // Changed to English
       }
     } on FirebaseFunctionsException catch (error) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();

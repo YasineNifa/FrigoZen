@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
 class ShoppingService {
-
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
   final CollectionReference _shoppingCollection = FirebaseFirestore.instance
       .collection('users')
@@ -11,7 +9,9 @@ class ShoppingService {
       .collection('shopping_list');
 
   Stream<QuerySnapshot> getShoppingListStream() {
-    return _shoppingCollection.orderBy('createdAt', descending: false).snapshots();
+    return _shoppingCollection
+        .orderBy('createdAt', descending: false)
+        .snapshots();
   }
 
   Future<void> addItemToShoppingList({

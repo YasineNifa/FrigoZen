@@ -109,7 +109,11 @@ class _AuthScreenState extends State<AuthScreen> {
                 Text(
                   _isLoginMode ? 'FrigoZen Login' : 'Create an Account',
                   // style: Theme.of(context).textTheme.headlineSmall,
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black)
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -162,7 +166,15 @@ class _AuthScreenState extends State<AuthScreen> {
                       minimumSize: const Size(double.infinity, 48),
                     ),
                     onPressed: _submitForm,
-                    child: Text(_isLoginMode ? 'Login' : "Sign Up", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black))),
+                    child: Text(
+                      _isLoginMode ? 'Login' : "Sign Up",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 16),
 
                 if (!_isLoading)
@@ -172,8 +184,12 @@ class _AuthScreenState extends State<AuthScreen> {
                       _isLoginMode
                           ? "No account? Sign up"
                           : 'Already have an account? Login',
-                        
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black)
+
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
               ],

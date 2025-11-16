@@ -68,7 +68,9 @@ class _AuthGateState extends State<AuthGate> {
 
     await tokenRef.set({
       'createdAt': FieldValue.serverTimestamp(),
-      'platform': Theme.of(context).platform.toString(), // ex: "TargetPlatform.android"
+      'platform': Theme.of(
+        context,
+      ).platform.toString(), // ex: "TargetPlatform.android"
     });
   }
 }

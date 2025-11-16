@@ -66,7 +66,9 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Tester le Backend (helloWorld)'),
             onTap: () async {
               try {
-                final functions = FirebaseFunctions.instanceFor(region: "us-central1");
+                final functions = FirebaseFunctions.instanceFor(
+                  region: "us-central1",
+                );
                 final callable = functions.httpsCallable('helloWorld');
 
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +85,6 @@ class SettingsScreen extends StatelessWidget {
                     backgroundColor: Colors.green[700],
                   ),
                 );
-
               } on FirebaseFunctionsException catch (error) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -108,7 +109,9 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Tester le Backend (Canonicalize Name)'),
             onTap: () async {
               try {
-                final functions = FirebaseFunctions.instanceFor(region: "us-central1");
+                final functions = FirebaseFunctions.instanceFor(
+                  region: "us-central1",
+                );
                 final callable = functions.httpsCallable('canonicalizeName');
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Appel au backend en cours...')),
@@ -116,14 +119,13 @@ class SettingsScreen extends StatelessWidget {
                 final result = await callable.call({'productName': 'mlik'});
                 final data = result.data as Map<String, dynamic>;
                 final message = data['canonicalName'];
-                
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Succès : $message'),
                     backgroundColor: Colors.green[700],
                   ),
                 );
-
               } on FirebaseFunctionsException catch (error) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -143,10 +145,6 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
-
-
-
-      
     );
   }
 }

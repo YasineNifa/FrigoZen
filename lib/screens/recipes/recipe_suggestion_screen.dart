@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class RecipeSuggestionScreen extends StatelessWidget {
   final List<dynamic> recipes;
 
@@ -9,9 +8,7 @@ class RecipeSuggestionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Recipe Suggestions'),
-      ),
+      appBar: AppBar(title: const Text('Recipe Suggestions')),
       body: ListView.builder(
         itemCount: recipes.length,
         itemBuilder: (context, index) {
@@ -30,7 +27,10 @@ class RecipeSuggestionScreen extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: ExpansionTile(
-              title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               subtitle: Text(description),
               childrenPadding: const EdgeInsets.all(16.0),
               children: [
@@ -41,7 +41,7 @@ class RecipeSuggestionScreen extends StatelessWidget {
                   usedItems,
                   Colors.green[700]!,
                 ),
-                
+
                 // 2. Missing
                 if (missingItems.isNotEmpty)
                   _buildIngredientList(
@@ -50,7 +50,7 @@ class RecipeSuggestionScreen extends StatelessWidget {
                     missingItems,
                     Colors.orange[700]!,
                   ),
-                
+
                 const Divider(height: 32),
 
                 // 3. Instructions
@@ -87,13 +87,13 @@ class RecipeSuggestionScreen extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           title,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(color: titleColor),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(color: titleColor),
         ),
         const SizedBox(height: 8),
-        for (var item in items) ...[ // On utilise un "spread operator"
+        for (var item in items) ...[
+          // On utilise un "spread operator"
           Builder(
             builder: (context) {
               final itemMap = Map<String, dynamic>.from(item);
@@ -107,9 +107,9 @@ class RecipeSuggestionScreen extends StatelessWidget {
                   '• $name ($quantity)${isExpiring ? ' (Expires soon!)' : ''}',
                 ),
               );
-            }
+            },
           ),
-        ]
+        ],
       ],
     );
   }

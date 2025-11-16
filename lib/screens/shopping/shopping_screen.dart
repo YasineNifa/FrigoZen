@@ -6,7 +6,6 @@ import 'package:frigo_zen/main.dart';
 import 'package:frigo_zen/services/shopping_service.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 
-
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
 
@@ -28,7 +27,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     int? dvm,
     String? category,
     String? location,
-    ) {
+  ) {
     _shoppingService.addItemToShoppingList(
       name: itemName,
       canonicalName: canonicalName,
@@ -44,14 +43,18 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     final itemName = _textController.text.trim();
     if (itemName.isEmpty) return;
 
-    setState(() { _isAddingItem = true; });
+    setState(() {
+      _isAddingItem = true;
+    });
     FocusScope.of(context).unfocus();
 
-    try{
+    try {
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
       final callable = functions.httpsCallable('getSmartItemData');
       final result = await callable.call({'productName': itemName});
-      final Map<String, dynamic> itemData = Map<String, dynamic>.from(result.data['item']);
+      final Map<String, dynamic> itemData = Map<String, dynamic>.from(
+        result.data['item'],
+      );
       final String canonicalName = itemData['canonicalName'] ?? itemName;
       final int dvm = itemData['dvm'] ?? 7;
       final String category = itemData['category'] ?? 'Other';
@@ -96,30 +99,38 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           category,
           location,
         );
-        
       }
-    }catch (error) {
-       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${error.toString()}"), backgroundColor: Colors.red[700]),
-        );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: ${error.toString()}"),
+          backgroundColor: Colors.red[700],
+        ),
+      );
     } finally {
       if (mounted) {
-        setState(() { _isAddingItem = false; });
+        setState(() {
+          _isAddingItem = false;
+        });
       }
       _textController.clear();
     }
   }
 
-  void _moveCheckedItemsToInventory(List<QueryDocumentSnapshot> checkedItems) async {
-    if (_isMovingItems) return; 
-    setState(() { _isMovingItems = true; });
+  void _moveCheckedItemsToInventory(
+    List<QueryDocumentSnapshot> checkedItems,
+  ) async {
+    if (_isMovingItems) return;
+    setState(() {
+      _isMovingItems = true;
+    });
 
     try {
       final inventoryService = InventoryService();
 
       for (final itemDoc in checkedItems) {
         final data = itemDoc.data() as Map<String, dynamic>;
-        
+
         final String name = data['name'] ?? 'Unknown Item';
         final String canonicalName = data['canonicalName'] ?? name;
         final int quantity = data['quantity'] ?? 1;
@@ -135,7 +146,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("${checkedItems.length} item(s) moved to Inventory successfully!"),
+            content: Text(
+              "${checkedItems.length} item(s) moved to Inventory successfully!",
+            ),
             backgroundColor: Colors.green[700],
           ),
         );
@@ -155,7 +168,6 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       }
     }
   }
-
 
   Widget _buildEmptyState() {
     return Center(
@@ -179,9 +191,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             const SizedBox(height: 8),
             Text(
               "Add an item using the field above to get started.",
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600]
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -189,6 +201,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -200,28 +213,31 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: 
-                  TextField(
+                  child: TextField(
                     controller: _textController,
                     decoration: InputDecoration(
                       hintText: 'Add to shopping list...',
                       prefixIcon: const Icon(Icons.shop),
                       filled: true,
-                      fillColor: Theme.of(context).brightness == Brightness.light 
-                            ? Colors.grey[200] 
-                            : Colors.grey[800],
+                      fillColor:
+                          Theme.of(context).brightness == Brightness.light
+                          ? Colors.grey[200]
+                          : Colors.grey[800],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                         borderSide: BorderSide.none,
+                      ),
                     ),
-                  ),
-                  enabled: !_isAddingItem, 
-                  onSubmitted: (_) => _isAddingItem ? null : _addItem(),
+                    enabled: !_isAddingItem,
+                    onSubmitted: (_) => _isAddingItem ? null : _addItem(),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
+                  icon: const Icon(
+                    Icons.add_shopping_cart,
+                    color: Colors.white,
+                  ),
                   onPressed: _addItem,
                   style: IconButton.styleFrom(
                     backgroundColor: Colors.green[400],
@@ -229,9 +245,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   ),
                 ),
               ],
-            )
+            ),
           ),
-
 
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -271,7 +286,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                     return Dismissible(
                       key: Key(item.id),
                       direction: DismissDirection.endToStart,
-                      onDismissed: (_) => _shoppingService.removeItemFromShoppingList(item.id),
+                      onDismissed: (_) =>
+                          _shoppingService.removeItemFromShoppingList(item.id),
                       background: Container(
                         color: Colors.red[700],
                         alignment: Alignment.centerRight,
@@ -282,21 +298,24 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                         leading: Checkbox(
                           activeColor: Colors.green[400],
                           value: isChecked,
-                          onChanged: (_) => _shoppingService.updateItem(item.id, {'isChecked': !isChecked}),
+                          onChanged: (_) => _shoppingService.updateItem(
+                            item.id,
+                            {'isChecked': !isChecked},
+                          ),
                         ),
                         title: Text(
                           itemName,
                           style: TextStyle(
                             decoration: isChecked
-                                ? TextDecoration
-                                      .lineThrough
+                                ? TextDecoration.lineThrough
                                 : TextDecoration.none,
                             color: isChecked ? Colors.grey[600] : Colors.black,
                           ),
                         ),
                         trailing: IconButton(
                           icon: const Icon(Icons.clear),
-                          onPressed: () => _shoppingService.removeItemFromShoppingList(item.id),
+                          onPressed: () => _shoppingService
+                              .removeItemFromShoppingList(item.id),
                         ),
                       ),
                     );
@@ -315,15 +334,21 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 color: Color.fromARGB(237, 255, 255, 255),
               ),
               label: Text(
-                _isMovingItems ? "Adding..." : 'Add ${_checkedItems.length} item(s) to Inventory', 
+                _isMovingItems
+                    ? "Adding..."
+                    : 'Add ${_checkedItems.length} item(s) to Inventory',
                 style: const TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w600, color: Color.fromARGB(237, 255, 255, 255)
-                )
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color.fromARGB(237, 255, 255, 255),
+                ),
               ),
               backgroundColor: Colors.green[400],
-              onPressed: _isMovingItems ? null : () {
-                _moveCheckedItemsToInventory(_checkedItems);
-              },
+              onPressed: _isMovingItems
+                  ? null
+                  : () {
+                      _moveCheckedItemsToInventory(_checkedItems);
+                    },
             ),
     );
   }

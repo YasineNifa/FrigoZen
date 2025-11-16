@@ -83,16 +83,16 @@ class _ValidationScreenState extends State<ValidationScreen> {
   //       };
 
   //       if (existingDoc != null) {
-  //         final data = existingDoc.data() as Map<String, dynamic>;          
+  //         final data = existingDoc.data() as Map<String, dynamic>;
   //         final List<dynamic> oldBatches = data['batches'] ?? [];
   //         final newBatches = [...oldBatches, newBatch];
-          
+
   //         // On recalcule la quantité totale
   //         int newTotalQuantity = 0;
   //         for (var batch in newBatches) {
   //           newTotalQuantity += (batch['quantity'] as int? ?? 0);
   //         }
-          
+
   //         // On met à jour le document existant
   //         await inventoryCollection.doc(existingDoc.id).update({
   //           'batches': newBatches,
@@ -138,7 +138,9 @@ class _ValidationScreenState extends State<ValidationScreen> {
   // }
 
   Future<void> _addItemsToInventory() async {
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       final inventoryService = InventoryService();
@@ -152,11 +154,13 @@ class _ValidationScreenState extends State<ValidationScreen> {
         final int quantity = item['quantity'] ?? 1;
         final String category = item['category'] ?? 'Other';
         final String location = item['location'] ?? 'Placard';
-        
+
         // 2. Calculate expiration date
         final int dvm = item['dvm'] ?? 7;
         final int dvmMillis = dvm * 24 * 60 * 60 * 1000;
-        final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(nowMillis + dvmMillis);
+        final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(
+          nowMillis + dvmMillis,
+        );
 
         // 3. Call the single service function
         await inventoryService.upsertItemToInventory(
@@ -173,7 +177,9 @@ class _ValidationScreenState extends State<ValidationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${_editableItems.length} articles mis à jour dans l\'inventaire !'),
+            content: Text(
+              '${_editableItems.length} articles mis à jour dans l\'inventaire !',
+            ),
             backgroundColor: Colors.green[700],
           ),
         );
@@ -181,7 +187,9 @@ class _ValidationScreenState extends State<ValidationScreen> {
       }
     } catch (error) {
       if (mounted) {
-        setState(() { _isLoading = false; });
+        setState(() {
+          _isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur lors de la fusion : $error")),
         );
@@ -195,13 +203,13 @@ class _ValidationScreenState extends State<ValidationScreen> {
       appBar: AppBar(
         title: Text('Valider vos articles (${_editableItems.length})'),
         // On empêche le "swipe back" accidentel
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         actions: [
           // Bouton pour annuler
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Annuler', style: TextStyle(color: Colors.white)),
-          )
+          ),
         ],
       ),
       body: ListView.builder(
@@ -220,7 +228,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
           //           icon: Icon(Icons.delete_outline, color: Colors.red[700]),
           //           onPressed: () => _removeItem(index),
           //         ),
-                  
+
           //         Expanded(
           //           child: TextField(
           //             controller: nameController,
@@ -230,7 +238,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
           //             },
           //           ),
           //         ),
-                  
+
           //         IconButton(
           //           icon: const Icon(Icons.remove),
           //           onPressed: () => _updateQuantity(index, -1),
@@ -253,7 +261,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
               icon: Icon(Icons.delete_outline, color: Colors.red[700]),
               onPressed: () => _removeItem(index),
             ),
-            
+
             title: TextField(
               controller: nameController,
               decoration: const InputDecoration(
@@ -264,7 +272,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
                 _editableItems[index]['name'] = newName;
               },
             ),
-            
+
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
