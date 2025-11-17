@@ -7,6 +7,7 @@ import {initializeApp} from "firebase-admin/app";
 import {getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {onMessagePublished} from "firebase-functions/v2/pubsub";
+import axios from "axios";
 
 
 // Initialiser le client de l'IA (on le met ici, en dehors de la fonction)
@@ -14,6 +15,7 @@ import {onMessagePublished} from "firebase-functions/v2/pubsub";
 const visionClient = new ImageAnnotatorClient();
 const PROJECT_ID = "frigozen-app";
 const LOCATION = "us-central1";
+const UNSPLASH_ACCESS_KEY = "SD6Z8wq-qz9w0680m4Yjd2jZStEs_TzB3oeNpOWMjFI";
 const vertexAI = new VertexAI(
   {project: PROJECT_ID, location: LOCATION}
 );
@@ -271,17 +273,59 @@ export const getSmartItemData = onCall(
   },
 );
 
+/**
+ * Cherche une image sur Unsplash basée sur des mots-clés.
+ * @param {string} keywords - Mots-clés (ex: "chicken pasta")
+ * Use @returns {Promise<string | null>} - L'URL de l'image ou null
+ */
+async function getImageUrlFromUnsplash(
+  keywords: string
+): Promise<string | null> {
+  if (!UNSPLASH_ACCESS_KEY || UNSPLASH_ACCESS_KEY.includes("VOTRE_CLÉ")) {
+    logger.warn("Clé Unsplash manquante.");
+    return null;
+  }
+  try {
+    const response = await axios.get("https://api.unsplash.com/search/photos", {
+      params: {query: keywords, page: 1, per_page: 1, orientation: "squarish"},
+      headers: {Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`},
+    });
+    if (response.data.results.length > 0) {
+      return response.data.results[0].urls.small;
+    }
+    return null;
+  } catch (error) {
+    logger.error("Erreur Unsplash:", error);
+    return null;
+  }
+}
+
 export const generateRecipes = onCall(
-  {timeoutSeconds: 60},
+  {timeoutSeconds: 120},
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "You must be logged in.");
     }
-    const inventory = request.data.inventory; // JSON
-    if (!inventory) {
-      throw new HttpsError("invalid-argument", "Inventory data is required.");
+    const {searchKey, inventory} = request.data;
+    if (!inventory || !searchKey) {
+      throw new HttpsError(
+        "invalid-argument",
+        "searchKey and inventory are required."
+      );
     }
+    const db = getFirestore();
+    const recipesCollectionRef = db
+      .collection("globalRecipeCache")
+      .doc(searchKey)
+      .collection("recipes");
 
+    const cacheSnapshot = await recipesCollectionRef.limit(10).get();
+    if (!cacheSnapshot.empty) {
+      logger.info(`Cache HIT: ${searchKey}. Display recipes.`);
+      const recipes = cacheSnapshot.docs.map((doc) => doc.data());
+      return {success: true, data: {recipes: recipes}};
+    }
+    logger.info(`Cache MISS: ${searchKey}`);
     logger.info("Generate recipes...");
 
     try {
@@ -298,7 +342,7 @@ export const generateRecipes = onCall(
            articles dont la "earliestExpirationDate" est la plus proche.
         2. **Priorité secondaire :** Utilise au maximum les articles que 
            l'utilisateur possède déjà ("totalQuantity" > 0).
-        3. **Recettes :** Propose 3 recettes simples et variées.
+        3. **Recettes :** Propose 10 recettes simples et variées.
 
         Pour chaque recette, réponds OBLIGATOIREMENT et UNIQUEMENT 
         avec un objet JSON dans ce format :
@@ -307,6 +351,8 @@ export const generateRecipes = onCall(
             {
               "title": "Titre de la recette",
               "description": "Courte description alléchante.",
+              "imageKeywords": "chicken pasta tomato" // 3 mots-clés en ANGLAIS 
+              // pour trouver une photo
               "usedItems": [ // Articles que l'utilisateur possède
                 {"name": "Poulet", "quantity": "200g", "isExpiringSoon": true},
                 {"name": "Crème", "quantity": "10cl", "isExpiringSoon": false}
@@ -334,7 +380,31 @@ export const generateRecipes = onCall(
 
       logger.info("Gemini Response: ", jsonText);
       const jsonData = JSON.parse(jsonText);
-      return {success: true, data: jsonData};
+      const recipesFromIA = (jsonData.recipes as any[]) || [];
+      if (recipesFromIA.length === 0) {
+        return {success: true, data: {recipes: []}};
+      }
+      logger.info("Recherche d'images sur Unsplash...");
+
+      const imagePromises = recipesFromIA.map((recipe) => {
+        const keywords = recipe.imageKeywords || recipe.title;
+        return getImageUrlFromUnsplash(keywords);
+      });
+      const imageUrls = await Promise.all(imagePromises);
+      const finalRecipes = recipesFromIA.map((recipe, index) => {
+        return {
+          ...recipe,
+          imageUrl: imageUrls[index], // Ajout de l'URL (ou null)
+        };
+      });
+
+      const batch = db.batch();
+      for (const recipe of finalRecipes) {
+        const newRecipeRef = recipesCollectionRef.doc();
+        batch.set(newRecipeRef, recipe);
+      }
+      await batch.commit();
+      return {success: true, data: {recipes: finalRecipes}};
     } catch (error) {
       logger.error("Error (generateRecipes):", error);
       throw new HttpsError(

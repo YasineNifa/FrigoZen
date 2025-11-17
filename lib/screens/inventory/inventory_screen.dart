@@ -346,12 +346,22 @@ class _InventoryScreenState extends State<InventoryScreen>
       final data = result.data as Map<String, dynamic>;
       if (data['success'] == true) {
         _localRecipeCache = List<dynamic>.from(data['data']['recipes'] ?? []);
+        _localRecipeCache.shuffle();
         if (_localRecipeCache.isEmpty) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('No recipes found.')));
+          if (mounted)
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('No recipes found.')));
         } else {
-          _triggerRecipeGeneration(context);
+          // Naviguez vers l'écran de suggestions avec TOUTES les recettes
+          if (mounted)
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (ctx) => RecipeSuggestionScreen(
+                  recipes: _localRecipeCache, // On passe toute la liste
+                ),
+              ),
+            );
         }
       } else {
         throw Exception("Function failed (success: false)");
