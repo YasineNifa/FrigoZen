@@ -275,23 +275,32 @@ export const getSmartItemData = onCall(
 
 /**
  * Cherche une image sur Unsplash basée sur des mots-clés.
- * @param {string} keywords - Mots-clés (ex: "chicken pasta")
+ * @param {string} searchQuery - Mots-clés (ex: "chicken pasta")
  * Use @returns {Promise<string | null>} - L'URL de l'image ou null
  */
 async function getImageUrlFromUnsplash(
-  keywords: string
+  searchQuery: string
 ): Promise<string | null> {
   if (!UNSPLASH_ACCESS_KEY || UNSPLASH_ACCESS_KEY.includes("VOTRE_CLÉ")) {
     logger.warn("Clé Unsplash manquante.");
     return null;
   }
   try {
+    const enhancedQuery = (
+      `${searchQuery} food photography cooked meal close up`
+    );
     const response = await axios.get("https://api.unsplash.com/search/photos", {
-      params: {query: keywords, page: 1, per_page: 1, orientation: "squarish"},
+      params: {
+        query: enhancedQuery,
+        page: 1,
+        per_page: 1,
+        orientation: "squarish",
+        order_by: "relevant",
+      },
       headers: {Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`},
     });
     if (response.data.results.length > 0) {
-      return response.data.results[0].urls.small;
+      return response.data.results[0].urls.regular;
     }
     return null;
   } catch (error) {
@@ -351,8 +360,12 @@ export const generateRecipes = onCall(
             {
               "title": "Titre de la recette",
               "description": "Courte description alléchante.",
-              "imageKeywords": "chicken pasta tomato" // 3 mots-clés en ANGLAIS 
-              // pour trouver une photo
+              "imageKeywords": "chicken pasta tomato" // Une phrase de
+              // recherche 
+              // descriptive en ANGLAIS optimisée pour Unsplash. 
+              // Elle doit décrire le plat fini dans une assiette 
+              // (ex: "delicious creamy chicken pasta on a plate 
+              // food photography").
               "usedItems": [ // Articles que l'utilisateur possède
                 {"name": "Poulet", "quantity": "200g", "isExpiringSoon": true},
                 {"name": "Crème", "quantity": "10cl", "isExpiringSoon": false}
