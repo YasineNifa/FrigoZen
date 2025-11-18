@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth package
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -9,69 +9,63 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  // Firebase Auth Instance
   final _auth = FirebaseAuth.instance;
-
-  // Key to validate our form
   final _formKey = GlobalKey<FormState>();
-
-  // Email & Password controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  // State Variables
-  bool _isLoginMode = true; // Default mode is "Login"
-  bool _isLoading = false; // To display a loading indicator
+  bool _isLoginMode = true;
+  bool _isLoading = false;
+  final Color _primaryColor = const Color(0xFF6B9C5F);
+  final Color _textColor = const Color(0xFF333333);
 
-  // Submit the form
   void _submitForm() async {
-    // Validate the form
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
 
-    // Update the loading state
     setState(() {
       _isLoading = true;
     });
 
     try {
       if (_isLoginMode) {
-        // Mode Login
         await _auth.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
       } else {
-        // Mode Sinup
         await _auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
       }
-      // Si on arrive ici, le login/signup a réussi
-      // L'aiguilleur (qu'on va créer) fera le reste.
     } on FirebaseAuthException catch (error) {
-      // Map Firebase error codes to user-friendly messages
       String errorMessage = "An error occurred, please check your credentials.";
-      if (error.code == 'user-not-found') {
+      if (error.code == 'user-not-found' ||
+          error.code == 'invalid-credential') {
         errorMessage = "No user found for that email.";
       } else if (error.code == 'wrong-password') {
         errorMessage = "Password is incorrect.";
       } else if (error.code == 'email-already-in-use') {
         errorMessage = "This email is already in use.";
+      } else if (error.code == 'weak-password') {
+        errorMessage = "The password is too weak.";
       }
 
-      // Display an error snackbar
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: Colors.red[400],
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
     } finally {
-      // Update the loading state
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -80,7 +74,6 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  // login and signup toggle
   void _toggleMode() {
     setState(() {
       _isLoginMode = !_isLoginMode;
@@ -97,106 +90,190 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Fond blanc comme l'Onboarding
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(30.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Title
+                // --- LOGO ---
+                Center(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: _primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.eco_rounded,
+                      size: 50,
+                      color: _primaryColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // --- TITRE ANIMÉ ---
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    _isLoginMode ? 'Bon retour !' : 'Rejoignez FrigoZen',
+                    key: ValueKey<bool>(_isLoginMode),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: _textColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Text(
-                  _isLoginMode ? 'FrigoZen Login' : 'Create an Account',
-                  // style: Theme.of(context).textTheme.headlineSmall,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black,
-                  ),
+                  _isLoginMode
+                      ? "Log in to manage your fridge."
+                      : "Create an account to start saving.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 40),
 
-                // Email
-                TextFormField(
+                // --- CHAMPS DE TEXTE ---
+                _buildTextField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                  ),
+                  label: 'Email',
+                  icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
-                  autocorrect: false,
-                  textCapitalization: TextCapitalization.none,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty ||
-                        !value.contains('@')) {
-                      return 'Please enter a valid email address.';
-                    }
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 16),
-
-                // Password
-                TextFormField(
+                const SizedBox(height: 20),
+                _buildTextField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                  ),
-                  obscureText: true, // Hide the password
-                  validator: (value) {
-                    if (value == null || value.trim().length < 6) {
-                      return 'The password must be at least 6 characters long.';
-                    }
-                    return null;
-                  },
+                  label: 'Password',
+                  icon: Icons.lock_outline,
+                  isPassword: true,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 30),
 
-                // Submit button (with loading indicator)
-                if (_isLoading)
-                  const CircularProgressIndicator()
-                else
-                  ElevatedButton(
+                // --- BOUTON PRINCIPAL ---
+                SizedBox(
+                  height: 55,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
-                    ),
-                    onPressed: _submitForm,
-                    child: Text(
-                      _isLoginMode ? 'Login' : "Sign Up",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
+                      backgroundColor: _primaryColor,
+                      elevation: 0, // Style "plat" moderne
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Text(
+                              _isLoginMode ? 'Login' : "Sign up",
+                              key: ValueKey<bool>(_isLoginMode),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                   ),
-                const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 20),
 
-                if (!_isLoading)
-                  TextButton(
-                    onPressed: _toggleMode,
-                    child: Text(
-                      _isLoginMode
-                          ? "No account? Sign up"
-                          : 'Already have an account? Login',
-
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
+                // --- BOUTON TOGGLE (Texte) ---
+                TextButton(
+                  onPressed: _isLoading ? null : _toggleMode,
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(color: Colors.grey[600], fontSize: 15),
+                      children: [
+                        TextSpan(
+                          text: _isLoginMode
+                              ? "No account? SIgn up"
+                              : "Already have an account? Login",
+                        ),
+                        TextSpan(
+                          text: _isLoginMode ? "Create an account" : "Login",
+                          style: TextStyle(
+                            color: _primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  // Widget Helper pour créer des champs de texte stylés
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword,
+      keyboardType: keyboardType,
+      style: TextStyle(color: _textColor),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.grey[600]),
+        prefixIcon: Icon(icon, color: Colors.grey[500]),
+        filled: true,
+        fillColor: Colors.grey[50], // Fond très léger
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _primaryColor, width: 2), // Focus Vert
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.red[300]!, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.red[400]!, width: 2),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'This field is required.';
+        }
+        if (label == 'Email' && !value.contains('@')) {
+          return 'Please enter a valid email.';
+        }
+        if (isPassword && value.length < 6) {
+          return 'The password must have more than 6 caracters.';
+        }
+        return null;
+      },
     );
   }
 }

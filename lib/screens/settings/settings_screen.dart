@@ -1,19 +1,5 @@
-// import 'package:flutter/material.dart';
-
-// class SettingsScreen extends StatelessWidget {
-//   const SettingsScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Settings'), centerTitle: true),
-//       body: const Center(child: Text('Settings Screen')),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // On importe Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -21,11 +7,22 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The user currently logged in
     final user = FirebaseAuth.instance.currentUser;
+    final Color _primaryColor = const Color(0xFF6B9C5F);
+    final Color _backgroundColor = const Color(0xFFF9F9F9);
+    final Color _cardColor = Colors.white;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings'), centerTitle: true),
+      backgroundColor: _backgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Settings',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+      ),
       body: ListView(
         children: [
           if (user != null)
@@ -37,14 +34,11 @@ class SettingsScreen extends StatelessWidget {
 
           const Divider(),
 
-          // Logout button
           ListTile(
             leading: Icon(Icons.logout, color: Colors.red[700]),
             title: Text('Logout', style: TextStyle(color: Colors.red[700])),
             onTap: () {
               FirebaseAuth.instance.signOut();
-              // The AuthGate will detect this change
-              // and automatically show the login screen.
             },
           ),
 

@@ -25,6 +25,10 @@ class _InventoryScreenState extends State<InventoryScreen>
   String _selectedLocation = "Tout";
   String _searchQuery = "";
   final Set<String> _loadingItems = {};
+  List<dynamic> _localRecipeCache = [];
+  final Color _primaryColor = const Color(0xFF6B9C5F);
+  final Color _backgroundColor = const Color(0xFFF9F9F9);
+  final Color _cardColor = Colors.white;
 
   @override
   void initState() {
@@ -289,7 +293,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     return keys.join('_');
   }
 
-  List<dynamic> _localRecipeCache = [];
   void _triggerRecipeGeneration(BuildContext context) async {
     if (_localRecipeCache.isNotEmpty) {
       print("Local cache is not empty. let's display the next 3 recipes.");
@@ -429,23 +432,17 @@ class _InventoryScreenState extends State<InventoryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        title: const Text('My Inventory'),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: const Text(
+          'My Inventory',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
         actions: [
-          // TODO: Implement notifications screen
-          // IconButton(
-          //   icon: const Icon(Icons.notifications_outlined),
-          //   onPressed: () { /* Open Notifications */ },
-          // ),
-          // Scan button (your existing logic)
-          // IconButton(
-          //   icon: const Icon(Icons.receipt_long),
-          //   tooltip: 'Scan Receipt',
-          //   onPressed: () {
-          //     _showImageSourceDialog(context);
-          //   },
-          // ),
           IconButton(
             color: Colors.yellow[700],
             icon: const Icon(Icons.lightbulb),
@@ -458,14 +455,14 @@ class _InventoryScreenState extends State<InventoryScreen>
         // 13. The Tabs from your design
         bottom: TabBar(
           controller: _tabController,
+          labelColor: _primaryColor,
           tabs: const [
             Tab(text: 'Tout'),
             Tab(text: 'Frigo'),
             Tab(text: 'Placard'),
             Tab(text: 'Congélateur'),
           ],
-          indicatorColor: Colors.green[400],
-          labelColor: Colors.black,
+          indicatorColor: _primaryColor,
           unselectedLabelColor: Colors.grey,
         ),
       ),
@@ -595,6 +592,7 @@ class _InventoryScreenState extends State<InventoryScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: Card(
         elevation: 0,
+        color: _cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
           side: BorderSide(color: Colors.grey[300]!),

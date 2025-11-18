@@ -19,6 +19,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   bool _isAddingItem = false;
   bool _isMovingItems = false;
   List<QueryDocumentSnapshot> _checkedItems = [];
+  final Color _primaryColor = const Color(0xFF6B9C5F);
+  final Color _backgroundColor = const Color(0xFFF9F9F9);
+  final Color _cardColor = Colors.white;
 
   void _saveItemToFirebase(
     String itemName,
@@ -205,7 +208,17 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Shopping List'), centerTitle: true),
+      backgroundColor: _backgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Shopping List',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
       body: Column(
         children: [
           Padding(
