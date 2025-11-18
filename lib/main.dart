@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/core/auth_gate.dart';
+import 'package:frigo_zen/screens/onboarding/onboarding_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // 2. Créer un "Provider" simple pour notre inventaire
 // Il tiendra juste la liste des noms d'articles de l'inventaire.
@@ -33,17 +35,33 @@ Future<void> main() async {
   // Initialize Firebase with default options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseMessaging.instance.requestPermission();
+  final prefs = await SharedPreferences.getInstance();
+  final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => InventoryProvider(),
-      child: const FrigoZenApp(), // Notre application est l'enfant
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => InventoryProvider()),
+        // Ajoutez votre RevenueProvider ici si vous l'utilisez
+        // ChangeNotifierProvider(create: (context) => RevenueProvider()..init()),
+      ],
+      child: FrigoZenApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
   );
+
+  // runApp(
+  //   ChangeNotifierProvider(
+  //     create: (context) => InventoryProvider(),
+  //     child: const FrigoZenApp(
+  //       hasSeenOnboarding: hasSeenOnboarding,
+  //     ), // Notre application est l'enfant
+  //   ),
+  // );
 }
 
 class FrigoZenApp extends StatelessWidget {
-  const FrigoZenApp({super.key});
+  final bool hasSeenOnboarding;
+  const FrigoZenApp({super.key, required this.hasSeenOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +78,8 @@ class FrigoZenApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const AuthGate(),
+      // home: hasSeenOnboarding ? const AuthGate() : const OnboardingScreen(),
+      home: const OnboardingScreen(),
     );
   }
 }
