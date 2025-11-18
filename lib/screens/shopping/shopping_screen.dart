@@ -5,6 +5,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/main.dart';
 import 'package:frigo_zen/services/shopping_service.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
+import 'package:frigo_zen/components/shopping_list_tile.dart';
+import 'package:frigo_zen/components/shopping_list_empty_state.dart';
+import 'package:frigo_zen/components/input_field.dart';
 
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
@@ -16,12 +19,13 @@ class ShoppingScreen extends StatefulWidget {
 class _ShoppingScreenState extends State<ShoppingScreen> {
   final _shoppingService = ShoppingService();
   final _textController = TextEditingController();
+
   bool _isAddingItem = false;
   bool _isMovingItems = false;
+
   List<QueryDocumentSnapshot> _checkedItems = [];
-  final Color _primaryColor = const Color(0xFF6B9C5F);
+
   final Color _backgroundColor = const Color(0xFFF9F9F9);
-  final Color _cardColor = Colors.white;
 
   void _saveItemToFirebase(
     String itemName,
@@ -172,39 +176,6 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     }
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/shopping.png',
-              width: 250,
-              height: 250,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              "Your shopping list is empty",
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Add an item using the field above to get started.",
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,44 +192,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: InputDecoration(
-                      hintText: 'Add to shopping list...',
-                      prefixIcon: const Icon(Icons.shop),
-                      filled: true,
-                      fillColor:
-                          Theme.of(context).brightness == Brightness.light
-                          ? Colors.grey[200]
-                          : Colors.grey[800],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    enabled: !_isAddingItem,
-                    onSubmitted: (_) => _isAddingItem ? null : _addItem(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(
-                    Icons.add_shopping_cart,
-                    color: Colors.white,
-                  ),
-                  onPressed: _addItem,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.green[400],
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
+          CustomizedInputField(
+            textController: _textController,
+            isAdding: _isAddingItem,
+            onAdd: _addItem,
           ),
 
           Expanded(
@@ -269,7 +206,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return _buildEmptyState();
+                  return const ShoppingListEmptyState();
                 }
 
                 final items = snapshot.data!.docs;
@@ -293,44 +230,16 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   itemBuilder: (context, index) {
                     final item = items[index];
                     final data = item.data() as Map<String, dynamic>;
-                    final itemName = data['name'];
-                    final bool isChecked = data['isChecked'];
 
-                    return Dismissible(
-                      key: Key(item.id),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (_) =>
+                    return ShoppinglistTile(
+                      title: data["name"],
+                      id: item.id,
+                      isChecked: data["isChecked"],
+                      onToggle: () => _shoppingService.updateItem(item.id, {
+                        'isChecked': !data["isChecked"],
+                      }),
+                      onDelete: () =>
                           _shoppingService.removeItemFromShoppingList(item.id),
-                      background: Container(
-                        color: Colors.red[700],
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20),
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      child: ListTile(
-                        leading: Checkbox(
-                          activeColor: Colors.green[400],
-                          value: isChecked,
-                          onChanged: (_) => _shoppingService.updateItem(
-                            item.id,
-                            {'isChecked': !isChecked},
-                          ),
-                        ),
-                        title: Text(
-                          itemName,
-                          style: TextStyle(
-                            decoration: isChecked
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
-                            color: isChecked ? Colors.grey[600] : Colors.black,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () => _shoppingService
-                              .removeItemFromShoppingList(item.id),
-                        ),
-                      ),
                     );
                   },
                 );
