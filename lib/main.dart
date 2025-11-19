@@ -49,8 +49,6 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => InventoryProvider()),
-        // Ajoutez votre RevenueProvider ici si vous l'utilisez
-        // ChangeNotifierProvider(create: (context) => RevenueProvider()..init()),
         ChangeNotifierProvider.value(value: revenueProvider),
       ],
       child: FrigoZenApp(hasSeenOnboarding: hasSeenOnboarding),
@@ -101,8 +99,8 @@ class FrigoZenApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      // home: hasSeenOnboarding ? const AuthGate() : const OnboardingScreen(),
-      home: const OnboardingScreen(),
+      home: hasSeenOnboarding ? const AuthGate() : const OnboardingScreen(),
+      // home: const OnboardingScreen(),
     );
   }
 }
