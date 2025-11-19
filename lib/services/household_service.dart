@@ -85,4 +85,23 @@ class HouseholdService {
       'role': 'member',
     }, SetOptions(merge: true));
   }
+
+  Stream<DocumentSnapshot?> getCurrentHouseholdStream() async* {
+    final user = _auth.currentUser;
+    if (user == null) yield null;
+
+    final userDocSnapshot = await _firestore
+        .collection('users')
+        .doc(user!.uid)
+        .get();
+
+    if (!userDocSnapshot.exists ||
+        !userDocSnapshot.data()!.containsKey('householdId')) {
+      yield null;
+      return;
+    }
+
+    final String householdId = userDocSnapshot.get('householdId');
+    yield* _firestore.collection('households').doc(householdId).snapshots();
+  }
 }
