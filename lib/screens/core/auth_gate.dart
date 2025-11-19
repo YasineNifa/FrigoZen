@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/screens/auth/auth_screen.dart';
+import 'package:frigo_zen/screens/core/household_setup_screen.dart';
 import 'package:frigo_zen/screens/core/navigation_shell.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,9 +29,33 @@ class _AuthGateState extends State<AuthGate> {
 
         // if the snapshot has data (i.e., the user is logged in)
         if (snapshot.hasData) {
+          final user = snapshot.data!;
           _setupNotifications(snapshot.data!);
-          // We show the main app page (our NavigationShell)
-          return const NavigationShell();
+          return StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .snapshots(),
+            builder: (context, userDocSnapshot) {
+              if (userDocSnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              if (userDocSnapshot.hasData && userDocSnapshot.data!.exists) {
+                final data =
+                    userDocSnapshot.data!.data() as Map<String, dynamic>?;
+                final householdId = data?['householdId'];
+                if (householdId != null) {
+                  return const NavigationShell();
+                }
+                return const HouseholdSetupScreen();
+              } else {
+                return const HouseholdSetupScreen();
+              }
+            },
+          );
         }
 
         // We show the authentication screen (AuthScreen) if the user is not logged in
