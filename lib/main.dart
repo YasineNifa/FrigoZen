@@ -65,10 +65,35 @@ class FrigoZenApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color primaryColor = const Color(0xFF6B9C5F);
+    final Color backgroundColor = const Color(0xFFF9F9F9);
+    const Color cardColor = Colors.white;
     return MaterialApp(
       title: "FrigoZen",
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primaryColor: primaryColor,
+        scaffoldBackgroundColor: backgroundColor,
+        cardColor: cardColor,
+        // This ensures buttons and icons use your green by default
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryColor,
+          primary: primaryColor,
+          surface: cardColor,
+          background: backgroundColor,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: cardColor,
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+
+        // primarySwatch: Colors.green,
         useMaterial3: true,
         navigationBarTheme: NavigationBarThemeData(
           indicatorColor: Colors.green[100],

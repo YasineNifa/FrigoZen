@@ -26,9 +26,6 @@ class _InventoryScreenState extends State<InventoryScreen>
   String _searchQuery = "";
   final Set<String> _loadingItems = {};
   List<dynamic> _localRecipeCache = [];
-  final Color _primaryColor = const Color(0xFF6B9C5F);
-  final Color _backgroundColor = const Color(0xFFF9F9F9);
-  final Color _cardColor = Colors.white;
 
   @override
   void initState() {
@@ -432,16 +429,8 @@ class _InventoryScreenState extends State<InventoryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: const Text(
-          'My Inventory',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        title: const Text('My Inventory'),
         actions: [
           IconButton(
             color: Colors.yellow[700],
@@ -452,17 +441,16 @@ class _InventoryScreenState extends State<InventoryScreen>
             },
           ),
         ],
-        // 13. The Tabs from your design
         bottom: TabBar(
           controller: _tabController,
-          labelColor: _primaryColor,
+          labelColor: Theme.of(context).primaryColor,
           tabs: const [
             Tab(text: 'Tout'),
             Tab(text: 'Frigo'),
             Tab(text: 'Placard'),
             Tab(text: 'Congélateur'),
           ],
-          indicatorColor: _primaryColor,
+          indicatorColor: Theme.of(context).primaryColor,
           unselectedLabelColor: Colors.grey,
         ),
       ),
@@ -541,8 +529,8 @@ class _InventoryScreenState extends State<InventoryScreen>
         onPressed: () {
           _showImageSourceDialog(context);
         },
-        backgroundColor: Colors.green[400],
-        child: const Icon(Icons.add),
+        backgroundColor: Theme.of(context).primaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -592,7 +580,7 @@ class _InventoryScreenState extends State<InventoryScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: Card(
         elevation: 0,
-        color: _cardColor,
+        color: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
           side: BorderSide(color: Colors.grey[300]!),

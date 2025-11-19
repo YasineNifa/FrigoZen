@@ -1,16 +1,87 @@
-// lib/screens/recipes/recipe_detail_screen.dart
-
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/services/recipe_service.dart';
 
-class RecipeDetailScreen extends StatelessWidget {
+class RecipeDetailScreen extends StatefulWidget {
   final dynamic recipeData;
 
   const RecipeDetailScreen({super.key, required this.recipeData});
 
   @override
+  State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+}
+
+class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  final _recipeService = RecipeService();
+  bool _isFavorite = false;
+  String? _favoriteDocId;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
+
+  void _checkIfFavorite() async {
+    final recipe = Map<String, dynamic>.from(widget.recipeData);
+    final title = recipe['title'];
+    if (title != null) {
+      final docId = await _recipeService.getFavoriteDocId(title);
+      if (mounted) {
+        setState(() {
+          _isFavorite = docId != null;
+          _favoriteDocId = docId;
+        });
+      }
+    }
+  }
+
+  void _toggleFavorite() async {
+    final recipe = Map<String, dynamic>.from(widget.recipeData);
+
+    // Optimistic UI update (update icon immediately)
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+
+    try {
+      if (_isFavorite) {
+        // SAVE
+        await _recipeService.saveRecipe(recipe);
+        // Re-fetch ID
+        _checkIfFavorite();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Recipe saved to Favorites! ❤️')),
+          );
+        }
+      } else {
+        // REMOVE
+        if (_favoriteDocId != null) {
+          await _recipeService.removeRecipe(_favoriteDocId!);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Recipe removed from Favorites.')),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      // Revert UI on error
+      if (mounted) {
+        setState(() {
+          _isFavorite = !_isFavorite;
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final recipe = Map<String, dynamic>.from(recipeData);
-    final String title = recipe['title'] ?? 'Recette sans titre';
+    final recipe = Map<String, dynamic>.from(widget.recipeData);
+    final String title = recipe['title'] ?? 'Receipe without title';
     final String description = recipe['description'] ?? '';
     final String? imageUrl = recipe['imageUrl'];
     final List<dynamic> usedItems = recipe['usedItems'] ?? [];
@@ -18,14 +89,28 @@ class RecipeDetailScreen extends StatelessWidget {
     final List<dynamic> instructions = recipe['instructions'] ?? [];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA), // Même fond que la liste
       body: CustomScrollView(
         slivers: [
-          // AppBar Personnalisée avec l'image en fond
           SliverAppBar(
             expandedHeight: 250.0,
             floating: false,
             pinned: true,
+            actions: [
+              Container(
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite ? Colors.red : Colors.black87,
+                  ),
+                  onPressed: _toggleFavorite,
+                ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 title,
@@ -172,9 +257,16 @@ class RecipeDetailScreen extends StatelessWidget {
     final quantity = item['quantity'] ?? '';
     final isExpiring = item['isExpiringSoon'] == true;
 
-    Color bgColor = isOwned ? Colors.green[50]! : Colors.orange[50]!;
-    Color textColor = isOwned ? Colors.green[800]! : Colors.orange[800]!;
-    Color borderColor = isOwned ? Colors.green[200]! : Colors.orange[200]!;
+    final primaryColor =
+        Colors.green; // Or Theme.of(context).primaryColor if you pass context
+
+    Color bgColor = isOwned
+        ? const Color(0xFF6B9C5F).withOpacity(0.1)
+        : Colors.orange[50]!;
+    Color textColor = isOwned ? const Color(0xFF6B9C5F) : Colors.orange[800]!;
+    Color borderColor = isOwned
+        ? const Color(0xFF6B9C5F).withOpacity(0.3)
+        : Colors.orange[200]!;
 
     if (isOwned && isExpiring) {
       bgColor = Colors.red[50]!;

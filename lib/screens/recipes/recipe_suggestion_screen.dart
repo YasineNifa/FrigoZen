@@ -75,7 +75,7 @@ class RecipeGridTile extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
@@ -89,13 +89,11 @@ class RecipeGridTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image de la recette
             Expanded(
               flex: 3,
               child: Stack(
                 children: [
                   _buildGridImage(imageUrl),
-                  // Badge de Match en haut à droite
                   Positioned(
                     top: 8,
                     right: 8,
@@ -139,7 +137,6 @@ class RecipeGridTile extends StatelessWidget {
                 ],
               ),
             ),
-            // Titre et Description
             Expanded(
               flex: 2,
               child: Padding(
@@ -158,12 +155,6 @@ class RecipeGridTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
-                    // On pourrait ajouter une courte description ici aussi, si désiré
-                    // Text(
-                    //   recipe['description'] ?? '',
-                    //   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    //   maxLines: 2,
-                    //   overflow: TextOverflow.ellipsis,
                     // ),
                     const Spacer(),
                     Align(
