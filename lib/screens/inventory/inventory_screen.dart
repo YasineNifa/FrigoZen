@@ -8,6 +8,7 @@ import 'package:frigo_zen/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
+import 'package:frigo_zen/services/household_service.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -430,7 +431,19 @@ class _InventoryScreenState extends State<InventoryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Inventory'),
+        // title: const Text('My Inventory'),
+        title: StreamBuilder<DocumentSnapshot?>(
+          stream: HouseholdService().getCurrentHouseholdStream(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData &&
+                snapshot.data != null &&
+                snapshot.data!.exists) {
+              final data = snapshot.data!.data() as Map<String, dynamic>;
+              return Text(data['name'] ?? 'My Inventory');
+            }
+            return const Text('');
+          },
+        ),
         actions: [
           IconButton(
             color: Colors.yellow[700],
