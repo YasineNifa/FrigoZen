@@ -451,7 +451,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             Tab(text: 'Congélateur'),
           ],
           indicatorColor: Theme.of(context).primaryColor,
-          unselectedLabelColor: Colors.grey,
+          unselectedLabelColor: Theme.of(context).disabledColor,
         ),
       ),
 
@@ -469,7 +469,6 @@ class _InventoryScreenState extends State<InventoryScreen>
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                // Use platform-adaptive colors
                 fillColor: Theme.of(context).brightness == Brightness.light
                     ? Colors.grey[200]
                     : Colors.grey[800],
@@ -542,22 +541,20 @@ class _InventoryScreenState extends State<InventoryScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Category Title (e.g., "Légumes")
         Padding(
           padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 10.0),
           child: Text(
-            category, // TODO: Translate this name (e.g., "Dairy" -> "Produits laitiers")
+            category,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
-        // List of items in this category
         ListView.builder(
           itemCount: items.length,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             final item = items[index];
-            return _buildItemCard(item); // Call the item card widget
+            return _buildItemCard(item);
           },
         ),
       ],
@@ -567,7 +564,6 @@ class _InventoryScreenState extends State<InventoryScreen>
   Widget _buildItemCard(QueryDocumentSnapshot item) {
     final data = item.data() as Map<String, dynamic>;
     final String itemName = data['name'] ?? 'Unnamed Item';
-    final String canonicalName = data['canonicalName'] ?? itemName;
     final int itemQuantity = data["totalQuantity"] ?? 1;
     final Timestamp? expirationDate = data['earliestExpirationDate'];
 
