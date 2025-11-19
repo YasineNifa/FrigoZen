@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/recipe_service.dart';
 import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
@@ -120,7 +121,10 @@ class FavoritesScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (ctx) => const PaywallScreen()),
+                    // MaterialPageRoute(builder: (ctx) => const PaywallScreen()),
+                    MaterialPageRoute(
+                      builder: (ctx) => const ModernPaywallScreen(),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(

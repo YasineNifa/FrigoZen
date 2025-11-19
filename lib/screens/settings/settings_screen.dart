@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/services.dart';
+import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 import 'package:frigo_zen/screens/paywall/paywall_screen.dart';
 import 'package:frigo_zen/services/household_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -135,7 +136,8 @@ class SettingsScreen extends StatelessWidget {
                     // Ouvre le Paywall
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (ctx) => const PaywallScreen(),
+                        // builder: (ctx) => const PaywallScreen(),
+                        builder: (ctx) => const ModernPaywallScreen(),
                       ),
                     );
                   },
