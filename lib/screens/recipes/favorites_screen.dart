@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/recipe_service.dart';
 import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
+import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:frigo_zen/screens/paywall/paywall_screen.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -9,66 +12,142 @@ class FavoritesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recipeService = RecipeService();
+    final isPro = context.watch<RevenueProvider>().isPro;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('My Cookbook')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: recipeService.getFavoritesStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: isPro
+          ? _buildFavoritesList(context, recipeService)
+          : _buildLockedState(context),
+    );
+  }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/onboarding/lost.png',
-                        height: MediaQuery.of(context).size.height * 0.35,
-                      ),
-                      Text(
-                        "No favorite recipes yet",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Save recipes you like to find them here.",
-                        style: TextStyle(color: Colors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+  Widget _buildFavoritesList(
+    BuildContext context,
+    RecipeService recipeService,
+  ) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: recipeService.getFavoritesStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/onboarding/lost.png',
+                  height: MediaQuery.of(context).size.height * 0.35,
+                  errorBuilder: (c, e, s) => Icon(
+                    Icons.favorite_border,
+                    size: 80,
+                    color: Colors.grey[300],
                   ),
-                ],
-              ),
-            );
-          }
-
-          final docs = snapshot.data!.docs;
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              return _buildFavoriteCard(context, data);
-            },
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "No favorite recipes yet",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Save recipes you like to find them here.",
+                  style: TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           );
-        },
+        }
+
+        final docs = snapshot.data!.docs;
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: docs.length,
+          itemBuilder: (context, index) {
+            final data = docs[index].data() as Map<String, dynamic>;
+            return _buildFavoriteCard(context, data);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildLockedState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.lock_outline,
+                size: 60,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Premium Feature",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "Upgrade to FrigoZen Pro to save your favorite AI-generated recipes and build your personal cookbook.",
+              style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (ctx) => const PaywallScreen()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  "Unlock Cookbook",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildFavoriteCard(BuildContext context, Map<String, dynamic> recipe) {
-    final String title = recipe['title'] ?? 'Recette sans titre';
+    final String title = recipe['title'] ?? 'Untitled';
     final String? imageUrl = recipe['imageUrl'];
     final String description = recipe['description'] ?? '';
 
@@ -127,7 +206,7 @@ class FavoritesScreen extends StatelessWidget {
                     ),
             ),
 
-            // Droite: Contenu
+            // Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -158,7 +237,7 @@ class FavoritesScreen extends StatelessWidget {
               ),
             ),
 
-            // Flèche
+            // Arrow
             const Padding(
               padding: EdgeInsets.only(right: 16.0),
               child: Icon(

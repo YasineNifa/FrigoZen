@@ -217,10 +217,18 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.logout, color: Colors.red[700]),
             title: Text('Logout', style: TextStyle(color: Colors.red[700])),
-            onTap: () {
+            onTap: () async {
               context.read<RevenueProvider>().setCustomerInfo(null);
-              Purchases.logOut();
-              FirebaseAuth.instance.signOut();
+
+              try {
+                final isAnonymous = await Purchases.isAnonymous;
+                if (!isAnonymous) {
+                  await Purchases.logOut();
+                }
+              } catch (e) {
+                print("Error logout RevenueCat: $e");
+              }
+              await FirebaseAuth.instance.signOut();
             },
           ),
         ],
