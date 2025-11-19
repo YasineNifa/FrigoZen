@@ -72,9 +72,10 @@ class FrigoZenApp extends StatelessWidget {
       title: "FrigoZen",
       theme: ThemeData(
         primaryColor: primaryColor,
-        scaffoldBackgroundColor: backgroundColor,
         cardColor: cardColor,
-        // This ensures buttons and icons use your green by default
+        scaffoldBackgroundColor: backgroundColor,
+        disabledColor: Colors.grey,
+        applyElevationOverlayColor: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: primaryColor,
           primary: primaryColor,
@@ -92,8 +93,6 @@ class FrigoZenApp extends StatelessWidget {
             fontSize: 20,
           ),
         ),
-
-        // primarySwatch: Colors.green,
         useMaterial3: true,
         navigationBarTheme: NavigationBarThemeData(
           indicatorColor: Colors.green[100],
