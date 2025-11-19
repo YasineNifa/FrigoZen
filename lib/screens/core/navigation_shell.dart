@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/inventory/inventory_screen.dart';
 import 'package:frigo_zen/screens/settings/settings_screen.dart';
 import 'package:frigo_zen/screens/shopping/shopping_screen.dart';
+import 'package:frigo_zen/screens/recipes/favorites_screen.dart';
 
 class NavigationShell extends StatefulWidget {
   const NavigationShell({super.key});
@@ -18,6 +19,7 @@ class _NavigationShellState extends State<NavigationShell> {
   final List<Widget> _screens = [
     const InventoryScreen(),
     const ShoppingScreen(),
+    const FavoritesScreen(),
     const SettingsScreen(),
   ];
 
@@ -51,6 +53,11 @@ class _NavigationShellState extends State<NavigationShell> {
             icon: Icon(Icons.shopping_cart_outlined),
             selectedIcon: Icon(Icons.shopping_cart),
             label: 'List',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Favoris',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
