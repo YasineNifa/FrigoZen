@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:frigo_zen/firebase_options.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -34,10 +36,38 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _passwordController.text.trim(),
         );
       } else {
-        await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+        final FirebaseApp tempApp = await Firebase.initializeApp(
+          name: 'tempRegister',
+          options: DefaultFirebaseOptions.currentPlatform,
         );
+
+        try {
+          await FirebaseAuth.instanceFor(
+            app: tempApp,
+          ).createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+
+          if (mounted) {
+            setState(() {
+              _isLoginMode = true;
+              _passwordController.clear();
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  "Account created successfully. You can now log in.",
+                ),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 4),
+              ),
+            );
+          }
+        } finally {
+          await tempApp.delete();
+        }
       }
     } on FirebaseAuthException catch (error) {
       String errorMessage = "An error occurred, please check your credentials.";
@@ -122,7 +152,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: Text(
-                    _isLoginMode ? 'Bon retour !' : 'Rejoignez FrigoZen',
+                    _isLoginMode ? 'Welcome back' : 'Welcome to FrigoZen',
                     key: ValueKey<bool>(_isLoginMode),
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -158,14 +188,13 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // --- BOUTON PRINCIPAL ---
                 SizedBox(
                   height: 55,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _primaryColor,
-                      elevation: 0, // Style "plat" moderne
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -204,8 +233,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       children: [
                         TextSpan(
                           text: _isLoginMode
-                              ? "No account? SIgn up"
-                              : "Already have an account? Login",
+                              ? "No account? "
+                              : "Already have an account? ",
                         ),
                         TextSpan(
                           text: _isLoginMode ? "Create an account" : "Login",
