@@ -3,24 +3,46 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class InventoryService {
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
-  final CollectionReference _inventoryCollection = FirebaseFirestore.instance
-      .collection('users')
-      .doc(FirebaseAuth.instance.currentUser?.uid)
-      .collection('inventory');
+  Future<String?> _getHouseholdId() async {
+    if (_userId == null) return null;
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userId)
+        .get();
+
+    if (userDoc.exists && userDoc.data()!.containsKey('householdId')) {
+      return userDoc.data()!['householdId'];
+    }
+    return null;
+  }
+
+  Future<CollectionReference<Map<String, dynamic>>>
+  _getInventoryCollection() async {
+    final householdId = await _getHouseholdId();
+    if (householdId == null) throw Exception("No householdId found!");
+    return FirebaseFirestore.instance
+        .collection('households')
+        .doc(householdId)
+        .collection('inventory');
+  }
 
   Future<void> removeItemFromInventory(String documentId) async {
+    final _inventoryCollection = await _getInventoryCollection();
     await _inventoryCollection.doc(documentId).delete();
   }
 
   Future<void> updateItem(String documentId, Map<String, dynamic> data) async {
+    final _inventoryCollection = await _getInventoryCollection();
     await _inventoryCollection.doc(documentId).update(data);
   }
 
   Future<DocumentSnapshot> getInventoryDocument(String documentId) async {
+    final _inventoryCollection = await _getInventoryCollection();
     return await _inventoryCollection.doc(documentId).get();
   }
 
   Future<QuerySnapshot> getInventory() async {
+    final _inventoryCollection = await _getInventoryCollection();
     return await _inventoryCollection.get();
   }
 
@@ -33,16 +55,22 @@ class InventoryService {
     String? category,
     String? location,
   }) async {
+    final _inventoryCollection = await _getInventoryCollection();
     final now = Timestamp.now();
     final existingDoc = await _findExistingItem(canonicalName);
-    final int days = dvm ?? 7;
-    final int dvmMillis = days * 24 * 60 * 60 * 1000;
-    final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(
-      now.millisecondsSinceEpoch + dvmMillis,
-    );
+    final Timestamp finalExpirationDate;
+    if (expirationDate != null) {
+      finalExpirationDate = expirationDate;
+    } else {
+      final int days = dvm ?? 7;
+      final int dvmMillis = days * 24 * 60 * 60 * 1000;
+      finalExpirationDate = Timestamp.fromMillisecondsSinceEpoch(
+        now.millisecondsSinceEpoch + dvmMillis,
+      );
+    }
     final newBatch = {
       'quantity': quantity,
-      'expirationDate': expirationDate,
+      'expirationDate': finalExpirationDate,
       'addedAt': now,
     };
 
@@ -72,13 +100,14 @@ class InventoryService {
         'location': location ?? 'Fridge',
         'totalQuantity': quantity,
         'batches': [newBatch],
-        'earliestExpirationDate': newBatch['expirationDate'],
+        'earliestExpirationDate': finalExpirationDate,
         'createdAt': now,
       });
     }
   }
 
   Future<QueryDocumentSnapshot?> _findExistingItem(String canonicalName) async {
+    final _inventoryCollection = await _getInventoryCollection();
     final query = await _inventoryCollection
         .where('canonicalName', isEqualTo: canonicalName)
         .limit(1)
@@ -102,20 +131,24 @@ class InventoryService {
     return batches.first['expirationDate'];
   }
 
-  Stream<QuerySnapshot> getInventoryStream({String location = "Tout"}) {
-    if (_userId == null) {
-      return Stream.empty();
+  Stream<QuerySnapshot> getInventoryStream({String location = "Tout"}) async* {
+    final householdId = await _getHouseholdId();
+
+    if (householdId == null) {
+      yield* Stream.empty();
+      return;
     }
 
-    Query query = _inventoryCollection;
+    Query query = FirebaseFirestore.instance
+        .collection('households')
+        .doc(householdId)
+        .collection('inventory');
 
     if (location != "Tout") {
       query = query.where('location', isEqualTo: location);
     }
 
-    query = query.orderBy('name');
-
-    return query.snapshots();
+    yield* query.orderBy('name').snapshots();
   }
 
   Future<void> incrementItemQuantity(String docId, int currentQuantity) async {
