@@ -9,6 +9,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
 import 'package:frigo_zen/services/household_service.dart';
+import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -42,6 +45,22 @@ class _InventoryScreenState extends State<InventoryScreen>
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<bool> _checkPremiumStatus(BuildContext context) async {
+    final isPro = context.read<RevenueProvider>().isPro;
+
+    if (isPro) {
+      return true;
+    } else {
+      try {
+        await RevenueCatUI.presentPaywallIfNeeded("default");
+        return context.read<RevenueProvider>().isPro;
+      } on PurchasesError catch (e) {
+        print("Error while displaying Paywall: $e");
+        return false;
+      }
+    }
   }
 
   void _handleTabSelection() {
@@ -97,8 +116,27 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
   }
 
-  void _showImageSourceDialog(BuildContext context) {
+  void _showImageSourceDialog(BuildContext context) async {
     final OcrService ocrService = OcrService();
+    final bool isPro = context.read<RevenueProvider>().isPro;
+    Widget buildProBadge() {
+      return Container(
+        margin: const EdgeInsets.only(left: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.red[400],
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: const Text(
+          "PRO",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
 
     showModalBottomSheet(
       context: context,
@@ -113,8 +151,18 @@ class _InventoryScreenState extends State<InventoryScreen>
                   color: Color.fromARGB(255, 32, 32, 32),
                 ),
               ), //camera_alt
-              title: const Text('Scan a receipt with camera'),
-              onTap: () {
+              title: Row(
+                children: [
+                  const Text('Scan receipt (Camera)'),
+                  if (!isPro) buildProBadge(),
+                ],
+              ),
+              trailing: !isPro
+                  ? const Icon(Icons.lock_outline, color: Colors.grey)
+                  : null,
+              onTap: () async {
+                final hasAccess = await _checkPremiumStatus(context);
+                if (!hasAccess) return;
                 Navigator.of(ctx).pop();
                 ocrService.pickAndProcessReceipt(context, ImageSource.camera);
               },
@@ -127,8 +175,18 @@ class _InventoryScreenState extends State<InventoryScreen>
                   color: Color.fromARGB(255, 32, 32, 32),
                 ),
               ),
-              title: const Text('Select a receipt from gallery'),
-              onTap: () {
+              title: Row(
+                children: [
+                  const Text('Select from gallery'),
+                  if (!isPro) buildProBadge(),
+                ],
+              ),
+              trailing: !isPro
+                  ? const Icon(Icons.lock_outline, color: Colors.grey)
+                  : null,
+              onTap: () async {
+                final hasAccess = await _checkPremiumStatus(context);
+                if (!hasAccess) return;
                 Navigator.of(ctx).pop();
                 ocrService.pickAndProcessReceipt(context, ImageSource.gallery);
               },
@@ -292,6 +350,8 @@ class _InventoryScreenState extends State<InventoryScreen>
   }
 
   void _triggerRecipeGeneration(BuildContext context) async {
+    final hasAccess = await _checkPremiumStatus(context);
+    if (!hasAccess) return;
     if (_localRecipeCache.isNotEmpty) {
       print("Local cache is not empty. let's display the next 3 recipes.");
       final recipesToShow = _localRecipeCache.take(3).toList();
