@@ -6,6 +6,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:frigo_zen/services/revenue_provider.dart';
 
 // 2. Créer un "Provider" simple pour notre inventaire
 // Il tiendra juste la liste des noms d'articles de l'inventaire.
@@ -37,6 +39,11 @@ Future<void> main() async {
   await FirebaseMessaging.instance.requestPermission();
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+  await Purchases.configure(
+    PurchasesConfiguration("test_khYjXVBlKWQdgHIghJZqvHlaXyV"),
+  );
+  final revenueProvider = RevenueProvider();
+  await revenueProvider.init();
 
   runApp(
     MultiProvider(
@@ -44,19 +51,11 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => InventoryProvider()),
         // Ajoutez votre RevenueProvider ici si vous l'utilisez
         // ChangeNotifierProvider(create: (context) => RevenueProvider()..init()),
+        ChangeNotifierProvider.value(value: revenueProvider),
       ],
       child: FrigoZenApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
   );
-
-  // runApp(
-  //   ChangeNotifierProvider(
-  //     create: (context) => InventoryProvider(),
-  //     child: const FrigoZenApp(
-  //       hasSeenOnboarding: hasSeenOnboarding,
-  //     ), // Notre application est l'enfant
-  //   ),
-  // );
 }
 
 class FrigoZenApp extends StatelessWidget {
