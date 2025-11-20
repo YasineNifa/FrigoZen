@@ -12,6 +12,7 @@ import 'package:frigo_zen/services/household_service.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -491,7 +492,6 @@ class _InventoryScreenState extends State<InventoryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // title: const Text('My Inventory'),
         title: StreamBuilder<DocumentSnapshot?>(
           stream: HouseholdService().getCurrentHouseholdStream(),
           builder: (context, snapshot) {
@@ -504,6 +504,8 @@ class _InventoryScreenState extends State<InventoryScreen>
             return const Text('');
           },
         ),
+        // title: Text(AppLocalizations.of(context)!.inventoryTab),
+        // title: const Text('My Inventory'),
         actions: [
           IconButton(
             color: Colors.yellow[700],

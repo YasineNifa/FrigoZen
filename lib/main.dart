@@ -8,6 +8,8 @@ import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 // 2. Créer un "Provider" simple pour notre inventaire
 // Il tiendra juste la liste des noms d'articles de l'inventaire.
@@ -99,6 +101,13 @@ class FrigoZenApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en'), Locale('fr')],
       home: hasSeenOnboarding ? const AuthGate() : const OnboardingScreen(),
       // home: const OnboardingScreen(),
     );

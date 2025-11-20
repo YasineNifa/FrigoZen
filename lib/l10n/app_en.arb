@@ -1,0 +1,14 @@
+{
+  "appTitle": "FrigoZen",
+  "inventoryTab": "Inventory",
+  "shoppingListTab": "Shopping List",
+  "favoritesTab": "Favorites",
+  "settingsTab": "Settings",
+  "scanReceipt": "Scan Receipt",
+  "db_milk": "Milk",
+  "db_chicken": "Chicken",
+  "db_apple": "Apple",
+  "db_tomato": "Tomato",
+  "db_pasta": "Pasta",
+  "db_rice": "Rice"
+}

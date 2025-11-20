@@ -45,6 +45,9 @@ dependencies:
   shared_preferences: ^2.5.3
   purchases_flutter: ^9.9.7
   purchases_ui_flutter: ^9.9.7
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +70,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
   assets:
     - assets/images/
     - assets/onboarding/
