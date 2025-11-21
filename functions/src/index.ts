@@ -466,93 +466,88 @@ export const checkExpirations = onMessagePublished(
     const tomorrow = new Date(now);
     tomorrow.setDate(now.getDate() + 1);
 
-    // On calcule la date d'il y a 3 jours (pour les "périmés")
     const threeDaysAgo = new Date(now);
     threeDaysAgo.setDate(now.getDate() - 3);
 
     try {
-      // all users
-      const usersSnapshot = await db.collection("users").get();
-      logger.info(`Scan ${usersSnapshot.size} users.`);
+      const householdsSnapshot = await db.collection("households").get();
+      logger.info(`Scan ${householdsSnapshot.size} house.`);
 
-      for (const userDoc of usersSnapshot.docs) {
-        const userId = userDoc.id;
+      for (const householdDoc of householdsSnapshot.docs) {
+        const householdId = householdDoc.id;
+        const householdData = householdDoc.data();
 
-        // 3. Trouver les articles qui expirent "demain" pour cet utilisateur
-        // Nous cherchons les articles où la date la plus proche est :
-        // > (Il y a 3 jours) ET < (Demain)
         const inventorySnapshot = await db
-          .collection("users")
-          .doc(userId)
+          .collection("households")
+          .doc(householdId)
           .collection("inventory")
           .where(
-            "earliestExpirationDate",
-            ">=",
-            Timestamp.fromDate(threeDaysAgo)
+            "earliestExpirationDate", ">=", Timestamp.fromDate(threeDaysAgo)
           )
           .where(
-            "earliestExpirationDate",
-            "<=",
-            Timestamp.fromDate(tomorrow)
+            "earliestExpirationDate", "<=", Timestamp.fromDate(tomorrow)
           )
           .get();
 
         if (inventorySnapshot.empty) {
-          continue; // Cet utilisateur n'a rien qui périme, on passe au suivant
+          continue;
         }
 
-        // 4. On a trouvé des articles ! On prépare la notification.
         const expiringItems = inventorySnapshot.docs.map(
           (doc) => doc.data().name
         );
         const itemCount = expiringItems.length;
-        const messageBody = (
-          `🔔 ${itemCount} article(s) expire sooner` +
-          `: ${expiringItems.join(", ")}`
+        const msg = (
+          `🔔 ${itemCount} articles expire sooner : ${expiringItems.join(", ")}`
         );
 
-        logger.info(
-          `Utilisateur ${userId} a ${itemCount} articles` +
-          `expirant. Corps: ${messageBody}`
-        );
+        logger.info(`Maison ${householdId} : ${itemCount} articles expirant.`);
 
-        // 5. Récupérer les "tokens" (adresses) de cet utilisateur
-        const tokensSnapshot = await db
-          .collection("users")
-          .doc(userId)
-          .collection("deviceTokens")
-          .get();
-        if (tokensSnapshot.empty) {
-          continue; // L'utilisateur n'a pas d'appareil enregistré
+        const members = householdData.members || [];
+
+        if (members.length === 0) continue;
+
+        let allTokens: string[] = [];
+
+        for (const memberId of members) {
+          const tokensSnapshot = await db
+            .collection("users")
+            .doc(memberId)
+            .collection("deviceTokens")
+            .get();
+
+          if (!tokensSnapshot.empty) {
+            const userTokens = tokensSnapshot.docs.map((t) => t.id);
+            allTokens = allTokens.concat(userTokens);
+          }
         }
 
-        const tokens = tokensSnapshot.docs.map((doc) => doc.id);
+        if (allTokens.length === 0) {
+          logger.info(
+            `Aucun appareil enregistré pour la maison ${householdId}.`
+          );
+          continue;
+        }
 
-        // 6. Construire le message FCM
+        // Dédoublonner les tokens (au cas où)
+        const uniqueTokens = [...new Set(allTokens)];
+
+        // 5. Construire le message FCM
         const message: MulticastMessage = {
-          tokens: tokens,
+          tokens: uniqueTokens,
           notification: {
             title: "🔔 Alert Anti-Gaspi FrigoZen",
-            body: messageBody,
-            // body: messageBody.length > 220 ?
-            // `${messageBody.substring(0, 220)}...` : messageBody,
+            body: msg.length > 220 ? `${msg.substring(0, 220)}...` : msg,
           },
-          // "data" permet d'envoyer des infos à l'app si elle est ouverte
-          data: {screen: "inventory"},
+          data: {screen: "inventory", householdId: householdId},
         };
-
-        // 7. Envoyer la notification !
         const response = await messaging.sendEachForMulticast(message);
         if (response.failureCount > 0) {
-          logger.warn(
-            "Échec d'envoi de notification à "+
-            `${response.failureCount} tokens.`
-          );
-          // Dans une V2, on pourrait ici supprimer les
-          // tokens invalides de la DB
+          logger.warn(`Échec d'envoi partiel pour la maison ${householdId}.`);
         }
       }
-      logger.info("Daily Expirations Scan... Done");
+
+      logger.info("Daily Expirations Scan... Done.");
       return null;
     } catch (error) {
       logger.error("Error (checkExpirations):", error);
