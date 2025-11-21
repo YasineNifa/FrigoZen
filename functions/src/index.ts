@@ -219,23 +219,31 @@ export const getSmartItemData = onCall(
       const prompt = `
         You are a database normalizer for the FrigoZen app.
         The user will provide a single product name, possibly with misspellings.
-        
-        Your job is to analyze this name and return a structured JSON object.
-        - Correct spelling and translate to English for the canonicalName.
-        - Guess the quantity if specified (e.g., "6 eggs" -> 6).
-        - Estimate its storage location, category, and average shelf life (DVM).
+
+        RULES FOR ESTIMATION:
+        1. **Canonical Name:** Correct spelling and translate to English.
+        2. **Quantity:** Guess quantity if specified
+        (e.g., "6 eggs" -> 6), otherwise 1.
+        3. **DVM (Shelf Life in Days):** You MUST 
+        estimate this value based on the food type. DO NOT DEFAULT TO 7.
+           - Fresh Meat/Fish: 2-4 days
+           - Fresh Vegetables/Fruits: 5-10 days
+           - Milk/Opened Dairy: 5-7 days
+           - Cheese/Yogurt: 14-30 days
+           - Dry goods (Pasta, Rice, Canned): 180-365 days
+           - Frozen: 90+ days
 
         Respond ONLY with a JSON object in the format:
         {
           "item": {
-            "canonicalName": "...", // English, simple name
-            "quantity": 1,          // Default 1
-            "dvm": 7,               // Default 7
-            "location": "...",      // Frigo, Placard, Congélateur
-            "category": "..."       // Dairy, Vegetable, Pantry, etc.
+            "canonicalName": "string", // English, simple name
+            "quantity": integer,
+            "dvm": integer,            // ESTIMATED DAYS (e.g. 3, 7, 21, 365)
+            "location": "string",      // Frigo, Placard, Congélateur
+            "category": "string"       // Dairy, Vegetable, Pantry, etc.
           }
         }
-        
+
         Example 1:
         Input: "liat"
         Output: {"item": {"canonicalName": "Milk", "quantity": 1, "dvm": 7, 
@@ -245,7 +253,17 @@ export const getSmartItemData = onCall(
         Input: "6 oeufs"
         Output: {"item": {"canonicalName": "Egg", "quantity": 6, "dvm": 21, 
         "location": "Frigo", "category": "Dairy"}}
-        
+
+        Example 3 (Short life):
+        Input: "Poulet"
+        Output: {"item": {"canonicalName": "Chicken", "quantity": 1, "dvm": 3,
+        "location": "Frigo", "category": "Meat"}}
+
+        Example 4 (Long life):
+        Input: "Riz basmati"
+        Output: {"item": {"canonicalName": "Rice", "quantity": 1, "dvm": 365,
+        "location": "Placard", "category": "Pantry"}}
+
         Input: "${productName}"
         Output:
       `;
