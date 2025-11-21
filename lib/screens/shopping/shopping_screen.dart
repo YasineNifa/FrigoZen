@@ -26,8 +26,6 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
   List<QueryDocumentSnapshot> _checkedItems = [];
 
-  final Color _backgroundColor = const Color(0xFFF9F9F9);
-
   void _saveItemToFirebase(
     String itemName,
     String canonicalName,
@@ -50,6 +48,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   void _addItem() async {
     final itemName = _textController.text.trim();
     if (itemName.isEmpty) return;
+
     final l10n = AppLocalizations.of(context)!;
 
     setState(() {
@@ -70,11 +69,12 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       final String location = itemData['location'] ?? 'Frigo';
       final int quantity = itemData['quantity'] ?? 1;
 
+      if (!mounted) return;
+
       // Get the provider
       final inventory = context.read<InventoryProvider>();
       // VÉRIFICATION "ANTI-DOUBLON"
       if (inventory.doesItemExist(canonicalName)) {
-        // Alert
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.shoppingDuplicateAlert(itemName)),
@@ -108,12 +108,14 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         );
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.shoppingErrorGeneric(error.toString())),
-          backgroundColor: Colors.red[700],
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.shoppingErrorGeneric(error.toString())),
+            backgroundColor: Colors.red[700],
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -141,14 +143,20 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       for (final itemDoc in checkedItems) {
         final data = itemDoc.data() as Map<String, dynamic>;
 
-        final String name = data['name'] ?? 'Unknown Item';
+        final String name = data['name'] ?? l10n.shoppingItemNoTitle;
         final String canonicalName = data['canonicalName'] ?? name;
         final int quantity = data['quantity'] ?? 1;
+        final int? dvm = data['dvm'];
+        final String category = data['category'];
+        final String location = data['location'];
 
         await inventoryService.upsertItemToInventory(
           name: name,
           canonicalName: canonicalName,
           quantity: quantity,
+          dvm: dvm,
+          category: category,
+          location: location,
         );
         await _shoppingService.removeItemFromShoppingList(itemDoc.id);
       }
@@ -180,8 +188,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: Text(l10n.shoppingTitle)),
       body: Column(
         children: [
@@ -208,10 +217,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   return data['isChecked'];
                 }).toList();
 
-                // Mettre à jour l'état local des articles cochés
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  // On vérifie si la liste a changé pour éviter des rebuilds infinis
-                  if (_checkedItems.length != localCheckedItems.length) {
+                  if (mounted &&
+                      _checkedItems.length != localCheckedItems.length) {
                     setState(() {
                       _checkedItems = localCheckedItems;
                     });
@@ -244,10 +252,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       floatingActionButton: _checkedItems.isEmpty
           ? null
           : FloatingActionButton.extended(
-              icon: const Icon(
-                Icons.check,
-                color: Color.fromARGB(237, 255, 255, 255),
-              ),
+              icon: const Icon(Icons.check, color: Colors.white),
               label: Text(
                 _isMovingItems
                     ? l10n.shoppingAddingBtn
@@ -255,10 +260,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color.fromARGB(237, 255, 255, 255),
+                  color: Colors.white,
                 ),
               ),
-              backgroundColor: Colors.green[400],
+              backgroundColor: Theme.of(context).primaryColor,
               onPressed: _isMovingItems
                   ? null
                   : () {

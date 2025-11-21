@@ -27,7 +27,7 @@ class ShoppingService {
       'name': name,
       'canonicalName': canonicalName,
       'quantity': quantity,
-      'dvm': dvm ?? 7,
+      'dvm': dvm,
       'category': category ?? 'Other',
       'location': location ?? 'Frigo',
       'createdAt': Timestamp.now(),
