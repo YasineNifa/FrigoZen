@@ -190,4 +190,39 @@ class InventoryService {
       'earliestExpirationDate': getEarliestDate(batches),
     });
   }
+
+  Future<void> updateBatchDate(
+    String docId,
+    Map<String, dynamic> oldBatch,
+    DateTime newDate,
+  ) async {
+    final collection = await _getInventoryCollection();
+    final docRef = collection.doc(docId);
+
+    final snapshot = await docRef.get();
+    if (!snapshot.exists) throw Exception("Article not found.");
+
+    final data = snapshot.data() as Map<String, dynamic>;
+    List<dynamic> batches = List<dynamic>.from(data['batches'] ?? []);
+
+    final int indexToUpdate = batches.indexWhere((b) {
+      final batchMap = b as Map<String, dynamic>;
+      return batchMap['addedAt'] == oldBatch['addedAt'] &&
+          batchMap['expirationDate'] == oldBatch['expirationDate'];
+    });
+
+    if (indexToUpdate == -1) throw Exception("Lot not found in inventory.");
+
+    batches[indexToUpdate]['expirationDate'] = Timestamp.fromDate(newDate);
+
+    batches.sort(
+      (a, b) =>
+          (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']),
+    );
+
+    await docRef.update({
+      'batches': batches,
+      'earliestExpirationDate': getEarliestDate(batches),
+    });
+  }
 }

@@ -13,6 +13,7 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/screens/inventory/edit_batches_sheet.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -642,6 +643,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     final String itemName = data['name'] ?? 'Unnamed Item';
     final int itemQuantity = data["totalQuantity"] ?? 1;
     final Timestamp? expirationDate = data['earliestExpirationDate'];
+    final List<dynamic> batchesData = data['batches'] ?? [];
 
     final status = _getExpirationStatus(expirationDate);
     final statusText = status['text'] as String;
@@ -671,6 +673,22 @@ class _InventoryScreenState extends State<InventoryScreen>
               child: const Icon(Icons.delete, color: Colors.white),
             ),
             child: ListTile(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder: (ctx) => EditBatchesSheet(
+                    docId: item.id,
+                    itemName: itemName,
+                    batches: batchesData,
+                    service: _inventoryService,
+                  ),
+                );
+              },
               leading: CircleAvatar(
                 backgroundColor: Colors.green[50],
                 child: Icon(
