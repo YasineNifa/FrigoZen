@@ -884,6 +884,12 @@ abstract class AppLocalizations {
   /// **'Shopping List'**
   String get shoppingTitle;
 
+  /// No description provided for @shoppingItemNoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Item'**
+  String get shoppingItemNoTitle;
+
   /// No description provided for @shoppingDuplicateAlert.
   ///
   /// In en, this message translates to:

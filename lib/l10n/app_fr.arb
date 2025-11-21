@@ -142,6 +142,7 @@
   "settingsLogout": "Se déconnecter",
   "@_SHOPPING_SCREEN": {},
   "shoppingTitle": "Liste de courses",
+  "shoppingItemNoTitle": "Article inconnu",
   "shoppingDuplicateAlert": "💡 Attention ! Vous avez déjà \"{itemName}\" dans votre inventaire !",
   "shoppingAddAnyway": "Ajouter quand même",
   "shoppingErrorGeneric": "Erreur : {error}",

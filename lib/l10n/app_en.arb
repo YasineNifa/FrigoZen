@@ -168,6 +168,7 @@
   "settingsLogout": "Logout",
   "@_SHOPPING_SCREEN": {},
   "shoppingTitle": "Shopping List",
+  "shoppingItemNoTitle": "Unknown Item",
   "shoppingDuplicateAlert": "💡 Attention! You already have \"{itemName}\" in your inventory!",
   "@shoppingDuplicateAlert": {
     "placeholders": {

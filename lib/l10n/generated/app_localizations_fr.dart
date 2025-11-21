@@ -426,6 +426,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get shoppingTitle => 'Liste de courses';
 
   @override
+  String get shoppingItemNoTitle => 'Article inconnu';
+
+  @override
   String shoppingDuplicateAlert(String itemName) {
     return '💡 Attention ! Vous avez déjà \"$itemName\" dans votre inventaire !';
   }
