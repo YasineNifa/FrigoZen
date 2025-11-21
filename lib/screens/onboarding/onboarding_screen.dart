@@ -1,9 +1,7 @@
-// lib/screens/onboarding_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// Assurez-vous d'importer votre écran d'authentification (login)
 import 'package:frigo_zen/screens/core/auth_gate.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -45,22 +43,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: Colors.white, // Fond blanc uniforme
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           PageView(
             controller: _pageController,
             children: [
-              // Page 1: Stop Wasting Money
               _buildOnboardingPage(
                 context: context,
-                imagePath:
-                    'assets/onboarding/stop_wasting_money.png', // Assurez-vous que ce chemin est correct
-                title: "Arrêtez de jeter votre argent.",
-                description:
-                    "FrigoZen vous aide à consommer vos aliments avant qu'ils n'expirent.",
-                buttonText: "Continuer",
+                imagePath: 'assets/onboarding/stop_wasting_money.png',
+                title: l10n.onboardingPage1Title,
+                description: l10n.onboardingPage1Desc,
+                buttonText: l10n.onboardingPage1Btn,
                 onButtonPressed: () => _pageController.nextPage(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeIn,
@@ -70,12 +66,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               // Page 2: Know What to Eat
               _buildOnboardingPage(
                 context: context,
-                imagePath:
-                    'assets/onboarding/know_what_to_eat.png', // Assurez-vous que ce chemin est correct
-                title: "Sachez toujours quoi manger.",
-                description:
-                    "Recevez des recettes simples basées sur ce que vous avez déjà dans votre frigo.",
-                buttonText: "Commencer", // Texte harmonisé
+                imagePath: 'assets/onboarding/know_what_to_eat.png',
+                title: l10n.onboardingPage2Title,
+                description: l10n.onboardingPage2Desc,
+                buttonText: l10n.onboardingPage2Btn,
                 onButtonPressed: () => _pageController.nextPage(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeIn,
@@ -85,20 +79,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               // Page 3: Smart Shopping (Dernière page)
               _buildOnboardingPage(
                 context: context,
-                imagePath:
-                    'assets/onboarding/smart_shopping.png', // Assurez-vous que ce chemin est correct
-                title: "Des courses enfin intelligentes.",
-                description:
-                    "Ne rachetez plus jamais en double. Scannez, c'est ajouté, votre liste est à jour.",
-                buttonText: "Commencer l'aventure",
-                onButtonPressed: _finishOnboarding, // Termine l'onboarding
+                imagePath: 'assets/onboarding/smart_shopping.png',
+                title: l10n.onboardingPage3Title,
+                description: l10n.onboardingPage3Desc,
+                buttonText: l10n.onboardingPage3Btn,
+                onButtonPressed: _finishOnboarding,
               ),
             ],
           ),
 
-          // Indicateurs de page (points)
           Positioned(
-            bottom: 190, // Positionnement ajusté au-dessus du bouton
+            bottom: 190,
             left: 0,
             right: 0,
             child: Row(
@@ -107,16 +98,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
 
-          // Bouton "Passer" en haut à droite
-          if (_currentPage <
-              2) // N'affiche "Passer" que si ce n'est pas la dernière page
+          if (_currentPage < 2)
             Positioned(
-              top: 50, // Ajustement pour l'espace AppBar/StatusBar
+              top: 50,
               right: 20,
               child: TextButton(
                 onPressed: _finishOnboarding,
-                child: const Text(
-                  "Passer",
+                child: Text(
+                  l10n.onboardingSkip,
                   style: TextStyle(color: Colors.grey, fontSize: 16),
                 ),
               ),
@@ -135,6 +124,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     required String buttonText,
     required VoidCallback onButtonPressed,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
@@ -144,8 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           // Illustration
           Image.asset(
             imagePath,
-            height:
-                MediaQuery.of(context).size.height * 0.35, // Taille dynamique
+            height: MediaQuery.of(context).size.height * 0.35,
           ),
           const Spacer(flex: 1),
           // Titre
@@ -155,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF333333), // Gris foncé pour les titres
+              color: Color(0xFF333333),
             ),
           ),
           const SizedBox(height: 16),
@@ -172,18 +161,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const Spacer(flex: 2),
           // Bouton Principal
           SizedBox(
-            width: double.infinity, // Bouton pleine largeur
+            width: double.infinity,
             height: 50,
             child: ElevatedButton(
               onPressed: onButtonPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(
-                  0xFF6B9C5F,
-                ), // Un beau vert FrigoZen
+                backgroundColor: const Color(0xFF6B9C5F),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 0, // Pas d'ombre pour un look plat
+                elevation: 0,
               ),
               child: Text(
                 buttonText,
@@ -195,21 +182,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 20), // Espace sous le bouton
-          // Bouton secondaire "Se connecter" sur la dernière page
-          if (_currentPage == 2) // Seulement sur la dernière page
+          const SizedBox(height: 20),
+          if (_currentPage == 2)
             TextButton(
-              onPressed: _finishOnboarding, // Navigue aussi vers l'AuthGate
-              child: const Text(
-                "J'ai déjà un compte",
+              onPressed: _finishOnboarding,
+              child: Text(
+                l10n.onboardingHaveAccount,
                 style: TextStyle(
-                  color: Color(0xFF6B9C5F), // Même vert que le bouton principal
+                  color: Color(0xFF6B9C5F),
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-          const Spacer(flex: 1), // Espace en bas
+          const Spacer(flex: 1),
         ],
       ),
     );
@@ -224,8 +210,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       width: _currentPage == index ? 24.0 : 8.0,
       decoration: BoxDecoration(
         color: _currentPage == index
-            ? const Color(0xFF6B9C5F) // Vert FrigoZen pour le point actif
-            : Colors.grey[300], // Gris clair pour les inactifs
+            ? const Color(0xFF6B9C5F)
+            : Colors.grey[300],
         borderRadius: BorderRadius.circular(4),
       ),
     );

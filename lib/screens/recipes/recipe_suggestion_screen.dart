@@ -1,20 +1,20 @@
-// lib/screens/recipes/recipe_suggestion_screen.dart
-
 import 'package:flutter/material.dart';
-import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart'; // Importez le nouvel écran de détail
+import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class RecipeSuggestionScreen extends StatelessWidget {
-  final List<dynamic> recipes; // Reçoit TOUTES les recettes
+  final List<dynamic> recipes;
 
   const RecipeSuggestionScreen({super.key, required this.recipes});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA), // Fond uniforme
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text(
-          'Idées Recettes',
+        title: Text(
+          l10n.recipeSuggestionTitle,
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.white,
@@ -25,7 +25,7 @@ class RecipeSuggestionScreen extends StatelessWidget {
       body: recipes.isEmpty
           ? Center(
               child: Text(
-                "Aucune recette trouvée pour cette combinaison. :(",
+                l10n.recipeSuggestionEmpty,
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
@@ -33,13 +33,12 @@ class RecipeSuggestionScreen extends StatelessWidget {
           : GridView.builder(
               padding: const EdgeInsets.all(16.0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // 2 cartes par ligne
-                crossAxisSpacing: 16.0, // Espacement horizontal
-                mainAxisSpacing: 16.0, // Espacement vertical
-                childAspectRatio:
-                    0.75, // Ratio pour des cartes un peu plus hautes
+                crossAxisCount: 2,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
+                childAspectRatio: 0.75,
               ),
-              itemCount: recipes.length, // Affiche TOUTES les recettes
+              itemCount: recipes.length,
               itemBuilder: (context, index) {
                 return RecipeGridTile(recipeData: recipes[index]);
               },
@@ -56,8 +55,9 @@ class RecipeGridTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final recipe = Map<String, dynamic>.from(recipeData);
-    final String title = recipe['title'] ?? 'Recette sans titre';
+    final String title = recipe['title'] ?? l10n.recipeSuggestionUntitled;
     final String? imageUrl = recipe['imageUrl'];
     final List<dynamic> usedItems = recipe['usedItems'] ?? [];
     final List<dynamic> missingItems = recipe['missingItems'] ?? [];

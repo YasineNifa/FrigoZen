@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -18,17 +19,18 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final isPro = context.watch<RevenueProvider>().isPro;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         children: [
           if (user != null)
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Account Information'),
-              subtitle: Text(user.email ?? 'No email available'),
+              title: Text(l10n.settingsAccountInfo),
+              subtitle: Text(user.email ?? l10n.settingsNoEmail),
             ),
 
           const Divider(),
@@ -37,11 +39,9 @@ class SettingsScreen extends StatelessWidget {
               isPro ? Icons.star : Icons.star_border,
               color: Colors.amber[700],
             ),
-            title: Text(
-              isPro ? 'Manage Subscription' : 'Upgrade to FrigoZen Pro',
-            ),
+            title: Text(isPro ? l10n.settingsManageSub : l10n.settingsUpgrade),
             subtitle: Text(
-              isPro ? 'You are a Pro member.' : 'Unlock all features.',
+              isPro ? l10n.settingsProMember : l10n.settingsUnlockFeatures,
             ),
             onTap: () async {
               if (isPro) {
@@ -51,7 +51,7 @@ class SettingsScreen extends StatelessWidget {
                 } on PurchasesError catch (e) {
                   print("Customer Center error: $e");
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Could not open settings")),
+                    SnackBar(content: Text(l10n.settingsErrorOpen)),
                   );
                 }
               } else {
@@ -71,19 +71,17 @@ class SettingsScreen extends StatelessWidget {
 
           ListTile(
             leading: const Icon(Icons.restore),
-            title: const Text('Restore Purchases'),
+            title: Text(l10n.settingsRestore),
             onTap: () async {
               try {
                 final customerInfo = await Purchases.restorePurchases();
                 context.read<RevenueProvider>().setCustomerInfo(customerInfo);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Purchases restored successfully."),
-                  ),
+                  SnackBar(content: Text(l10n.settingsRestoreSuccess)),
                 );
               } on PurchasesError catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Restore failed: ${e.message}")),
+                  SnackBar(content: Text(l10n.settingsRestoreFail(e.message))),
                 );
               }
             },
@@ -91,10 +89,10 @@ class SettingsScreen extends StatelessWidget {
 
           const Divider(),
 
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
             child: Text(
-              "FAMILLE & FOYER",
+              l10n.settingsFamilyHeader,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -107,13 +105,13 @@ class SettingsScreen extends StatelessWidget {
           StreamBuilder<DocumentSnapshot?>(
             stream: HouseholdService().getCurrentHouseholdStream(),
             builder: (context, snapshot) {
-              // Si pas de données ou chargement, on affiche un placeholder vide
               if (!snapshot.hasData || snapshot.data == null)
                 return const SizedBox();
 
               final data = snapshot.data!.data() as Map<String, dynamic>;
               final String inviteCode = data['inviteCode'] ?? '...';
-              final String householdName = data['name'] ?? 'Maison';
+              final String householdName =
+                  data['name'] ?? l10n.settingsDefaultHouse;
 
               // LOGIQUE PREMIUM
               if (!isPro) {
@@ -127,10 +125,8 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     child: const Icon(Icons.lock, color: Colors.grey),
                   ),
-                  title: const Text("Inviter des membres"),
-                  subtitle: const Text(
-                    "Passez Premium pour partager votre inventaire.",
-                  ),
+                  title: Text(l10n.settingsInviteMembers),
+                  subtitle: Text(l10n.settingsInvitePremiumHint),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     // Ouvre le Paywall
@@ -173,8 +169,8 @@ class SettingsScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        "Code d'invitation :",
+                      Text(
+                        l10n.settingsInviteCodeLabel,
                         style: TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                       const SizedBox(height: 4),
@@ -197,15 +193,17 @@ class SettingsScreen extends StatelessWidget {
                                 ClipboardData(text: inviteCode),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Code copié !")),
+                                SnackBar(
+                                  content: Text(l10n.settingsCodeCopied),
+                                ),
                               );
                             },
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Partagez ce code pour inviter votre famille.",
+                      Text(
+                        l10n.settingsShareHint,
                         style: TextStyle(fontSize: 12, color: Colors.black45),
                       ),
                     ],
@@ -218,7 +216,10 @@ class SettingsScreen extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: Icon(Icons.logout, color: Colors.red[700]),
-            title: Text('Logout', style: TextStyle(color: Colors.red[700])),
+            title: Text(
+              l10n.settingsLogout,
+              style: TextStyle(color: Colors.red[700]),
+            ),
             onTap: () async {
               context.read<RevenueProvider>().setCustomerInfo(null);
 

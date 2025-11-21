@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class AddItemSheet extends StatefulWidget {
   const AddItemSheet({super.key});
@@ -16,6 +17,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
   bool _isLoading = false;
 
   void _saveItem() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -49,9 +51,9 @@ class _AddItemSheetState extends State<AddItemSheet> {
         }
       } catch (error) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("Error: ${error.toString()}")));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.addItemError(error.toString()))),
+          );
         }
       } finally {
         if (mounted) {
@@ -71,6 +73,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -84,19 +87,19 @@ class _AddItemSheetState extends State<AddItemSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Add New Item',
+              l10n.addItemTitle,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name (ex: Lait)',
+              decoration: InputDecoration(
+                labelText: l10n.addItemNameLabel,
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a name.';
+                  return l10n.addItemNameError;
                 }
                 return null;
               },
@@ -116,7 +119,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
                   },
                 ),
                 Text(
-                  'Quantity : $_quantity',
+                  l10n.addItemQuantityLabel(_quantity),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 IconButton(
@@ -164,8 +167,8 @@ class _AddItemSheetState extends State<AddItemSheet> {
                 ),
                 onPressed: _saveItem,
 
-                child: const Text(
-                  'Save',
+                child: Text(
+                  l10n.addItemSaveBtn,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

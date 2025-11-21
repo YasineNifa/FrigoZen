@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:frigo_zen/firebase_options.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -22,6 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final Color _textColor = const Color(0xFF333333);
 
   void _submitForm() async {
+    final l10n = AppLocalizations.of(context)!;
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
 
@@ -56,10 +59,8 @@ class _AuthScreenState extends State<AuthScreen> {
             });
 
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  "Account created successfully. You can now log in.",
-                ),
+              SnackBar(
+                content: Text(l10n.authSuccess),
                 backgroundColor: Colors.green,
                 duration: Duration(seconds: 4),
               ),
@@ -70,16 +71,16 @@ class _AuthScreenState extends State<AuthScreen> {
         }
       }
     } on FirebaseAuthException catch (error) {
-      String errorMessage = "An error occurred, please check your credentials.";
+      String errorMessage = l10n.authErrorGeneric;
       if (error.code == 'user-not-found' ||
           error.code == 'invalid-credential') {
-        errorMessage = "No user found for that email.";
+        errorMessage = l10n.authErrorNoUser;
       } else if (error.code == 'wrong-password') {
-        errorMessage = "Password is incorrect.";
+        errorMessage = l10n.authErrorWrongPass;
       } else if (error.code == 'email-already-in-use') {
-        errorMessage = "This email is already in use.";
+        errorMessage = l10n.authErrorEmailInUse;
       } else if (error.code == 'weak-password') {
-        errorMessage = "The password is too weak.";
+        errorMessage = l10n.authErrorWeakPass;
       }
 
       if (mounted) {
@@ -119,8 +120,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: Colors.white, // Fond blanc comme l'Onboarding
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(30.0),
@@ -152,7 +155,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: Text(
-                    _isLoginMode ? 'Welcome back' : 'Welcome to FrigoZen',
+                    _isLoginMode ? l10n.authWelcomeBack : l10n.authWelcome,
                     key: ValueKey<bool>(_isLoginMode),
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -165,8 +168,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 const SizedBox(height: 8),
                 Text(
                   _isLoginMode
-                      ? "Log in to manage your fridge."
-                      : "Create an account to start saving.",
+                      ? l10n.authLoginSubtitle
+                      : l10n.authSignupSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
@@ -175,14 +178,14 @@ class _AuthScreenState extends State<AuthScreen> {
                 // --- CHAMPS DE TEXTE ---
                 _buildTextField(
                   controller: _emailController,
-                  label: 'Email',
+                  label: l10n.authEmailLabel,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
                 _buildTextField(
                   controller: _passwordController,
-                  label: 'Password',
+                  label: l10n.authPasswordLabel,
                   icon: Icons.lock_outline,
                   isPassword: true,
                 ),
@@ -211,7 +214,9 @@ class _AuthScreenState extends State<AuthScreen> {
                         : AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             child: Text(
-                              _isLoginMode ? 'Login' : "Sign up",
+                              _isLoginMode
+                                  ? l10n.authLoginBtn
+                                  : l10n.authSignupBtn,
                               key: ValueKey<bool>(_isLoginMode),
                               style: const TextStyle(
                                 fontSize: 18,
@@ -233,11 +238,13 @@ class _AuthScreenState extends State<AuthScreen> {
                       children: [
                         TextSpan(
                           text: _isLoginMode
-                              ? "No account? "
-                              : "Already have an account? ",
+                              ? l10n.authNoAccount
+                              : l10n.authHaveAccount,
                         ),
                         TextSpan(
-                          text: _isLoginMode ? "Create an account" : "Login",
+                          text: _isLoginMode
+                              ? l10n.authCreateAccount
+                              : l10n.authToLogin,
                           style: TextStyle(
                             color: _primaryColor,
                             fontWeight: FontWeight.bold,
@@ -263,6 +270,8 @@ class _AuthScreenState extends State<AuthScreen> {
     bool isPassword = false,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
@@ -273,14 +282,14 @@ class _AuthScreenState extends State<AuthScreen> {
         labelStyle: TextStyle(color: Colors.grey[600]),
         prefixIcon: Icon(icon, color: Colors.grey[500]),
         filled: true,
-        fillColor: Colors.grey[50], // Fond très léger
+        fillColor: Colors.grey[50],
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryColor, width: 2), // Focus Vert
+          borderSide: BorderSide(color: _primaryColor, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -293,13 +302,13 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'This field is required.';
+          return l10n.authFieldRequired;
         }
         if (label == 'Email' && !value.contains('@')) {
-          return 'Please enter a valid email.';
+          return l10n.authInvalidEmail;
         }
         if (isPassword && value.length < 6) {
-          return 'The password must have more than 6 caracters.';
+          return l10n.authShortPassword;
         }
         return null;
       },

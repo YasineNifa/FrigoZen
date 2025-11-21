@@ -6,6 +6,7 @@ import 'package:frigo_zen/services/recipe_service.dart';
 import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/screens/paywall/paywall_screen.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -14,10 +15,11 @@ class FavoritesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final recipeService = RecipeService();
     final isPro = context.watch<RevenueProvider>().isPro;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(title: const Text('My Cookbook')),
+      appBar: AppBar(title: Text(l10n.favoritesTitle)),
       body: isPro
           ? _buildFavoritesList(context, recipeService)
           : _buildLockedState(context),
@@ -28,6 +30,7 @@ class FavoritesScreen extends StatelessWidget {
     BuildContext context,
     RecipeService recipeService,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return StreamBuilder<QuerySnapshot>(
       stream: recipeService.getFavoritesStream(),
       builder: (context, snapshot) {
@@ -50,14 +53,14 @@ class FavoritesScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  "No favorite recipes yet",
+                Text(
+                  l10n.favoritesEmptyTitle,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  "Save recipes you like to find them here.",
+                Text(
+                  l10n.favoritesEmptySubtitle,
                   style: TextStyle(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -81,6 +84,7 @@ class FavoritesScreen extends StatelessWidget {
   }
 
   Widget _buildLockedState(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -100,8 +104,8 @@ class FavoritesScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              "Premium Feature",
+            Text(
+              l10n.favoritesLockedTitle,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -110,8 +114,8 @@ class FavoritesScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            const Text(
-              "Upgrade to FrigoZen Pro to save your favorite AI-generated recipes and build your personal cookbook.",
+            Text(
+              l10n.favoritesLockedSubtitle,
               style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
               textAlign: TextAlign.center,
             ),
@@ -134,8 +138,8 @@ class FavoritesScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  "Unlock Cookbook",
+                child: Text(
+                  l10n.favoritesUnlockBtn,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -151,9 +155,10 @@ class FavoritesScreen extends StatelessWidget {
   }
 
   Widget _buildFavoriteCard(BuildContext context, Map<String, dynamic> recipe) {
-    final String title = recipe['title'] ?? 'Untitled';
+    final l10n = AppLocalizations.of(context)!;
+    final String title = recipe['title'] ?? l10n.favoritesUntitled;
     final String? imageUrl = recipe['imageUrl'];
-    final String description = recipe['description'] ?? '';
+    final String description = recipe['description'] ?? l10n.favoritesNoDesc;
 
     return GestureDetector(
       onTap: () {

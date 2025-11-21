@@ -8,6 +8,7 @@ import 'package:frigo_zen/services/inventory_service.dart';
 import 'package:frigo_zen/components/shopping_list_tile.dart';
 import 'package:frigo_zen/components/shopping_list_empty_state.dart';
 import 'package:frigo_zen/components/input_field.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
@@ -49,6 +50,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   void _addItem() async {
     final itemName = _textController.text.trim();
     if (itemName.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
 
     setState(() {
       _isAddingItem = true;
@@ -75,12 +77,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         // Alert
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              "💡 Attention ! You already have \"$itemName\" in your inventory !",
-            ),
+            content: Text(l10n.shoppingDuplicateAlert(itemName)),
             backgroundColor: Colors.blue[700],
             action: SnackBarAction(
-              label: "Add Anyway",
+              label: l10n.shoppingAddAnyway,
               textColor: Colors.white,
               onPressed: () {
                 _saveItemToFirebase(
@@ -110,7 +110,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error: ${error.toString()}"),
+          content: Text(l10n.shoppingErrorGeneric(error.toString())),
           backgroundColor: Colors.red[700],
         ),
       );
@@ -128,6 +128,9 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     List<QueryDocumentSnapshot> checkedItems,
   ) async {
     if (_isMovingItems) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isMovingItems = true;
     });
@@ -153,9 +156,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              "${checkedItems.length} item(s) moved to Inventory successfully!",
-            ),
+            content: Text(l10n.shoppingMovedSuccess(checkedItems.length)),
             backgroundColor: Colors.green[700],
           ),
         );
@@ -163,7 +164,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error moving items: ${error.toString()}")),
+          SnackBar(content: Text(l10n.shoppingMoveError(error.toString()))),
         );
       }
     } finally {
@@ -178,9 +179,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _backgroundColor,
-      appBar: AppBar(title: const Text('Shopping List')),
+      appBar: AppBar(title: Text(l10n.shoppingTitle)),
       body: Column(
         children: [
           CustomizedInputField(
@@ -248,8 +250,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
               ),
               label: Text(
                 _isMovingItems
-                    ? "Adding..."
-                    : 'Add ${_checkedItems.length} item(s) to Inventory',
+                    ? l10n.shoppingAddingBtn
+                    : l10n.shoppingMoveBtn(_checkedItems.length),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

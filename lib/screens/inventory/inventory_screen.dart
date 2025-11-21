@@ -120,6 +120,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   void _showImageSourceDialog(BuildContext context) async {
     final OcrService ocrService = OcrService();
     final bool isPro = context.read<RevenueProvider>().isPro;
+    final l10n = AppLocalizations.of(context)!;
     Widget buildProBadge() {
       return Container(
         margin: const EdgeInsets.only(left: 8),
@@ -154,7 +155,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               ), //camera_alt
               title: Row(
                 children: [
-                  const Text('Scan receipt (Camera)'),
+                  Text(l10n.scanReceiptCamera),
                   if (!isPro) buildProBadge(),
                 ],
               ),
@@ -178,7 +179,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               ),
               title: Row(
                 children: [
-                  const Text('Select from gallery'),
+                  Text(l10n.scanReceiptGallery),
                   if (!isPro) buildProBadge(),
                 ],
               ),
@@ -197,7 +198,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                 backgroundColor: Color.fromARGB(255, 165, 214, 167),
                 child: Icon(Icons.add, color: Color.fromARGB(255, 32, 32, 32)),
               ),
-              title: const Text('Add manually'),
+              title: Text(l10n.scanManual),
               onTap: () {
                 Navigator.of(ctx).pop();
                 showModalBottomSheet(
@@ -442,6 +443,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   }
 
   Widget _buildEmptyState({bool isSearch = false}) {
+    final l10n = AppLocalizations.of(context)!;
     String image = "assets/images/discu.png";
     if (isSearch) {
       image = "assets/images/discu.png";
@@ -454,12 +456,12 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
 
     String title = isSearch
-        ? "No results found"
-        : "Your ${_selectedLocation.toLowerCase()} is empty";
+        ? "No results found" // TODO: Traduire
+        : l10n.inventoryEmptyTitle;
 
     String subtitle = isSearch
         ? "Try a different search term."
-        : "Tap the + button to add an item or scan a receipt.";
+        : l10n.inventoryEmptySubtitle;
 
     return Center(
       child: Padding(
@@ -490,6 +492,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: StreamBuilder<DocumentSnapshot?>(
@@ -499,18 +502,16 @@ class _InventoryScreenState extends State<InventoryScreen>
                 snapshot.data != null &&
                 snapshot.data!.exists) {
               final data = snapshot.data!.data() as Map<String, dynamic>;
-              return Text(data['name'] ?? 'My Inventory');
+              return Text(data['name'] ?? l10n.inventoryTab);
             }
-            return const Text('');
+            return Text(l10n.inventoryTitle);
           },
         ),
-        // title: Text(AppLocalizations.of(context)!.inventoryTab),
-        // title: const Text('My Inventory'),
         actions: [
           IconButton(
             color: Colors.yellow[700],
             icon: const Icon(Icons.lightbulb),
-            tooltip: 'Suggest a recipe',
+            tooltip: l10n.suggestRecipeTooltip,
             onPressed: () {
               _triggerRecipeGeneration(context);
             },
@@ -519,11 +520,11 @@ class _InventoryScreenState extends State<InventoryScreen>
         bottom: TabBar(
           controller: _tabController,
           labelColor: Theme.of(context).primaryColor,
-          tabs: const [
-            Tab(text: 'Tout'),
-            Tab(text: 'Frigo'),
-            Tab(text: 'Placard'),
-            Tab(text: 'Congélateur'),
+          tabs: [
+            Tab(text: l10n.inventoryTabAll),
+            Tab(text: l10n.inventoryTabFridge),
+            Tab(text: l10n.inventoryTabPantry),
+            Tab(text: l10n.inventoryTabFreezer),
           ],
           indicatorColor: Theme.of(context).primaryColor,
           unselectedLabelColor: Theme.of(context).disabledColor,
@@ -537,7 +538,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search for an item...',
+                hintText: l10n.inventorySearchHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),

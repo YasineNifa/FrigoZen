@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class ModernPaywallScreen extends StatefulWidget {
   const ModernPaywallScreen({super.key});
@@ -79,6 +80,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
   }
 
   Future<void> _purchaseSelectedPackage() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedPackage == null) return;
 
     setState(() => _isPurchasing = true);
@@ -92,8 +94,8 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
         );
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Bienvenue dans le club FrigoZen Pro ! 🌟"),
+          SnackBar(
+            content: Text(l10n.paywallSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -136,6 +138,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _backgroundColor,
       body: _isLoading
@@ -172,8 +175,8 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          const Text(
-                            "Take it to the next level",
+                          Text(
+                            l10n.paywallTitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 26,
@@ -184,7 +187,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            "Unlock the full potential of your kitchen and save up to €500 per year.",
+                            l10n.paywallSubtitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
@@ -194,38 +197,39 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
 
                           const SizedBox(height: 40),
 
-                          // --- LISTE DES AVANTAGES ---
                           _buildBenefitItem(
                             Icons.receipt_long,
-                            "AI Ticket Scanning",
-                            "Add your shopping in 2 seconds.",
+                            l10n.paywallBenefit1Title,
+                            l10n.paywallBenefit1Desc,
                           ),
                           _buildBenefitItem(
                             Icons.restaurant_menu,
-                            "Magic Recipes",
-                            "Unlimited generation with photos.",
+                            l10n.paywallBenefit2Title,
+                            l10n.paywallBenefit2Desc,
                           ),
                           _buildBenefitItem(
                             Icons.notifications_active,
-                            "Anti-Waste Alerts",
-                            "Be warned before it's too late.",
+                            l10n.paywallBenefit3Title,
+                            l10n.paywallBenefit3Desc,
                           ),
                           _buildBenefitItem(
                             Icons.qr_code_scanner,
-                            "Health Scanner",
-                            "Nutri-Score and product details.",
+                            l10n.paywallBenefit4Title,
+                            l10n.paywallBenefit4Desc,
                           ),
                           _buildBenefitItem(
                             Icons.group,
-                            "Family Sharing",
-                            "Invite your household.",
+                            l10n.paywallBenefit5Title,
+                            l10n.paywallBenefit5Desc,
                           ),
 
                           const SizedBox(height: 40),
 
                           // --- SÉLECTION DU PLAN ---
                           if (_packages.isNotEmpty)
-                            ..._packages.map((pkg) => _buildPackageOption(pkg)),
+                            ..._packages.map(
+                              (pkg) => _buildPackageOption(pkg, l10n),
+                            ),
 
                           const SizedBox(height: 20),
 
@@ -249,7 +253,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                                       color: Colors.white,
                                     )
                                   : Text(
-                                      "Subscribe now",
+                                      l10n.paywallSubscribeBtn,
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -265,7 +269,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                           TextButton(
                             onPressed: _restorePurchases,
                             child: Text(
-                              "Restore purchases",
+                              l10n.paywallRestoreBtn,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14,
@@ -274,7 +278,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            "No commitment required. Cancellable at any time. By continuing, you agree to the Terms of Service and Privacy Policy.",
+                            l10n.paywallLegalText,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey[400],
@@ -332,7 +336,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
   }
 
   // WIDGET : Option de prix (Mensuel / Annuel)
-  Widget _buildPackageOption(Package package) {
+  Widget _buildPackageOption(Package package, AppLocalizations l10n) {
     final isSelected = _selectedPackage == package;
     final isAnnual = package.packageType == PackageType.annual;
 
@@ -358,7 +362,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                   Row(
                     children: [
                       Text(
-                        isAnnual ? "Annual" : "Monthly",
+                        isAnnual ? l10n.paywallAnnual : l10n.paywallMonthly,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -375,8 +379,8 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                             color: Colors.green[100],
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text(
-                            "SAVE 50%",
+                          child: Text(
+                            l10n.paywallSaveLabel,
                             style: TextStyle(
                               color: Colors.green,
                               fontSize: 10,
@@ -389,9 +393,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    package
-                        .storeProduct
-                        .description, // Description venant du store
+                    package.storeProduct.description,
                     style: TextStyle(color: Colors.grey[600], fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -405,7 +407,6 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  // package.storeProduct.priceString,
                   isAnnual ? "29.99€" : "4.99€",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -413,7 +414,9 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                   ),
                 ),
                 Text(
-                  isAnnual ? "/ year" : "/ month",
+                  isAnnual
+                      ? "/ ${l10n.paywallAnnual.toLowerCase()}"
+                      : "/ ${l10n.paywallMonthly.toLowerCase()}",
                   style: TextStyle(color: Colors.grey[500], fontSize: 12),
                 ),
               ],

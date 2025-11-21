@@ -3,6 +3,7 @@ import 'package:frigo_zen/screens/inventory/inventory_screen.dart';
 import 'package:frigo_zen/screens/settings/settings_screen.dart';
 import 'package:frigo_zen/screens/shopping/shopping_screen.dart';
 import 'package:frigo_zen/screens/recipes/favorites_screen.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class NavigationShell extends StatefulWidget {
   const NavigationShell({super.key});
@@ -12,7 +13,6 @@ class NavigationShell extends StatefulWidget {
 }
 
 class _NavigationShellState extends State<NavigationShell> {
-  // State: we keep in memory the index of the selected tab
   int _selectedIndex = 0;
 
   // List of the three screens
@@ -32,8 +32,8 @@ class _NavigationShellState extends State<NavigationShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      // The body of the application change based in the selected tab
       body: _screens[_selectedIndex],
 
       // Navigation Bar
@@ -43,26 +43,26 @@ class _NavigationShellState extends State<NavigationShell> {
         indicatorColor: Colors.green[100],
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.inventory_2_outlined),
             selectedIcon: Icon(Icons.inventory_2),
-            label: 'Inventory',
+            label: l10n.inventoryTab,
           ),
           NavigationDestination(
             icon: Icon(Icons.shopping_cart_outlined),
             selectedIcon: Icon(Icons.shopping_cart),
-            label: 'List',
+            label: l10n.shoppingListTab,
           ),
           NavigationDestination(
             icon: Icon(Icons.favorite_border),
             selectedIcon: Icon(Icons.favorite),
-            label: 'Favoris',
+            label: l10n.favoritesTab,
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
+            label: l10n.settingsTab,
           ),
         ],
       ),

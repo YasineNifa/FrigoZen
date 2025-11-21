@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/services/recipe_service.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final dynamic recipeData;
@@ -37,6 +38,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   void _toggleFavorite() async {
     final recipe = Map<String, dynamic>.from(widget.recipeData);
+    final l10n = AppLocalizations.of(context)!;
 
     // Optimistic UI update (update icon immediately)
     setState(() {
@@ -50,18 +52,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         // Re-fetch ID
         _checkIfFavorite();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Recipe saved to Favorites! ❤️')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.recipeDetailSaved)));
         }
       } else {
         // REMOVE
         if (_favoriteDocId != null) {
           await _recipeService.removeRecipe(_favoriteDocId!);
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Recipe removed from Favorites.')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(l10n.recipeDetailRemoved)));
           }
         }
       }
@@ -71,17 +73,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         setState(() {
           _isFavorite = !_isFavorite;
         });
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.recipeDetailError(e.toString()))),
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final recipe = Map<String, dynamic>.from(widget.recipeData);
-    final String title = recipe['title'] ?? 'Receipe without title';
+    final String title = recipe['title'] ?? l10n.recipeDetailUntitled;
     final String description = recipe['description'] ?? '';
     final String? imageUrl = recipe['imageUrl'];
     final List<dynamic> usedItems = recipe['usedItems'] ?? [];
@@ -141,7 +144,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      description,
+                      description.isEmpty
+                          ? l10n.recipeDetailNoDesc
+                          : description,
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[700],
@@ -153,7 +158,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     // Ingrédients Possédés
                     _buildIngredientsSection(
                       context,
-                      "VOTRE FRIGO",
+                      l10n.recipeDetailFridge,
                       usedItems,
                       true,
                     ),
@@ -163,7 +168,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       // Ingrédients Manquants
                       _buildIngredientsSection(
                         context,
-                        "À ACHETER",
+                        l10n.recipeDetailToBuy,
                         missingItems,
                         false,
                       ),
@@ -172,8 +177,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     const SizedBox(height: 32),
 
                     // Instructions
-                    const Text(
-                      "PRÉPARATION",
+                    Text(
+                      l10n.recipeDetailPreparation,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,

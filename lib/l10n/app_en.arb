@@ -1,7 +1,7 @@
 {
   "appTitle": "FrigoZen",
   "inventoryTab": "Inventory",
-  "shoppingListTab": "Shopping List",
+  "shoppingListTab": "Shopping",
   "favoritesTab": "Favorites",
   "settingsTab": "Settings",
   "scanReceipt": "Scan Receipt",
@@ -10,5 +10,220 @@
   "db_apple": "Apple",
   "db_tomato": "Tomato",
   "db_pasta": "Pasta",
-  "db_rice": "Rice"
+  "db_rice": "Rice",
+  "@_AUTH_SCREEN": {},
+  "authWelcomeBack": "Welcome back",
+  "authWelcome": "Welcome to FrigoZen",
+  "authLoginSubtitle": "Log in to manage your fridge.",
+  "authSignupSubtitle": "Create an account to start saving.",
+  "authEmailLabel": "Email",
+  "authPasswordLabel": "Password",
+  "authLoginBtn": "Login",
+  "authSignupBtn": "Sign up",
+  "authNoAccount": "No account? ",
+  "authCreateAccount": "Create an account",
+  "authHaveAccount": "Already have an account? ",
+  "authToLogin": "Login",
+  "authSuccess": "Account created successfully. You can now log in.",
+  "authErrorGeneric": "An error occurred, please check your credentials.",
+  "authErrorNoUser": "No user found for that email.",
+  "authErrorWrongPass": "Password is incorrect.",
+  "authErrorEmailInUse": "This email is already in use.",
+  "authErrorWeakPass": "The password is too weak.",
+  "authFieldRequired": "This field is required.",
+  "authInvalidEmail": "Please enter a valid email.",
+  "authShortPassword": "The password must be at least 6 characters long.",
+  "@_HOUSEHOLD_SCREEN": {},
+  "householdWelcome": "Bienvenue chez vous !",
+  "householdSubtitle": "Pour commencer, créez votre espace familial ou rejoignez-en un existant.",
+  "householdCreateTitle": "Créer un nouvel espace",
+  "householdNameLabel": "Nom de la maison (ex: Chez Nous)",
+  "householdCreateBtn": "Créer",
+  "householdOr": "OU",
+  "householdJoinTitle": "Rejoindre un espace",
+  "householdCodeLabel": "Code d'invitation (ex: FZ-1234)",
+  "householdJoinBtn": "Rejoindre",
+  "householdErrorNameRequired": "Le nom est requis",
+  "householdErrorCodeRequired": "Le code est requis",
+  "@_NAVIGATION_SHELL_SCREEN": {},
+  "@_ADD_ITEM_SHEET": {},
+  "addItemTitle": "Add New Item",
+  "addItemNameLabel": "Name (ex: Milk)",
+  "addItemNameError": "Please enter a name.",
+  "addItemQuantityLabel": "Quantity : {quantity}",
+  "@addItemQuantityLabel": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "addItemSaveBtn": "Save",
+  "addItemError": "Error: {error}",
+  "@addItemError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@_INVENTORY_SCREEN": {},
+  "inventoryTitle": "My Inventory",
+  "inventoryTabAll": "All",
+  "inventoryTabFridge": "Fridge",
+  "inventoryTabPantry": "Pantry",
+  "inventoryTabFreezer": "Freezer",
+  "inventorySearchHint": "Search for an item...",
+  "inventoryEmptyTitle": "Your inventory is empty",
+  "inventoryEmptySubtitle": "Tap + to add an item or scan a receipt.",
+  "suggestRecipeTooltip": "Suggest a recipe",
+  "scanReceiptCamera": "Scan receipt (Camera)",
+  "scanReceiptGallery": "Select from gallery",
+  "scanManual": "Add manually",
+  "@_ONBOARDING_SCREEN": {},
+  "onboardingSkip": "Skip",
+  "onboardingPage1Title": "Stop wasting money.",
+  "onboardingPage1Desc": "FrigoZen helps you consume your food before it expires.",
+  "onboardingPage1Btn": "Continue",
+  "onboardingPage2Title": "Know what to eat.",
+  "onboardingPage2Desc": "Get simple recipes based on what you already have in your fridge.",
+  "onboardingPage2Btn": "Start",
+  "onboardingPage3Title": "Smart shopping at last.",
+  "onboardingPage3Desc": "Never buy duplicates again. Scan, add, and your list is updated.",
+  "onboardingPage3Btn": "Start the adventure",
+  "onboardingHaveAccount": "I already have an account",
+  "@_PAYWALL_SCREEN": {},
+  "paywallTitle": "Take it to the next level",
+  "paywallSubtitle": "Unlock the full potential of your kitchen and save up to €500 per year.",
+  "paywallBenefit1Title": "AI Receipt Scanning",
+  "paywallBenefit1Desc": "Add your shopping in 2 seconds.",
+  "paywallBenefit2Title": "Magic Recipes",
+  "paywallBenefit2Desc": "Unlimited generation with photos.",
+  "paywallBenefit3Title": "Anti-Waste Alerts",
+  "paywallBenefit3Desc": "Be warned before it's too late.",
+  "paywallBenefit4Title": "Health Scanner",
+  "paywallBenefit4Desc": "Nutri-Score and product details.",
+  "paywallBenefit5Title": "Family Sharing",
+  "paywallBenefit5Desc": "Invite your household.",
+  "paywallAnnual": "Annual",
+  "paywallMonthly": "Monthly",
+  "paywallSaveLabel": "SAVE 50%",
+  "paywallSubscribeBtn": "Subscribe now",
+  "paywallRestoreBtn": "Restore purchases",
+  "paywallLegalText": "No commitment required. Cancellable at any time. By continuing, you agree to the Terms of Service and Privacy Policy.",
+  "paywallSuccess": "Welcome to the FrigoZen Pro club! 🌟",
+  "@_FAVORITES_SCREEN": {},
+  "favoritesTitle": "My Cookbook",
+  "favoritesEmptyTitle": "No favorite recipes yet",
+  "favoritesEmptySubtitle": "Save recipes you like to find them here.",
+  "favoritesLockedTitle": "Premium Feature",
+  "favoritesLockedSubtitle": "Upgrade to FrigoZen Pro to save your favorite AI-generated recipes and build your personal cookbook.",
+  "favoritesUnlockBtn": "Unlock Cookbook",
+  "favoritesUntitled": "Untitled Recipe",
+  "favoritesNoDesc": "No description.",
+  "@_RECIPE_DETAIL_SCREEN": {},
+  "recipeDetailUntitled": "Untitled Recipe",
+  "recipeDetailNoDesc": "No description available.",
+  "recipeDetailFridge": "YOUR FRIDGE",
+  "recipeDetailToBuy": "TO BUY",
+  "recipeDetailPreparation": "PREPARATION",
+  "recipeDetailSaved": "Recipe saved to Favorites! ❤️",
+  "recipeDetailRemoved": "Recipe removed from Favorites.",
+  "recipeDetailError": "Error: {error}",
+  "@recipeDetailError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@_RECIPE_SUGGESTION_SCREEN": {},
+  "recipeSuggestionTitle": "Recipe Ideas",
+  "recipeSuggestionEmpty": "No recipes found for this combination. :(",
+  "recipeSuggestionUntitled": "Untitled Recipe",
+  "@_SETTINGS_SCREEN_UPDATED": {},
+  "settingsTitle": "Settings",
+  "settingsAccountInfo": "Account Information",
+  "settingsNoEmail": "No email available",
+  "settingsManageSub": "Manage Subscription",
+  "settingsUpgrade": "Upgrade to FrigoZen Pro",
+  "settingsProMember": "You are a Pro member.",
+  "settingsUnlockFeatures": "Unlock all features.",
+  "settingsErrorOpen": "Could not open settings",
+  "settingsRestore": "Restore Purchases",
+  "settingsRestoreSuccess": "Purchases restored successfully.",
+  "settingsRestoreFail": "Restore failed: {error}",
+  "@settingsRestoreFail": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "settingsFamilyHeader": "FAMILY & HOUSEHOLD",
+  "settingsDefaultHouse": "Home",
+  "settingsInviteMembers": "Invite members",
+  "settingsInvitePremiumHint": "Go Premium to share your inventory.",
+  "settingsInviteCodeLabel": "Invitation Code :",
+  "settingsCodeCopied": "Code copied!",
+  "settingsShareHint": "Share this code to invite your family.",
+  "settingsLogout": "Logout",
+  "@_SHOPPING_SCREEN": {},
+  "shoppingTitle": "Shopping List",
+  "shoppingDuplicateAlert": "💡 Attention! You already have \"{itemName}\" in your inventory!",
+  "@shoppingDuplicateAlert": {
+    "placeholders": {
+      "itemName": { "type": "String" }
+    }
+  },
+  "shoppingAddAnyway": "Add Anyway",
+  "shoppingErrorGeneric": "Error: {error}",
+  "@shoppingErrorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "shoppingMovedSuccess": "{count} item(s) moved to Inventory successfully!",
+  "@shoppingMovedSuccess": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "shoppingMoveError": "Error moving items: {error}",
+  "@shoppingMoveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "shoppingAddingBtn": "Adding...",
+  "shoppingMoveBtn": "Add {count} item(s) to Inventory",
+  "@shoppingMoveBtn": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "@_VALIDATION_SCREEN": {},
+  "validationTitle": "Validate items ({count})",
+  "@validationTitle": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "validationCancelBtn": "Cancel",
+  "validationAddBtn": "Add {count} items",
+  "@validationAddBtn": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "validationSuccess": "{count} items added to inventory!",
+  "@validationSuccess": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "validationError": "Error adding items: {error}",
+  "@validationError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }
