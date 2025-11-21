@@ -979,6 +979,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add to shopping list'**
   String get inputFieldHintText;
+
+  /// No description provided for @editBatchesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage dates : {itemName}'**
+  String editBatchesTitle(String itemName);
+
+  /// No description provided for @editBatchesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Click the pencil to change a batch date.'**
+  String get editBatchesSubtitle;
+
+  /// No description provided for @editBatchesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No date information.'**
+  String get editBatchesEmpty;
+
+  /// No description provided for @editBatchesExpiredPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPIRED ON'**
+  String get editBatchesExpiredPrefix;
+
+  /// No description provided for @editBatchesExpiresPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires on'**
+  String get editBatchesExpiresPrefix;
+
+  /// No description provided for @editBatchesSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Date updated successfully! ✅'**
+  String get editBatchesSuccess;
+
+  /// No description provided for @editBatchesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String editBatchesError(String error);
 }
 
 class _AppLocalizationsDelegate

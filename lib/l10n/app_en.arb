@@ -229,5 +229,23 @@
   },
   "shoppingListEmptyTitle": "Your shopping list is empty",
   "shoppingListEmptySubtitle": "Add an item using the field above to get started.",
-  "inputFieldHintText": "Add to shopping list"
+  "inputFieldHintText": "Add to shopping list",
+  "@_EDIT_BATCHES_SHEET": {},
+  "editBatchesTitle": "Manage dates : {itemName}",
+  "@editBatchesTitle": {
+    "placeholders": {
+      "itemName": { "type": "String" }
+    }
+  },
+  "editBatchesSubtitle": "Click the pencil to change a batch date.",
+  "editBatchesEmpty": "No date information.",
+  "editBatchesExpiredPrefix": "EXPIRED ON",
+  "editBatchesExpiresPrefix": "Expires on",
+  "editBatchesSuccess": "Date updated successfully! ✅",
+  "editBatchesError": "Error: {error}",
+  "@editBatchesError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }

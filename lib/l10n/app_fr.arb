@@ -159,5 +159,13 @@
   "validationError": "Erreur lors de l'ajout : {error}",
   "shoppingListEmptyTitle": "Votre liste de courses est vide",
   "shoppingListEmptySubtitle": "Ajoutez un article ci-dessus pour commencer.",
-  "inputFieldHintText": "Ajouter à la liste de courses"
+  "inputFieldHintText": "Ajouter à la liste de courses",
+  "@_EDIT_BATCHES_SHEET": {},
+  "editBatchesTitle": "Gérer les dates : {itemName}",
+  "editBatchesSubtitle": "Cliquez sur le crayon pour modifier la date d'un lot.",
+  "editBatchesEmpty": "Aucune information de date.",
+  "editBatchesExpiredPrefix": "PÉRIMÉ LE",
+  "editBatchesExpiresPrefix": "Expire le",
+  "editBatchesSuccess": "Date mise à jour avec succès ! ✅",
+  "editBatchesError": "Erreur : {error}"
 }

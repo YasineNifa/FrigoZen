@@ -491,4 +491,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get inputFieldHintText => 'Ajouter à la liste de courses';
+
+  @override
+  String editBatchesTitle(String itemName) {
+    return 'Gérer les dates : $itemName';
+  }
+
+  @override
+  String get editBatchesSubtitle =>
+      'Cliquez sur le crayon pour modifier la date d\'un lot.';
+
+  @override
+  String get editBatchesEmpty => 'Aucune information de date.';
+
+  @override
+  String get editBatchesExpiredPrefix => 'PÉRIMÉ LE';
+
+  @override
+  String get editBatchesExpiresPrefix => 'Expire le';
+
+  @override
+  String get editBatchesSuccess => 'Date mise à jour avec succès ! ✅';
+
+  @override
+  String editBatchesError(String error) {
+    return 'Erreur : $error';
+  }
 }
