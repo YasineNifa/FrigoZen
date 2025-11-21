@@ -89,6 +89,7 @@ class InventoryService {
         'totalQuantity': newTotalQuantity,
         'earliestExpirationDate': getEarliestDate(newBatches),
         'name': name,
+        'dvm': dvm,
         'category': category ?? data['category'] ?? 'Other',
         'location': location ?? data['location'] ?? 'Fridge',
       });
@@ -102,6 +103,7 @@ class InventoryService {
         'batches': [newBatch],
         'earliestExpirationDate': finalExpirationDate,
         'createdAt': now,
+        'dvm': dvm,
       });
     }
   }
@@ -152,7 +154,41 @@ class InventoryService {
   }
 
   Future<void> incrementItemQuantity(String docId, int currentQuantity) async {
-    await updateItem(docId, {'totalQuantity': currentQuantity + 1});
+    final collection = await _getInventoryCollection();
+    final docRef = collection.doc(docId);
+
+    final snapshot = await docRef.get();
+    if (!snapshot.exists) return;
+
+    final data = snapshot.data() as Map<String, dynamic>;
+    List<dynamic> batches = List<dynamic>.from(data['batches'] ?? []);
+
+    final int dvm = data['dvm'] ?? 7;
+    final now = Timestamp.now();
+    final int dvmMillis = dvm * 24 * 60 * 60 * 1000;
+    final Timestamp expirationDate = Timestamp.fromMillisecondsSinceEpoch(
+      now.millisecondsSinceEpoch + dvmMillis,
+    );
+
+    final newBatch = {
+      'quantity': 1,
+      'expirationDate': expirationDate,
+      'addedAt': now,
+      'storeName': 'Ajout Rapide',
+    };
+
+    batches.add(newBatch);
+
+    batches.sort(
+      (a, b) =>
+          (a['expirationDate'] as Timestamp).compareTo(b['expirationDate']),
+    );
+
+    await docRef.update({
+      'totalQuantity': currentQuantity + 1,
+      'batches': batches,
+      'earliestExpirationDate': getEarliestDate(batches),
+    });
   }
 
   Future<void> decrementItemQuantity(String docId, int currentQuantity) async {
