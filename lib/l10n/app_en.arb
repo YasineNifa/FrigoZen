@@ -225,5 +225,8 @@
     "placeholders": {
       "error": { "type": "String" }
     }
-  }
+  },
+  "shoppingListEmptyTitle": "Your shopping list is empty",
+  "shoppingListEmptySubtitle": "Add an item using the field above to get started.",
+  "inputFieldHintText": "Add to shopping list"
 }

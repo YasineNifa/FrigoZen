@@ -478,4 +478,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String validationError(String error) {
     return 'Erreur lors de l\'ajout : $error';
   }
+
+  @override
+  String get shoppingListEmptyTitle => 'Votre liste de courses est vide';
+
+  @override
+  String get shoppingListEmptySubtitle =>
+      'Ajoutez un article ci-dessus pour commencer.';
+
+  @override
+  String get inputFieldHintText => 'Ajouter à la liste de courses';
 }

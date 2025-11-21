@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class CustomizedInputField extends StatelessWidget {
   final TextEditingController textController;
@@ -14,6 +15,7 @@ class CustomizedInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -22,7 +24,7 @@ class CustomizedInputField extends StatelessWidget {
             child: TextField(
               controller: textController,
               decoration: InputDecoration(
-                hintText: 'Add to shopping list...',
+                hintText: l10n.inputFieldHintText,
                 prefixIcon: const Icon(Icons.shop),
                 filled: true,
                 fillColor: Theme.of(context).brightness == Brightness.light

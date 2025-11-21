@@ -955,6 +955,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error adding items: {error}'**
   String validationError(String error);
+
+  /// No description provided for @shoppingListEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shopping list is empty'**
+  String get shoppingListEmptyTitle;
+
+  /// No description provided for @shoppingListEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an item using the field above to get started.'**
+  String get shoppingListEmptySubtitle;
+
+  /// No description provided for @inputFieldHintText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to shopping list'**
+  String get inputFieldHintText;
 }
 
 class _AppLocalizationsDelegate

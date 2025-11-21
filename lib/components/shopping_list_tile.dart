@@ -20,7 +20,7 @@ class ShoppinglistTile extends StatelessWidget {
     return Dismissible(
       key: Key(id),
       direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDelete(), // we either pass the id or not.
+      onDismissed: (_) => onDelete(),
       background: Container(
         color: Colors.red[700],
         alignment: Alignment.centerRight,

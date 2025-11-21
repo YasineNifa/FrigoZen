@@ -474,4 +474,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String validationError(String error) {
     return 'Error adding items: $error';
   }
+
+  @override
+  String get shoppingListEmptyTitle => 'Your shopping list is empty';
+
+  @override
+  String get shoppingListEmptySubtitle =>
+      'Add an item using the field above to get started.';
+
+  @override
+  String get inputFieldHintText => 'Add to shopping list';
 }

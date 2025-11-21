@@ -155,5 +155,8 @@
   "validationCancelBtn": "Annuler",
   "validationAddBtn": "Ajouter {count} articles",
   "validationSuccess": "{count} articles ajoutés à l'inventaire !",
-  "validationError": "Erreur lors de l'ajout : {error}"
+  "validationError": "Erreur lors de l'ajout : {error}",
+  "shoppingListEmptyTitle": "Votre liste de courses est vide",
+  "shoppingListEmptySubtitle": "Ajoutez un article ci-dessus pour commencer.",
+  "inputFieldHintText": "Ajouter à la liste de courses"
 }
