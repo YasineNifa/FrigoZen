@@ -32,8 +32,9 @@ class _AddItemSheetState extends State<AddItemSheet> {
         final Map<String, dynamic> itemData = Map<String, dynamic>.from(
           result.data['item'],
         );
-        final String canonicalName = itemData['canonicalName'] ?? userTypedName;
-        final int dvm = itemData['dvm'] ?? 7;
+        final String name = itemData['name'] ?? l10n.shoppingItemNoTitle;
+        final String canonicalName = itemData['canonicalName'] ?? name;
+        final int dvm = itemData['dvm'];
         final String category = itemData['category'] ?? 'Other';
         final String location = itemData['location'] ?? 'Frigo';
         final inventoryService = InventoryService();
