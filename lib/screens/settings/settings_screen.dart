@@ -56,12 +56,13 @@ class SettingsScreen extends StatelessWidget {
                 }
               } else {
                 // Si Pas Pro -> Ouvrir le Paywall
-                // Navigator.of(context).push(
-                //   MaterialPageRoute(builder: (ctx) => const PaywallScreen()),
-                // );
-
                 try {
-                  await RevenueCatUI.presentPaywallIfNeeded("default");
+                  // await RevenueCatUI.presentPaywallIfNeeded("default");
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => const ModernPaywallScreen(),
+                    ),
+                  );
                 } on PurchasesError catch (e) {
                   print("Paywall error: $e");
                 }
