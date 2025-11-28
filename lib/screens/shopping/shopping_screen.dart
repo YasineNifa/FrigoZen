@@ -24,7 +24,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   bool _isAddingItem = false;
   bool _isMovingItems = false;
 
-  List<QueryDocumentSnapshot> _checkedItems = [];
+  Set<String> _checkedItemIds = {};
+  List<QueryDocumentSnapshot> _allItems = [];
+
+  final Color _backgroundColor = const Color(0xFFF9F9F9);
 
   void _saveItemToFirebase(
     String itemName,
@@ -71,9 +74,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
       if (!mounted) return;
 
-      // Get the provider
       final inventory = context.read<InventoryProvider>();
-      // VÉRIFICATION "ANTI-DOUBLON"
+
       if (inventory.doesItemExist(canonicalName)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -126,10 +128,33 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     }
   }
 
-  void _moveCheckedItemsToInventory(
-    List<QueryDocumentSnapshot> checkedItems,
-  ) async {
+  void _toggleSelectAll() {
+    if (_allItems.isEmpty) return;
+
+    // Vérifie si tout est coché
+    final bool allAreChecked = _checkedItemIds.length == _allItems.length;
+    final bool newValue = !allAreChecked;
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (var doc in _allItems) {
+      // On ne met à jour que si nécessaire pour économiser des écritures
+      if (doc['isChecked'] != newValue) {
+        batch.update(doc.reference, {'isChecked': newValue});
+      }
+    }
+    batch.commit();
+  }
+
+  void _moveCheckedItemsToInventory() async {
     if (_isMovingItems) return;
+
+    // On récupère la liste des documents cochés depuis _allItems
+    final checkedDocs = _allItems
+        .where((doc) => _checkedItemIds.contains(doc.id))
+        .toList();
+
+    if (checkedDocs.isEmpty) return;
 
     final l10n = AppLocalizations.of(context)!;
 
@@ -139,33 +164,41 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
     try {
       final inventoryService = InventoryService();
+      List<Future> tasks = [];
 
-      for (final itemDoc in checkedItems) {
+      for (final itemDoc in checkedDocs) {
         final data = itemDoc.data() as Map<String, dynamic>;
-
         final String name = data['name'] ?? l10n.shoppingItemNoTitle;
         final String canonicalName = data['canonicalName'] ?? name;
         final int quantity = data['quantity'] ?? 1;
         final int? dvm = data['dvm'];
-        final String category = data['category'];
-        final String location = data['location'];
+        final String category = data['category'] ?? 'Other';
+        final String location = data['location'] ?? 'Frigo';
 
-        await inventoryService.upsertItemToInventory(
-          name: name,
-          canonicalName: canonicalName,
-          quantity: quantity,
-          dvm: dvm,
-          category: category,
-          location: location,
+        tasks.add(
+          inventoryService
+              .upsertItemToInventory(
+                name: name,
+                canonicalName: canonicalName,
+                quantity: quantity,
+                dvm: dvm,
+                category: category,
+                location: location,
+              )
+              .then((_) {
+                return _shoppingService.removeItemFromShoppingList(itemDoc.id);
+              }),
         );
-        await _shoppingService.removeItemFromShoppingList(itemDoc.id);
       }
+
+      await Future.wait(tasks);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.shoppingMovedSuccess(checkedItems.length)),
+            content: Text(l10n.shoppingMovedSuccess(checkedDocs.length)),
             backgroundColor: Colors.green[700],
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -179,7 +212,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       if (mounted) {
         setState(() {
           _isMovingItems = false;
-          _checkedItems.clear();
+          // _checkedItemIds sera mis à jour automatiquement par le Stream
         });
       }
     }
@@ -188,10 +221,25 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final bool allChecked =
+        _allItems.isNotEmpty && _checkedItemIds.length == _allItems.length;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(title: Text(l10n.shoppingTitle)),
+      backgroundColor: _backgroundColor,
+      appBar: AppBar(
+        title: Text(l10n.shoppingTitle),
+        actions: [
+          if (_allItems.isNotEmpty)
+            IconButton(
+              icon: Icon(
+                allChecked ? Icons.deselect_outlined : Icons.select_all,
+                color: Colors.black87,
+              ),
+              tooltip: allChecked ? "Tout décocher" : "Tout cocher",
+              onPressed: _toggleSelectAll,
+            ),
+        ],
+      ),
       body: Column(
         children: [
           CustomizedInputField(
@@ -204,27 +252,51 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: _shoppingService.getShoppingListStream(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                // On n'affiche le loader QUE si on n'a pas de data ET qu'on attend
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  // On nettoie les états locaux si la liste est vide
+                  if (_allItems.isNotEmpty) {
+                    // Petit hack pour éviter setState pendant le build
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted)
+                        setState(() {
+                          _allItems = [];
+                          _checkedItemIds = {};
+                        });
+                    });
+                  }
                   return const ShoppingListEmptyState();
                 }
 
                 final items = snapshot.data!.docs;
-                final localCheckedItems = items.where((item) {
-                  final data = item.data() as Map<String, dynamic>;
-                  return data['isChecked'];
-                }).toList();
 
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted &&
-                      _checkedItems.length != localCheckedItems.length) {
-                    setState(() {
-                      _checkedItems = localCheckedItems;
-                    });
-                  }
-                });
+                // Mise à jour silencieuse de l'état local pour le FAB
+                // On calcule les IDs cochés
+                final newCheckedIds = items
+                    .where(
+                      (doc) =>
+                          (doc.data() as Map<String, dynamic>)['isChecked'] ==
+                          true,
+                    )
+                    .map((doc) => doc.id)
+                    .toSet();
+
+                // On ne déclenche un setState que si ça a vraiment changé
+                if (newCheckedIds.length != _checkedItemIds.length ||
+                    _allItems.length != items.length) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      setState(() {
+                        _allItems = items;
+                        _checkedItemIds = newCheckedIds;
+                      });
+                    }
+                  });
+                }
 
                 return ListView.builder(
                   itemCount: items.length,
@@ -236,6 +308,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                       title: data["name"],
                       id: item.id,
                       isChecked: data["isChecked"],
+                      // ACTION IMMÉDIATE (Optimistic UI)
+                      // On ne met pas de chargement ici, Firestore gère ça très vite
                       onToggle: () => _shoppingService.updateItem(item.id, {
                         'isChecked': !data["isChecked"],
                       }),
@@ -249,14 +323,23 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           ),
         ],
       ),
-      floatingActionButton: _checkedItems.isEmpty
+      floatingActionButton: _checkedItemIds.isEmpty
           ? null
           : FloatingActionButton.extended(
-              icon: const Icon(Icons.check, color: Colors.white),
+              icon: _isMovingItems
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.check, color: Colors.white),
               label: Text(
                 _isMovingItems
                     ? l10n.shoppingAddingBtn
-                    : l10n.shoppingMoveBtn(_checkedItems.length),
+                    : l10n.shoppingMoveBtn(_checkedItemIds.length),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -264,11 +347,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 ),
               ),
               backgroundColor: Theme.of(context).primaryColor,
-              onPressed: _isMovingItems
-                  ? null
-                  : () {
-                      _moveCheckedItemsToInventory(_checkedItems);
-                    },
+              onPressed: _isMovingItems ? null : _moveCheckedItemsToInventory,
             ),
     );
   }
