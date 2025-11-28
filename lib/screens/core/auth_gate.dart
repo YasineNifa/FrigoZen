@@ -5,6 +5,9 @@ import 'package:frigo_zen/screens/core/household_setup_screen.dart';
 import 'package:frigo_zen/screens/core/navigation_shell.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/services/revenue_provider.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
@@ -17,9 +20,7 @@ class _AuthGateState extends State<AuthGate> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      // Create a stream to listen to authentication state changes
       stream: FirebaseAuth.instance.authStateChanges(),
-
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -27,10 +28,13 @@ class _AuthGateState extends State<AuthGate> {
           );
         }
 
-        // if the snapshot has data (i.e., the user is logged in)
         if (snapshot.hasData) {
           final user = snapshot.data!;
-          _setupNotifications(snapshot.data!);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _setupNotifications(user);
+            _logInRevenueCat(context, user.uid);
+          });
+
           return StreamBuilder<DocumentSnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('users')
@@ -58,44 +62,75 @@ class _AuthGateState extends State<AuthGate> {
           );
         }
 
-        // We show the authentication screen (AuthScreen) if the user is not logged in
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _logOutRevenueCat(context);
+        });
+
         return const AuthScreen();
       },
     );
   }
 
-  Future<void> _setupNotifications(User user) async {
-    final messaging = FirebaseMessaging.instance;
-    await messaging.requestPermission();
+  Future<void> _logInRevenueCat(BuildContext context, String userId) async {
+    try {
+      final customerInfo = await Purchases.getCustomerInfo();
+      if (customerInfo.originalAppUserId == userId) {
+        if (context.mounted) {
+          context.read<RevenueProvider>().setCustomerInfo(customerInfo);
+        }
+        return;
+      }
 
-    // Récupérer le "Token" (l'adresse unique de cet appareil)
-    final String? token = await messaging.getToken();
-
-    if (token == null) {
-      print("Error: Could not get FCM token.");
-      return;
+      final logInResult = await Purchases.logIn(userId);
+      if (context.mounted) {
+        context.read<RevenueProvider>().setCustomerInfo(
+          logInResult.customerInfo,
+        );
+      }
+    } catch (e) {
+      print("RevenueCat login error: $e");
     }
-    print("User Token: $token");
-
-    // Sauvegarder ce token dans Firestore
-    await _saveTokenToFirestore(user.uid, token);
   }
 
-  // Sauvegarder le token
+  Future<void> _logOutRevenueCat(BuildContext context) async {
+    try {
+      final isAnonymous = await Purchases.isAnonymous;
+      if (!isAnonymous) {
+        if (context.mounted) {
+          context.read<RevenueProvider>().setCustomerInfo(null);
+        }
+        await Purchases.logOut();
+      }
+    } catch (e) {
+      print("RevenueCat logout error: $e");
+    }
+  }
+
+  Future<void> _setupNotifications(User user) async {
+    // ... (Votre code existant pour les notifs)
+    final messaging = FirebaseMessaging.instance;
+    try {
+      await messaging.requestPermission();
+      final String? token = await messaging.getToken();
+      if (token != null) {
+        await _saveTokenToFirestore(user.uid, token);
+      }
+    } catch (e) {
+      print("Notification setup error: $e");
+    }
+  }
+
   Future<void> _saveTokenToFirestore(String userId, String token) async {
-    // La meilleure pratique est de stocker les tokens dans une sous-collection
-    // pour que l'utilisateur puisse avoir PLUSIEURS appareils (téléphone + tablette)
     final tokenRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('deviceTokens')
-        .doc(token); // le token = ID de document
+        .doc(token);
 
     await tokenRef.set({
       'createdAt': FieldValue.serverTimestamp(),
-      'platform': Theme.of(
-        context,
-      ).platform.toString(), // ex: "TargetPlatform.android"
+      // 'platform': Theme.of(context).platform.toString(), // Attention context peut être instable ici
+      'platform': 'mobile', // Plus sûr
     });
   }
 }
