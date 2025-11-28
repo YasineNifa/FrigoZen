@@ -17,24 +17,35 @@ class AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<AuthGate> {
+  // Mémoire locale pour éviter de spammer les APIs
+  String? _currentRevenueCatId;
+  bool _notificationsSetupDone = false;
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        // 1. Chargement initial
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
+        // 2. Utilisateur CONNECTÉ
         if (snapshot.hasData) {
           final user = snapshot.data!;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _setupNotifications(user);
-            _logInRevenueCat(context, user.uid);
-          });
 
+          // --- A. Notifications (Une seule fois) ---
+          if (!_notificationsSetupDone) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _setupNotifications(user);
+              _notificationsSetupDone = true; // On marque comme fait
+            });
+          }
+
+          // --- B. Stream Firestore (Profil Utilisateur) ---
           return StreamBuilder<DocumentSnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('users')
@@ -47,41 +58,63 @@ class _AuthGateState extends State<AuthGate> {
                 );
               }
 
-              if (userDocSnapshot.hasData && userDocSnapshot.data!.exists) {
-                final data =
-                    userDocSnapshot.data!.data() as Map<String, dynamic>?;
-                final householdId = data?['householdId'];
-                if (householdId != null) {
-                  return const NavigationShell();
-                }
-                return const HouseholdSetupScreen();
-              } else {
-                return const HouseholdSetupScreen();
+              // Analyse des données
+              final data =
+                  userDocSnapshot.hasData && userDocSnapshot.data!.exists
+                  ? userDocSnapshot.data!.data() as Map<String, dynamic>?
+                  : null;
+
+              final householdId = data?['householdId'];
+
+              // --- C. Logique RevenueCat (Intelligente) ---
+              // On détermine quel ID utiliser (Maison ou User)
+              final revenueCatIdToUse = householdId ?? user.uid;
+
+              // OPTIMISATION MAJEURE :
+              // On ne déclenche la connexion QUE si l'ID a changé depuis la dernière fois.
+              // Cela empêche de spammer RevenueCat à chaque reconstruction de l'écran.
+              if (_currentRevenueCatId != revenueCatIdToUse) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _logInRevenueCat(context, revenueCatIdToUse);
+                });
               }
+
+              // --- D. Navigation ---
+              if (householdId != null) {
+                return const NavigationShell();
+              }
+              return const HouseholdSetupScreen();
             },
           );
         }
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _logOutRevenueCat(context);
-        });
+        // 3. Utilisateur DÉCONNECTÉ
+        // Si on pensait être connecté, on nettoie
+        if (_currentRevenueCatId != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _logOutRevenueCat(context);
+          });
+        }
 
         return const AuthScreen();
       },
     );
   }
 
-  Future<void> _logInRevenueCat(BuildContext context, String userId) async {
-    try {
-      final customerInfo = await Purchases.getCustomerInfo();
-      if (customerInfo.originalAppUserId == userId) {
-        if (context.mounted) {
-          context.read<RevenueProvider>().setCustomerInfo(customerInfo);
-        }
-        return;
-      }
+  // --- FONCTIONS HELPERS ---
 
-      final logInResult = await Purchases.logIn(userId);
+  Future<void> _logInRevenueCat(BuildContext context, String idToLogIn) async {
+    // Double sécurité
+    if (_currentRevenueCatId == idToLogIn) return;
+
+    try {
+      print("RevenueCat: Connexion en cours pour l'ID: $idToLogIn");
+
+      // On met à jour la mémoire locale tout de suite pour bloquer les appels suivants
+      _currentRevenueCatId = idToLogIn;
+
+      final logInResult = await Purchases.logIn(idToLogIn);
+
       if (context.mounted) {
         context.read<RevenueProvider>().setCustomerInfo(
           logInResult.customerInfo,
@@ -89,17 +122,25 @@ class _AuthGateState extends State<AuthGate> {
       }
     } catch (e) {
       print("RevenueCat login error: $e");
+      // En cas d'erreur, on reset pour retenter plus tard si besoin
+      _currentRevenueCatId = null;
     }
   }
 
   Future<void> _logOutRevenueCat(BuildContext context) async {
     try {
+      // Reset des états locaux
+      _currentRevenueCatId = null;
+      _notificationsSetupDone = false;
+
+      if (context.mounted) {
+        context.read<RevenueProvider>().setCustomerInfo(null);
+      }
+
       final isAnonymous = await Purchases.isAnonymous;
       if (!isAnonymous) {
-        if (context.mounted) {
-          context.read<RevenueProvider>().setCustomerInfo(null);
-        }
         await Purchases.logOut();
+        print("RevenueCat: logout.");
       }
     } catch (e) {
       print("RevenueCat logout error: $e");
@@ -107,7 +148,6 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _setupNotifications(User user) async {
-    // ... (Votre code existant pour les notifs)
     final messaging = FirebaseMessaging.instance;
     try {
       await messaging.requestPermission();
@@ -130,7 +170,7 @@ class _AuthGateState extends State<AuthGate> {
     await tokenRef.set({
       'createdAt': FieldValue.serverTimestamp(),
       // 'platform': Theme.of(context).platform.toString(), // Attention context peut être instable ici
-      'platform': 'mobile', // Plus sûr
+      'platform': 'mobile',
     });
   }
 }
