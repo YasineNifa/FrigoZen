@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 import 'package:frigo_zen/screens/recipes/recipe_suggestion_screen.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,6 +15,9 @@ import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/screens/inventory/edit_batches_sheet.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -56,7 +60,9 @@ class _InventoryScreenState extends State<InventoryScreen>
       return true;
     } else {
       try {
-        await RevenueCatUI.presentPaywallIfNeeded("default");
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (ctx) => const ModernPaywallScreen()),
+        );
         return context.read<RevenueProvider>().isPro;
       } on PurchasesError catch (e) {
         print("Error while displaying Paywall: $e");
@@ -170,6 +176,30 @@ class _InventoryScreenState extends State<InventoryScreen>
                 ocrService.pickAndProcessReceipt(context, ImageSource.camera);
               },
             ),
+            const Divider(),
+            ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: Color.fromARGB(255, 165, 214, 167),
+                child: Icon(
+                  Icons.qr_code_2,
+                  color: Color.fromARGB(255, 32, 32, 32),
+                ),
+              ),
+              title: Row(
+                children: [
+                  const Text('Scanner un code-barres'),
+                  if (!context.read<RevenueProvider>().isPro) buildProBadge(),
+                ],
+              ),
+              trailing: !context.read<RevenueProvider>().isPro
+                  ? const Icon(Icons.lock_outline, color: Colors.grey)
+                  : null,
+              onTap: () {
+                Navigator.of(ctx).pop();
+                _scanProductBarcode(context);
+              },
+            ),
+            const Divider(),
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: Color.fromARGB(255, 165, 214, 167),
@@ -194,6 +224,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                 ocrService.pickAndProcessReceipt(context, ImageSource.gallery);
               },
             ),
+            const Divider(),
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: Color.fromARGB(255, 165, 214, 167),
@@ -395,13 +426,13 @@ class _InventoryScreenState extends State<InventoryScreen>
       }
 
       final String cacheKey = _getCacheKeyFromInventory(inventoryData);
-
+      final String userLanguage = Localizations.localeOf(context).languageCode;
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
       final callable = functions.httpsCallable('generateRecipes');
       final result = await callable.call({
         'inventory': inventoryData,
         'searchKey': cacheKey,
-        'forceNew': false,
+        'language': userLanguage,
       });
 
       if (!context.mounted) return;
@@ -489,6 +520,99 @@ class _InventoryScreenState extends State<InventoryScreen>
         ),
       ),
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // NOUVELLE FONCTION : SCANNER UN PRODUIT (CODE-BARRES)
+  // ---------------------------------------------------------------------------
+  Future<void> _scanProductBarcode(BuildContext context) async {
+    final hasAccess = await _checkPremiumStatus(context);
+    if (!hasAccess) return;
+
+    var barcode = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SimpleBarcodeScannerPage()),
+    );
+
+    if (barcode == null || barcode == '-1' || barcode is! String) return;
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (c) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final url = Uri.parse(
+        'https://world.openfoodfacts.org/api/v2/product/$barcode',
+      );
+      print("URL : $url");
+      final response = await http.get(url);
+
+      if (context.mounted) Navigator.pop(context);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        if (jsonResponse['status'] == 1) {
+          final product = jsonResponse['product'];
+
+          final String name = product['product_name'] ?? 'Produit inconnu';
+          final String brands = product['brands'] ?? '';
+          // On combine Marque + Nom pour être précis (ex: "Lait (Candia)")
+          final String fullName = brands.isNotEmpty ? "$name ($brands)" : name;
+
+          final String? imageUrl =
+              product['image_front_small_url'] ?? product['image_front_url'];
+          final String? category = _mapOffCategory(product['categories_tags']);
+
+          // TODO: Must be improved
+          await _inventoryService.upsertItemToInventory(
+            name: fullName,
+            cleanedName: name,
+            canonicalName: name,
+            quantity: 1,
+            category: category,
+            location: 'Frigo',
+            // On pourrait aussi stocker l'URL de l'image et le Nutri-Score ici
+            // si on modifie InventoryService pour les accepter
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("$fullName ajouté !"),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else {
+          throw Exception("Produit non trouvé dans la base Open Food Facts.");
+        }
+      } else {
+        throw Exception("Erreur réseau Open Food Facts.");
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur : $e"), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  // Petit helper pour deviner la catégorie depuis les tags OFF (Optionnel)
+  String _mapOffCategory(List<dynamic>? tags) {
+    if (tags == null) return 'Other';
+    final str = tags.join(' ').toLowerCase();
+    if (str.contains('dairy') || str.contains('lait') || str.contains('cheese'))
+      return 'Dairy';
+    if (str.contains('meat') || str.contains('viande') || str.contains('fish'))
+      return 'Meat';
+    if (str.contains('fruit')) return 'Fruit';
+    if (str.contains('vegetable') || str.contains('plant')) return 'Vegetable';
+    if (str.contains('beverage') || str.contains('boisson')) return 'Beverage';
+    return 'Pantry';
   }
 
   @override
@@ -640,7 +764,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   Widget _buildItemCard(QueryDocumentSnapshot item) {
     final data = item.data() as Map<String, dynamic>;
-    final String itemName = data['name'] ?? 'Unnamed Item';
+    final String cleanedName = data['cleanedName'] ?? 'Unnamed Item';
     final int itemQuantity = data["totalQuantity"] ?? 1;
     final Timestamp? expirationDate = data['earliestExpirationDate'];
     final List<dynamic> batchesData = data['batches'] ?? [];
@@ -683,22 +807,22 @@ class _InventoryScreenState extends State<InventoryScreen>
                   ),
                   builder: (ctx) => EditBatchesSheet(
                     docId: item.id,
-                    itemName: itemName,
+                    itemName: cleanedName,
                     batches: batchesData,
                     service: _inventoryService,
                   ),
                 );
               },
-              leading: CircleAvatar(
-                backgroundColor: Colors.green[50],
-                child: Icon(
-                  _getIconForCategory(data['category']),
-                  color: Colors.green[800],
-                ),
-              ),
 
+              // leading: CircleAvatar(
+              //   backgroundColor: Colors.green[50],
+              //   child: Icon(
+              //     _getIconForCategory(data['category']),
+              //     color: Colors.green[800],
+              //   ),
+              // ),
               title: Text(
-                itemName,
+                cleanedName,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               subtitle: Text(
