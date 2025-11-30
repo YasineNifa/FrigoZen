@@ -46,15 +46,13 @@ class EditBatchesSheet extends StatelessWidget {
 
     if (pickedDate != null) {
       try {
-        // Appel au service pour mettre à jour
         await service.updateBatchDate(docId, batch, pickedDate);
-
         if (context.mounted) {
-          Navigator.pop(context); // Fermer la modale
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.editBatchesSuccess),
-              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
             ),
           );
         }
@@ -71,12 +69,89 @@ class EditBatchesSheet extends StatelessWidget {
     }
   }
 
+  Color _getNutriScoreColor(String? score) {
+    switch (score?.toLowerCase()) {
+      case 'a':
+        return const Color(0xFF038141);
+      case 'b':
+        return const Color(0xFF85BB2F);
+      case 'c':
+        return const Color(0xFFFECB02);
+      case 'd':
+        return const Color(0xFFEE8100);
+      case 'e':
+        return const Color(0xFFE63E11);
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Widget _buildInitialsAvatar(String name) {
+    String initials = "";
+    if (name.isNotEmpty) {
+      final trimmed = name.trim();
+      if (trimmed.length >= 2) {
+        initials = trimmed.substring(0, 2).toUpperCase();
+      } else if (trimmed.isNotEmpty) {
+        initials = trimmed.substring(0, 1).toUpperCase();
+      } else {
+        initials = "?";
+      }
+    }
+
+    // 2. Générer une couleur unique basée sur le nom (Hashcode)
+    // On utilise une liste de couleurs "FrigoZen" douces
+    final List<Color> colors = [
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.blueGrey,
+    ];
+
+    // L'opérateur % assure qu'on reste toujours dans la limite de la liste
+    final color = colors[name.hashCode.abs() % colors.length];
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1), // Fond pastel
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(
+            color: color, // Texte de la couleur vive
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(24),
-      height: MediaQuery.of(context).size.height * 0.5,
+      // On agrandit un peu la hauteur pour accommoder les infos riches
+      height: MediaQuery.of(context).size.height * 0.65,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -84,6 +159,7 @@ class EditBatchesSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Barre de drag
           Center(
             child: Container(
               width: 40,
@@ -95,9 +171,12 @@ class EditBatchesSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+
           Text(
             l10n.editBatchesTitle(itemName),
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
@@ -105,59 +184,324 @@ class EditBatchesSheet extends StatelessWidget {
             style: TextStyle(color: Colors.grey[600], fontSize: 14),
           ),
           const SizedBox(height: 20),
+
           Expanded(
             child: batches.isEmpty
                 ? Center(child: Text(l10n.editBatchesEmpty))
                 : ListView.separated(
                     itemCount: batches.length,
-                    separatorBuilder: (ctx, i) => const Divider(height: 1),
+                    separatorBuilder: (ctx, i) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final batch = batches[index] as Map<String, dynamic>;
-                      final quantity = batch['quantity'];
-                      final ts = batch['expirationDate'] as Timestamp;
-                      final name = batch['name'];
 
-                      // Vérifier si c'est aujourd'hui ou passé
+                      // --- RÉCUPÉRATION DES DONNÉES RICHES ---
+                      final int quantity = batch['quantity'] ?? 1;
+                      final Timestamp ts = batch['expirationDate'];
+
+                      // Données spécifiques au lot (si disponibles)
+                      final String specificName =
+                          batch['name'] ??
+                          itemName; // Le nom précis (ex: Cheddar Tex Mex)
+                      final String brand = batch['brands'] ?? '';
+                      final String? batchImageUrl = batch['imageUrl'];
+                      final String? nutriscore = batch['nutriscore'];
+                      final String storeName = batch['storeName'] ?? '';
+                      final Timestamp? addedAtTs = batch['addedAt'];
+                      final String addedDateStr = addedAtTs != null
+                          ? _formatDate(addedAtTs)
+                          : '';
+
+                      // Calcul Expiration
                       final now = DateTime.now();
                       final date = ts.toDate();
-                      final isExpired = date.isBefore(
-                        DateTime(now.year, now.month, now.day),
+                      final today = DateTime(now.year, now.month, now.day);
+                      final expiryDay = DateTime(
+                        date.year,
+                        date.month,
+                        date.day,
                       );
 
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.grey[100],
-                          child: Text(
-                            "x$quantity",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                      final isExpired = expiryDay.isBefore(today);
+                      final isToday = expiryDay.isAtSameMomentAs(today);
+
+                      Color statusColor = Colors.green[700]!;
+                      if (isExpired)
+                        statusColor = Colors.red[700]!;
+                      else if (isToday)
+                        statusColor = Colors.orange[800]!;
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[200]!),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.03),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
+                          ],
                         ),
-                        title: Text(
-                          isExpired
-                              ? name + " " + l10n.editBatchesExpiredPrefix
-                              : name + " " + l10n.editBatchesExpiresPrefix,
-                          style: TextStyle(
-                            color: isExpired ? Colors.red : Colors.grey[600],
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 1. IMAGE SPÉCIFIQUE DU LOT
+                              // Container(
+                              //   width: 60,
+                              //   height: 60,
+                              //   decoration: BoxDecoration(
+                              //     borderRadius: BorderRadius.circular(8),
+                              //     color: Colors.grey[100],
+                              //     image:
+                              //         batchImageUrl != null &&
+                              //             batchImageUrl.isNotEmpty
+                              //         ? DecorationImage(
+                              //             image: NetworkImage(batchImageUrl),
+                              //             fit: BoxFit.cover,
+                              //           )
+                              //         : null,
+                              //   ),
+                              //   child:
+                              //       batchImageUrl == null ||
+                              //           batchImageUrl.isEmpty
+                              //       ? Icon(
+                              //           Icons.fastfood,
+                              //           color: Colors.grey[400],
+                              //         )
+                              //       : null,
+                              // ),
+                              Stack(
+                                children: [
+                                  // L'Image de base
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: Colors.grey[100],
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child:
+                                        batchImageUrl != null &&
+                                            batchImageUrl.isNotEmpty
+                                        ? Image.network(
+                                            batchImageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (ctx, error, stackTrace) =>
+                                                    _buildInitialsAvatar(
+                                                      specificName,
+                                                    ),
+                                          )
+                                        : _buildInitialsAvatar(specificName),
+                                  ),
+
+                                  // Le Badge Nutri-Score (En bas à droite)
+                                  if (nutriscore != null)
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _getNutriScoreColor(
+                                            nutriscore,
+                                          ),
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(6),
+                                            bottomRight: Radius.circular(
+                                              12,
+                                            ), // Suit le coin de l'image
+                                          ),
+                                        ),
+                                        child: Text(
+                                          nutriscore.toUpperCase(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              // 2. INFOS PRINCIPALES
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Nom précis et Marque
+                                    Text(
+                                      specificName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (brand.isNotEmpty)
+                                      Text(
+                                        brand,
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+
+                                    const SizedBox(height: 8),
+
+                                    // Badges (Nutri-Score + Quantité + Magasin)
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 6,
+                                      children: [
+                                        // Badge Quantité
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[100],
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.grey[300]!,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            "x$quantity",
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Badge Nutri-Score (Si présent)
+                                        // if (nutriscore != null &&
+                                        //     nutriscore.isNotEmpty)
+                                        //   Container(
+                                        //     padding: const EdgeInsets.symmetric(
+                                        //       horizontal: 6,
+                                        //       vertical: 2,
+                                        //     ),
+                                        //     decoration: BoxDecoration(
+                                        //       color: _getNutriScoreColor(
+                                        //         nutriscore,
+                                        //       ),
+                                        //       borderRadius:
+                                        //           BorderRadius.circular(4),
+                                        //     ),
+                                        //     child: Text(
+                                        //       "Nutri ${nutriscore.toUpperCase()}",
+                                        //       style: const TextStyle(
+                                        //         color: Colors.white,
+                                        //         fontSize: 10,
+                                        //         fontWeight: FontWeight.bold,
+                                        //       ),
+                                        //     ),
+                                        //   ),
+
+                                        // Badge Magasin (Si présent)
+                                        if (storeName.isNotEmpty)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue[50],
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.store,
+                                                  size: 10,
+                                                  color: Colors.blue[800],
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  storeName,
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.blue[800],
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // 3. DATE ET ACTION
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit_calendar_outlined,
+                                    ),
+                                    color: Theme.of(context).primaryColor,
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: () => _pickDate(context, batch),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        isExpired
+                                            ? Icons.warning_amber_rounded
+                                            : Icons.event,
+                                        size: 14,
+                                        color: statusColor,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        _formatDate(ts),
+                                        style: TextStyle(
+                                          color: statusColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (addedDateStr.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        "Ajouté le $addedDateStr", // TODO: Traduire "Ajouté le"
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
-                        subtitle: Text(
-                          _formatDate(ts),
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.edit_calendar_outlined),
-                          color: Theme.of(context).primaryColor,
-                          onPressed: () => _pickDate(context, batch),
                         ),
                       );
                     },

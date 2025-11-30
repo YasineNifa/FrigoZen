@@ -736,10 +736,8 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // Helper pour générer un avatar avec initiales et couleur unique
   Widget _buildInitialsAvatar(String name) {
-    // 1. Récupérer les 2 premières lettres
     String initials = "";
     if (name.isNotEmpty) {
-      // On nettoie les espaces au début
       final trimmed = name.trim();
       if (trimmed.length >= 2) {
         initials = trimmed.substring(0, 2).toUpperCase();
@@ -797,118 +795,198 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   Widget _buildItemCard(QueryDocumentSnapshot item) {
     final data = item.data() as Map<String, dynamic>;
-    final String cleanedName = data['cleanedName'] ?? 'Unnamed Item';
+
+    // DONNÉES
+    final String name = data['name'] ?? 'Produit inconnu';
+    // On préfère le nom nettoyé s'il existe, sinon le nom brut
+    final String displayTitle = data['cleanedName'] ?? name;
+
     final int itemQuantity = data["totalQuantity"] ?? 1;
     final Timestamp? expirationDate = data['earliestExpirationDate'];
     final List<dynamic> batchesData = data['batches'] ?? [];
-    final String? imageUrl = data["batches"][0]["imageUrl"];
 
+    // CORRECTION LECTURE DONNÉES (Priorité : Racine > Premier Lot)
+    final String? imageUrl =
+        data['imageUrl'] ??
+        (batchesData.isNotEmpty ? batchesData[0]['imageUrl'] : null);
+
+    final String? nutriscore =
+        data['nutriscore'] ??
+        (batchesData.isNotEmpty ? batchesData[0]['nutriscore'] : null);
+
+    // CALCULS
     final status = _getExpirationStatus(expirationDate);
     final statusText = status['text'] as String;
     final statusColor = status['color'] as Color;
     final bool isLoading = _loadingItems.contains(item.id);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      child: Card(
-        elevation: 0,
-        color: Theme.of(context).cardColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          side: BorderSide(color: Colors.grey[300]!),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Dismissible(
-            key: Key(item.id),
-            direction: DismissDirection.endToStart,
-            onDismissed: (direction) =>
-                _inventoryService.removeItemFromInventory(item.id),
-            background: Container(
-              color: Colors.red[700],
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              child: const Icon(Icons.delete, color: Colors.white),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Dismissible(
+          key: Key(item.id),
+          direction: DismissDirection.endToStart,
+          onDismissed: (direction) =>
+              _inventoryService.removeItemFromInventory(item.id),
+          background: Container(
+            color: const Color(0xFFE57373),
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 24),
+            child: const Icon(
+              Icons.delete_outline,
+              color: Colors.white,
+              size: 28,
             ),
-            child: ListTile(
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  builder: (ctx) => EditBatchesSheet(
-                    docId: item.id,
-                    itemName: cleanedName,
-                    batches: batchesData,
-                    service: _inventoryService,
-                  ),
-                );
-              },
-              leading: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.white,
+          ),
+          child: InkWell(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (ctx) => EditBatchesSheet(
+                  docId: item.id,
+                  itemName: displayTitle,
+                  batches: batchesData,
+                  service: _inventoryService,
                 ),
-                clipBehavior: Clip.antiAlias,
-                child: imageUrl != null && imageUrl.isNotEmpty
-                    ? Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (ctx, child, progress) {
-                          if (progress == null) return child;
-                          return _buildInitialsAvatar(cleanedName);
-                        },
-                        errorBuilder: (ctx, error, stackTrace) {
-                          return _buildInitialsAvatar(cleanedName);
-                        },
-                      )
-                    : _buildInitialsAvatar(cleanedName),
-              ),
-              title: Text(
-                cleanedName,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text(
-                statusText,
-                style: TextStyle(
-                  color: statusColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              trailing: isLoading
-                  ? const SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[100],
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: imageUrl != null && imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (ctx, error, stackTrace) =>
+                                    _buildInitialsAvatar(name),
+                              )
+                            : _buildInitialsAvatar(name),
                       ),
-                    )
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
+                    ],
+                  ),
+
+                  const SizedBox(width: 16),
+
+                  // --- 2. INFORMATIONS ---
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove),
-                          iconSize: 20,
-                          onPressed: () =>
-                              _decrementItem(item.id, itemQuantity),
-                        ),
+                        // Nom du produit
                         Text(
-                          itemQuantity.toString(),
-                          style: Theme.of(context).textTheme.titleLarge,
+                          displayTitle,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          iconSize: 20,
-                          onPressed: () =>
-                              _incrementItem(item.id, itemQuantity),
-                        ),
+                        const SizedBox(height: 4),
+
+                        // Statut d'expiration (Seul sur sa ligne, plus propre)
+                        if (statusText.isNotEmpty)
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                       ],
                     ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  // --- 3. CONTRÔLES QUANTITÉ ---
+                  isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : Container(
+                          height: 36, // Un peu plus compact
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F7FA),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.remove,
+                                  size: 16,
+                                ), // Icône plus fine
+                                color: Colors.grey[700],
+                                onPressed: () =>
+                                    _decrementItem(item.id, itemQuantity),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                child: Text(
+                                  '$itemQuantity',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.add,
+                                  size: 16,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                onPressed: () =>
+                                    _incrementItem(item.id, itemQuantity),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32),
+                              ),
+                            ],
+                          ),
+                        ),
+                ],
+              ),
             ),
           ),
         ),

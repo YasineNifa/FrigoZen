@@ -44,8 +44,6 @@ samples, guidance on mobile development, and a full API reference.
 {code: 7613269303114, product: {brands: Condy - Migros, Migros Condy, condy, categories_tags: [en:plant-based-foods-and-beverages, en:plant-based-foods, en:fruits-and-vegetables-based-foods, en:canned-foods, en:vegetables-based-foods, en:canned-plant-based-foods, en:pickles, en:vegetables, en:canned-vegetables, en:plant-based-pickles, en:pickled-vegetables, en:pickled-cucumbers, en:gherkins, en:cucumbers, en:pickled-gherkins], image_front_small_url: https://images.openfoodfacts.org/images/products/761/326/930/3114/front_fr.72.200.jpg, image_front_url: https://images.openfoodfacts.org/images/products/761/326/930/3114/front_fr.72.400.jpg, nutriscore_grade: c, product_name: Esiggurken}, status: 1, status_verbose: product found}
 
 
-
-
 {items: [{quantity: 3, name: Limes, dvm: 7, location: Frigo}, {quantity: 1, name: Jumbo Fries, dvm: 7, location: Congélateur}, {quantity: 1, name: Wafer Salami, dvm: 14, location: Frigo}, {quantity: 1, name: Choco Puffs, dvm: 365, location: Placard}, {quantity: 1, name: Sugar, dvm: 365, location: Placard}, {quantity: 1, name: Pasta Sauce, dvm: 365, location: Placard}, {quantity: 1, name: Veg. Fat Spread, dvm: 30, location: Frigo}, {quantity: 1, name: Olives, dvm: 365, location: Placard}, {quantity: 1, name: Premium Cola, dvm: 30, location: Placard}, {quantity: 1, name: Choc Chip, dvm: 30, location: Placard}, {quantity: 1, name: RaspCherryCakes, dvm: 14, location: Placard}, {quantity: 1, name: Dry Roasted Peanut, dvm: 365, location: Placard}]}
 
 
