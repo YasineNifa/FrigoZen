@@ -48,6 +48,10 @@ class _AddItemSheetState extends State<AddItemSheet> {
           dvm: dvm,
           category: category,
           location: location,
+          imageUrl: '',
+          nutriscore: '',
+          storeName: '',
+          brands: '',
         );
         if (mounted) {
           Navigator.of(context).pop();

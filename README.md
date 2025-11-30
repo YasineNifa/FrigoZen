@@ -41,6 +41,8 @@ samples, guidance on mobile development, and a full API reference.
 
 
 
+{code: 7613269303114, product: {brands: Condy - Migros, Migros Condy, condy, categories_tags: [en:plant-based-foods-and-beverages, en:plant-based-foods, en:fruits-and-vegetables-based-foods, en:canned-foods, en:vegetables-based-foods, en:canned-plant-based-foods, en:pickles, en:vegetables, en:canned-vegetables, en:plant-based-pickles, en:pickled-vegetables, en:pickled-cucumbers, en:gherkins, en:cucumbers, en:pickled-gherkins], image_front_small_url: https://images.openfoodfacts.org/images/products/761/326/930/3114/front_fr.72.200.jpg, image_front_url: https://images.openfoodfacts.org/images/products/761/326/930/3114/front_fr.72.400.jpg, nutriscore_grade: c, product_name: Esiggurken}, status: 1, status_verbose: product found}
+
 
 
 

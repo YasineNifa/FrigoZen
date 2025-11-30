@@ -192,6 +192,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 dvm: dvm,
                 category: category,
                 location: location,
+                imageUrl: '',
+                nutriscore: '',
+                storeName: '',
+                brands: '',
               )
               .then((_) {
                 return _shoppingService.removeItemFromShoppingList(itemDoc.id);

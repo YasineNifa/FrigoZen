@@ -55,6 +55,10 @@ class InventoryService {
     Timestamp? expirationDate,
     String? category,
     String? location,
+    String? imageUrl = '',
+    String? nutriscore = '',
+    String? storeName = '',
+    String? brands = '',
   }) async {
     final _inventoryCollection = await _getInventoryCollection();
     final now = Timestamp.now();
@@ -76,7 +80,10 @@ class InventoryService {
       'name': name, // Shop, Scan, Manual Add
       'cleanedName': cleanedName,
       'canonicalName': canonicalName,
-      // 'storeName': '',
+      'imageUrl': imageUrl,
+      'nutriscore': nutriscore,
+      'brands': brands,
+      'storeName': storeName,
     };
 
     if (existingDoc != null) {

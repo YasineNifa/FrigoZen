@@ -251,10 +251,8 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
 
     final now = DateTime.now();
-    // Use `toDate()` to convert Timestamp to DateTime
     final expiry = expirationDate.toDate();
 
-    // Calculate difference in days, ignoring time of day
     final difference = expiry
         .difference(DateTime(now.year, now.month, now.day))
         .inDays;
@@ -474,9 +472,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // NOUVELLE FONCTION : SCANNER UN PRODUIT (CODE-BARRES)
-  // ---------------------------------------------------------------------------
   Future<void> _scanProductBarcode(BuildContext context) async {
     final hasAccess = await _checkPremiumStatus(context);
     if (!hasAccess) return;
@@ -487,6 +482,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
 
     if (barcode == null || barcode == '-1' || barcode is! String) return;
+
     if (!mounted) return;
     showDialog(
       context: context,
@@ -495,39 +491,62 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
 
     try {
+      // 3. Appeler Open Food Facts (API v0 - Plus stable pour la lecture simple)
+      // On demande spécifiquement les champs dont on a besoin pour alléger la requête
       final url = Uri.parse(
-        'https://world.openfoodfacts.org/api/v2/product/$barcode',
+        'https://world.openfoodfacts.org/api/v0/product/$barcode.json?fields=product_name,brands,image_front_small_url,image_front_url,categories_tags,nutriscore_grade',
       );
-      print("URL : $url");
+      print("Appel OFF: $url");
+      print("barcodebarcodebarcodebarcode: $barcode");
+
       final response = await http.get(url);
 
       if (context.mounted) Navigator.pop(context);
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
+        print("JSON : $jsonResponse");
 
         if (jsonResponse['status'] == 1) {
           final product = jsonResponse['product'];
 
-          final String name = product['product_name'] ?? 'Produit inconnu';
+          final String name =
+              product['product_name'] ?? 'Produit inconnu'; // TODO: Traduire
           final String brands = product['brands'] ?? '';
-          // On combine Marque + Nom pour être précis (ex: "Lait (Candia)")
           final String fullName = brands.isNotEmpty ? "$name ($brands)" : name;
 
           final String? imageUrl =
               product['image_front_small_url'] ?? product['image_front_url'];
-          final String? category = _mapOffCategory(product['categories_tags']);
+          final String? nutriscore = product['nutriscore_grade'];
 
-          // TODO: Must be improved
+          final functions = FirebaseFunctions.instanceFor(
+            region: "us-central1",
+          );
+          final callable = functions.httpsCallable('getSmartItemData');
+          final result = await callable.call({'productName': name});
+          final Map<String, dynamic> itemData = Map<String, dynamic>.from(
+            result.data['item'],
+          );
+
+          final String cleanedName = itemData['cleanedName'] ?? name;
+          final String canonicalName = itemData['canonicalName'] ?? name;
+          final int dvm = itemData['dvm'] ?? 7;
+          final String category = itemData['category'] ?? 'Other';
+          final String location = itemData['location'] ?? 'Frigo';
+          final int quantity = itemData['quantity'] ?? 1;
+
           await _inventoryService.upsertItemToInventory(
             name: fullName,
-            cleanedName: name,
-            canonicalName: name,
+            canonicalName: canonicalName,
+            cleanedName: cleanedName,
             quantity: 1,
+            dvm: dvm,
             category: category,
             location: 'Frigo',
-            // On pourrait aussi stocker l'URL de l'image et le Nutri-Score ici
-            // si on modifie InventoryService pour les accepter
+            imageUrl: imageUrl,
+            nutriscore: nutriscore,
+            // storeName: '',
+            // brands: '',
           );
 
           if (mounted) {
@@ -539,12 +558,23 @@ class _InventoryScreenState extends State<InventoryScreen>
             );
           }
         } else {
-          throw Exception("Produit non trouvé dans la base Open Food Facts.");
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Produit non trouvé dans Open Food Facts."),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
         }
       } else {
-        throw Exception("Erreur réseau Open Food Facts.");
+        throw Exception("Erreur serveur OFF (${response.statusCode})");
       }
     } catch (e) {
+      // Fermer le dialogue si encore ouvert
+      // (Note: Navigator.pop a déjà été appelé plus haut, mais par sécurité en cas d'exception avant)
+      // if (Navigator.canPop(context)) Navigator.pop(context);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur : $e"), backgroundColor: Colors.red),
@@ -692,12 +722,74 @@ class _InventoryScreenState extends State<InventoryScreen>
     );
   }
 
+  // Helper pour générer un avatar avec initiales et couleur unique
+  Widget _buildInitialsAvatar(String name) {
+    // 1. Récupérer les 2 premières lettres
+    String initials = "";
+    if (name.isNotEmpty) {
+      // On nettoie les espaces au début
+      final trimmed = name.trim();
+      if (trimmed.length >= 2) {
+        initials = trimmed.substring(0, 2).toUpperCase();
+      } else if (trimmed.isNotEmpty) {
+        initials = trimmed.substring(0, 1).toUpperCase();
+      } else {
+        initials = "?";
+      }
+    }
+
+    // 2. Générer une couleur unique basée sur le nom (Hashcode)
+    // On utilise une liste de couleurs "FrigoZen" douces
+    final List<Color> colors = [
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.blueGrey,
+    ];
+
+    // L'opérateur % assure qu'on reste toujours dans la limite de la liste
+    final color = colors[name.hashCode.abs() % colors.length];
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1), // Fond pastel
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(
+            color: color, // Texte de la couleur vive
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildItemCard(QueryDocumentSnapshot item) {
     final data = item.data() as Map<String, dynamic>;
     final String cleanedName = data['cleanedName'] ?? 'Unnamed Item';
     final int itemQuantity = data["totalQuantity"] ?? 1;
     final Timestamp? expirationDate = data['earliestExpirationDate'];
     final List<dynamic> batchesData = data['batches'] ?? [];
+    final String? imageUrl = data["batches"][0]["imageUrl"];
 
     final status = _getExpirationStatus(expirationDate);
     final statusText = status['text'] as String;
@@ -743,6 +835,28 @@ class _InventoryScreenState extends State<InventoryScreen>
                   ),
                 );
               },
+              leading: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: imageUrl != null && imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (ctx, child, progress) {
+                          if (progress == null) return child;
+                          return _buildInitialsAvatar(cleanedName);
+                        },
+                        errorBuilder: (ctx, error, stackTrace) {
+                          return _buildInitialsAvatar(cleanedName);
+                        },
+                      )
+                    : _buildInitialsAvatar(cleanedName),
+              ),
               title: Text(
                 cleanedName,
                 style: const TextStyle(fontWeight: FontWeight.w600),

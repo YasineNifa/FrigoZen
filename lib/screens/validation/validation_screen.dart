@@ -146,6 +146,8 @@ class _ValidationScreenState extends State<ValidationScreen> {
         // On récupère les nouvelles données potentielles (image, nutri)
         final String? imageUrl = item['imageUrl'];
         final String? nutriscore = item['nutriscore'];
+        final String? storeName = item['imageUrl'];
+        final String? brands = item['nutriscore'];
 
         final int dvm = item['dvm'] ?? 7;
         final int dvmMillis = dvm * 24 * 60 * 60 * 1000;
@@ -153,9 +155,6 @@ class _ValidationScreenState extends State<ValidationScreen> {
           nowMillis + dvmMillis,
         );
 
-        // Note: Vous devrez peut-être mettre à jour 'upsertItemToInventory'
-        // dans inventory_service.dart pour accepter imageUrl et nutriscore
-        // si vous voulez les sauvegarder en base.
         await inventoryService.upsertItemToInventory(
           name: name,
           cleanedName: cleanedName,
@@ -164,8 +163,10 @@ class _ValidationScreenState extends State<ValidationScreen> {
           expirationDate: expirationDate,
           category: category,
           location: location,
-          // imageUrl: imageUrl, // À ajouter dans le service plus tard
-          // nutriscore: nutriscore, // À ajouter dans le service plus tard
+          imageUrl: imageUrl,
+          nutriscore: nutriscore,
+          storeName: storeName,
+          brands: brands,
         );
       }
 
