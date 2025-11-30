@@ -539,10 +539,10 @@ class _InventoryScreenState extends State<InventoryScreen>
             name: fullName,
             canonicalName: canonicalName,
             cleanedName: cleanedName,
-            quantity: 1,
+            quantity: quantity,
             dvm: dvm,
             category: category,
-            location: 'Frigo',
+            location: location,
             imageUrl: imageUrl,
             nutriscore: nutriscore,
             // storeName: '',
@@ -689,8 +689,20 @@ class _InventoryScreenState extends State<InventoryScreen>
                 if (_searchQuery.isNotEmpty) {
                   items = items.where((doc) {
                     final data = doc.data() as Map<String, dynamic>;
-                    final name = (data['name'] as String? ?? '').toLowerCase();
-                    return name.contains(_searchQuery);
+
+                    final String name = (data['name'] as String? ?? '')
+                        .toLowerCase();
+                    final String canonicalName =
+                        (data['canonicalName'] as String? ?? '').toLowerCase();
+                    final String cleanedName =
+                        (data['cleanedName'] as String? ?? '').toLowerCase();
+                    final String category = (data['category'] as String? ?? '')
+                        .toLowerCase();
+
+                    return name.contains(_searchQuery) ||
+                        canonicalName.contains(_searchQuery) ||
+                        cleanedName.contains(_searchQuery) ||
+                        category.contains(_searchQuery);
                   }).toList();
                 }
 
