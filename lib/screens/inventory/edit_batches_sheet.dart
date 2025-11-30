@@ -115,6 +115,7 @@ class EditBatchesSheet extends StatelessWidget {
                       final batch = batches[index] as Map<String, dynamic>;
                       final quantity = batch['quantity'];
                       final ts = batch['expirationDate'] as Timestamp;
+                      final name = batch['name'];
 
                       // Vérifier si c'est aujourd'hui ou passé
                       final now = DateTime.now();
@@ -137,8 +138,8 @@ class EditBatchesSheet extends StatelessWidget {
                         ),
                         title: Text(
                           isExpired
-                              ? l10n.editBatchesExpiredPrefix
-                              : l10n.editBatchesExpiresPrefix,
+                              ? name + " " + l10n.editBatchesExpiredPrefix
+                              : name + " " + l10n.editBatchesExpiresPrefix,
                           style: TextStyle(
                             color: isExpired ? Colors.red : Colors.grey[600],
                             fontSize: 12,

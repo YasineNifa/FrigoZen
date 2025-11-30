@@ -33,6 +33,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
           result.data['item'],
         );
         final String name = itemData['name'] ?? l10n.shoppingItemNoTitle;
+        final String cleanedName = itemData['cleanedName'] ?? name;
         final String canonicalName = itemData['canonicalName'] ?? name;
         final int dvm = itemData['dvm'];
         final String category = itemData['category'] ?? 'Other';
@@ -41,6 +42,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
 
         await inventoryService.upsertItemToInventory(
           name: userTypedName,
+          cleanedName: cleanedName,
           canonicalName: canonicalName,
           quantity: userQuantity,
           dvm: dvm,

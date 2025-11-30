@@ -48,6 +48,7 @@ class InventoryService {
 
   Future<void> upsertItemToInventory({
     required String name,
+    required String cleanedName,
     required String canonicalName,
     required int quantity,
     int? dvm,
@@ -72,6 +73,10 @@ class InventoryService {
       'quantity': quantity,
       'expirationDate': finalExpirationDate,
       'addedAt': now,
+      'name': name, // Shop, Scan, Manual Add
+      'cleanedName': cleanedName,
+      'canonicalName': canonicalName,
+      // 'storeName': '',
     };
 
     if (existingDoc != null) {
@@ -96,6 +101,7 @@ class InventoryService {
     } else {
       await _inventoryCollection.add({
         'name': name,
+        'cleanedName': cleanedName,
         'canonicalName': canonicalName,
         'category': category ?? 'Other',
         'location': location ?? 'Fridge',
@@ -150,7 +156,9 @@ class InventoryService {
       query = query.where('location', isEqualTo: location);
     }
 
-    yield* query.orderBy('name').snapshots();
+    yield* query
+        .orderBy('earliestExpirationDate', descending: false)
+        .snapshots();
   }
 
   Future<void> incrementItemQuantity(String docId, int currentQuantity) async {

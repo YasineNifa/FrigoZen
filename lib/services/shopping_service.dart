@@ -16,6 +16,7 @@ class ShoppingService {
 
   Future<void> addItemToShoppingList({
     required String name,
+    required String cleanedName,
     required String canonicalName,
     required int quantity,
     int? dvm,
@@ -23,8 +24,11 @@ class ShoppingService {
     String? location,
     bool? isChecked,
   }) async {
+    // TODO: Add name inside the batch
+    // Add the cleanedName, name, canonicalName in the Inventory collection
     await _shoppingCollection.add({
       'name': name,
+      'cleanedName': cleanedName,
       'canonicalName': canonicalName,
       'quantity': quantity,
       'dvm': dvm,

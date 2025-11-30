@@ -11,7 +11,6 @@ import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
 import 'package:frigo_zen/services/household_service.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
-import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/screens/inventory/edit_batches_sheet.dart';
@@ -273,53 +272,6 @@ class _InventoryScreenState extends State<InventoryScreen>
       };
     } else {
       return {'text': 'Fresh', 'color': Colors.grey[700]!};
-    }
-  }
-
-  // Groups items by category AND filters by search query
-  Map<String, List<QueryDocumentSnapshot>> _groupItems(
-    List<QueryDocumentSnapshot> items,
-  ) {
-    final Map<String, List<QueryDocumentSnapshot>> groupedItems = {};
-
-    for (final item in items) {
-      final data = item.data() as Map<String, dynamic>;
-
-      // Client-side search filter
-      final itemName = (data['name'] as String? ?? 'Unnamed Item')
-          .toLowerCase();
-      if (_searchQuery.isNotEmpty && !itemName.contains(_searchQuery)) {
-        continue;
-      }
-
-      final category = data['category'] as String? ?? 'Other';
-
-      if (groupedItems[category] == null) {
-        groupedItems[category] = [];
-      }
-      groupedItems[category]!.add(item);
-    }
-    return groupedItems;
-  }
-
-  IconData _getIconForCategory(String? category) {
-    switch (category) {
-      case 'Dairy':
-        return Icons.icecream_outlined;
-      case 'Vegetable':
-        return Icons.grass_outlined;
-      case 'Fruit':
-        return Icons.apple_outlined;
-      case 'Meat':
-        return Icons.kebab_dining_outlined;
-      case 'Pantry':
-        return Icons.store_mall_directory_outlined;
-      case 'Beverage':
-        return Icons.local_bar_outlined;
-      case 'Congélateur':
-        return Icons.ac_unit;
-      default:
-        return Icons.takeout_dining_outlined;
     }
   }
 
@@ -702,21 +654,26 @@ class _InventoryScreenState extends State<InventoryScreen>
                   context.read<InventoryProvider>().updateInventory(itemNames);
                 });
 
-                final groupedItems = _groupItems(snapshot.data!.docs);
+                var items = snapshot.data!.docs;
 
-                if (groupedItems.isEmpty) {
+                if (_searchQuery.isNotEmpty) {
+                  items = items.where((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final name = (data['name'] as String? ?? '').toLowerCase();
+                    return name.contains(_searchQuery);
+                  }).toList();
+                }
+
+                if (items.isEmpty) {
                   return _buildEmptyState(isSearch: true);
                 }
 
-                return ListView.separated(
-                  padding: const EdgeInsets.only(bottom: 80),
-                  itemCount: groupedItems.keys.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1, indent: 16, endIndent: 16),
+                return ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 80, top: 16),
+                  itemCount: items.length,
                   itemBuilder: (context, index) {
-                    final category = groupedItems.keys.elementAt(index);
-                    final itemsInCategory = groupedItems[category]!;
-                    return _buildCategorySection(category, itemsInCategory);
+                    final item = items[index];
+                    return _buildItemCard(item);
                   },
                 );
               },
@@ -732,33 +689,6 @@ class _InventoryScreenState extends State<InventoryScreen>
         backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add, color: Colors.white),
       ),
-    );
-  }
-
-  Widget _buildCategorySection(
-    String category,
-    List<QueryDocumentSnapshot> items,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 10.0),
-          child: Text(
-            category,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-        ListView.builder(
-          itemCount: items.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            final item = items[index];
-            return _buildItemCard(item);
-          },
-        ),
-      ],
     );
   }
 
@@ -813,14 +743,6 @@ class _InventoryScreenState extends State<InventoryScreen>
                   ),
                 );
               },
-
-              // leading: CircleAvatar(
-              //   backgroundColor: Colors.green[50],
-              //   child: Icon(
-              //     _getIconForCategory(data['category']),
-              //     color: Colors.green[800],
-              //   ),
-              // ),
               title: Text(
                 cleanedName,
                 style: const TextStyle(fontWeight: FontWeight.w600),

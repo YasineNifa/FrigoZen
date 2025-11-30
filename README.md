@@ -26,6 +26,24 @@ samples, guidance on mobile development, and a full API reference.
 - Ausgaben
 
 
+
+- Enlever les logos des produits car ils ne sont pas significatives
+- Enlever les categories au niveau de la page d'inventaire (car elles ne sont pas significatives)
+- Quand on sélectionne un article dans la page de shopping pour l'ajouter à l'inventaire, la page se charge et c'est pas une bonne expérience utilisateur
+- Ajouter la possibilité de séléctionner tous les articles dans la page de shopping
+- Améliorer le settings et le rendre plus professionnelle
+- L'utilisateur perd son abonnement premium à chaque reconnexion
+- Les images des recettes ne correspondent pas au recette
+- les recettes ne sont pas réel, des fois l'IA génére des recettes en se basant sur un mélange de composant qui ne match pas
+- Les noms dans la page de validation sont canonique, je pense c'est mieux d'utiliser les noms détécté par l'IA dans le reçu
+- Si l'utilisateur entre "4 Laits", j'aimerais bien que le nom du produit soit "Lait" et pas "4 Lait" ni "Milk" 
+
+
+
+
+
+
+
 {items: [{quantity: 3, name: Limes, dvm: 7, location: Frigo}, {quantity: 1, name: Jumbo Fries, dvm: 7, location: Congélateur}, {quantity: 1, name: Wafer Salami, dvm: 14, location: Frigo}, {quantity: 1, name: Choco Puffs, dvm: 365, location: Placard}, {quantity: 1, name: Sugar, dvm: 365, location: Placard}, {quantity: 1, name: Pasta Sauce, dvm: 365, location: Placard}, {quantity: 1, name: Veg. Fat Spread, dvm: 30, location: Frigo}, {quantity: 1, name: Olives, dvm: 365, location: Placard}, {quantity: 1, name: Premium Cola, dvm: 30, location: Placard}, {quantity: 1, name: Choc Chip, dvm: 30, location: Placard}, {quantity: 1, name: RaspCherryCakes, dvm: 14, location: Placard}, {quantity: 1, name: Dry Roasted Peanut, dvm: 365, location: Placard}]}
 
 

@@ -31,6 +31,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
   void _saveItemToFirebase(
     String itemName,
+    String cleanedName,
     String canonicalName,
     int quantity,
     int? dvm,
@@ -39,6 +40,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
   ) {
     _shoppingService.addItemToShoppingList(
       name: itemName,
+      cleanedName: cleanedName,
       canonicalName: canonicalName,
       quantity: quantity,
       dvm: dvm,
@@ -66,6 +68,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       final Map<String, dynamic> itemData = Map<String, dynamic>.from(
         result.data['item'],
       );
+      final String name = itemData['name'] ?? itemName;
+      final String cleanedName = itemData['cleanedName'] ?? itemName;
       final String canonicalName = itemData['canonicalName'] ?? itemName;
       final int dvm = itemData['dvm'] ?? 7;
       final String category = itemData['category'] ?? 'Other';
@@ -87,6 +91,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
               onPressed: () {
                 _saveItemToFirebase(
                   itemName,
+                  cleanedName,
                   canonicalName,
                   quantity,
                   dvm,
@@ -102,6 +107,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       } else {
         _saveItemToFirebase(
           itemName,
+          cleanedName,
           canonicalName,
           quantity,
           dvm,
@@ -169,6 +175,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       for (final itemDoc in checkedDocs) {
         final data = itemDoc.data() as Map<String, dynamic>;
         final String name = data['name'] ?? l10n.shoppingItemNoTitle;
+        final String cleanedName = data['cleanedName'] ?? name;
         final String canonicalName = data['canonicalName'] ?? name;
         final int quantity = data['quantity'] ?? 1;
         final int? dvm = data['dvm'];
@@ -179,6 +186,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           inventoryService
               .upsertItemToInventory(
                 name: name,
+                cleanedName: cleanedName,
                 canonicalName: canonicalName,
                 quantity: quantity,
                 dvm: dvm,
