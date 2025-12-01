@@ -7,6 +7,7 @@ import 'package:frigo_zen/screens/shopping/components/shopping_header.dart';
 import 'package:frigo_zen/screens/shopping/components/shopping_list_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
+import 'package:frigo_zen/theme/app_theme.dart';
 
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
@@ -99,7 +100,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     final checkedCount = vm.items.where((i) => i.isChecked).length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: AppTheme.backgroundColor,
       appBar: const ShoppingHeader(),
       body: Column(
         children: [

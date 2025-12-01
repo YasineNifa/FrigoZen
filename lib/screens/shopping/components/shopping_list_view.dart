@@ -3,6 +3,7 @@ import 'package:frigo_zen/components/shopping_list_empty_state.dart';
 import 'package:frigo_zen/components/shopping_list_tile.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:frigo_zen/theme/app_theme.dart';
 
 class ShoppingListView extends StatelessWidget {
   const ShoppingListView({super.key});

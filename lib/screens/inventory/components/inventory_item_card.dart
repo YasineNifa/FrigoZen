@@ -5,7 +5,7 @@ import 'package:frigo_zen/screens/inventory/edit_batches_sheet.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
-
+import 'package:frigo_zen/theme/app_theme.dart';
 class InventoryItemCard extends StatelessWidget {
   final InventoryItem item;
 
@@ -18,18 +18,18 @@ class InventoryItemCard extends StatelessWidget {
         .inDays;
 
     if (difference < 0) {
-      return {'text': 'Expired', 'color': Colors.red[700]!};
+      return {'text': 'Expired', 'color': AppTheme.statusExpired};
     } else if (difference == 0) {
-      return {'text': 'Expires today', 'color': Colors.red[700]!};
+      return {'text': 'Expires today', 'color': AppTheme.statusExpired};
     } else if (difference <= 3) {
-      return {'text': 'Expires soon', 'color': Colors.orange[700]!};
+      return {'text': 'Expires soon', 'color': AppTheme.statusWarning};
     } else if (difference <= 7) {
       return {
         'text': 'Expires in $difference days',
-        'color': Colors.green[700]!,
+        'color': AppTheme.statusSafe,
       };
     } else {
-      return {'text': 'Fresh', 'color': Colors.grey[700]!};
+      return {'text': 'Fresh', 'color': AppTheme.statusNeutral};
     }
   }
 
@@ -102,11 +102,11 @@ class InventoryItemCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: AppTheme.shadowColor,
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -119,7 +119,7 @@ class InventoryItemCard extends StatelessWidget {
           direction: DismissDirection.endToStart,
           onDismissed: (direction) => vm.deleteItem(item.id),
           background: Container(
-            color: const Color(0xFFE57373),
+            color: AppTheme.errorColor,
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 24),
             child: const Icon(
@@ -184,7 +184,7 @@ class InventoryItemCard extends StatelessWidget {
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
-                            color: Colors.black87,
+                            color: AppTheme.textDark,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -210,7 +210,7 @@ class InventoryItemCard extends StatelessWidget {
                   Container(
                     height: 36,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F7FA),
+                      color: AppTheme.quantityControlBackground,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
@@ -218,7 +218,7 @@ class InventoryItemCard extends StatelessWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove, size: 16),
-                          color: Colors.grey[700],
+                          color: AppTheme.textNeutral,
                           onPressed: () => vm.decrementItemQuantity(item),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(minWidth: 32),
