@@ -18,8 +18,13 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
   bool _isLoading = true;
   bool _isPurchasing = false;
 
-  final Color _primaryColor = const Color(0xFF6B9C5F);
-  final Color _backgroundColor = Colors.white;
+  // Coherent Premium Palette (Matches AppTheme)
+  final Color _primaryColor = const Color(0xFF6B9C5F); // FrigoZen Green
+  final Color _backgroundColor = const Color(0xFFF9F9F9); // App Background
+  final Color _surfaceColor = Colors.white; // Card Color
+  final Color _accentColor = const Color(0xFFFFD700); // Gold (for Badge only)
+  final Color _textDark = Colors.black87;
+  final Color _textGrey = const Color(0xFF757575);
 
   @override
   void initState() {
@@ -37,33 +42,29 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
           final allPackages = offerings.current!.availablePackages;
           final cleanPackages = <Package>[];
 
+          // Prioritize Annual then Monthly
           try {
             final annual = allPackages.firstWhere(
               (p) => p.packageType == PackageType.annual,
             );
             cleanPackages.add(annual);
-          } catch (_) {
-            // Pas d'annuel trouvé, pas grave
-          }
+          } catch (_) {}
 
           try {
             final monthly = allPackages.firstWhere(
               (p) => p.packageType == PackageType.monthly,
             );
             cleanPackages.add(monthly);
-          } catch (_) {
-            try {
-              final customMonthly = allPackages.firstWhere(
-                (p) =>
-                    p.packageType == PackageType.custom ||
-                    p.packageType == PackageType.unknown,
-              );
-              cleanPackages.add(customMonthly);
-            } catch (e) {}
+          } catch (_) {}
+
+          // Fallback
+          if (cleanPackages.isEmpty) {
+            cleanPackages.addAll(allPackages);
           }
 
           _packages = cleanPackages;
 
+          // Select Annual by default if available
           if (_packages.isNotEmpty) {
             _selectedPackage = _packages.firstWhere(
               (p) => p.packageType == PackageType.annual,
@@ -75,7 +76,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
         });
       }
     } catch (e) {
-      print("Erreur récupération offres: $e");
+      debugPrint("Erreur récupération offres: $e");
       setState(() => _isLoading = false);
     }
   }
@@ -97,7 +98,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.paywallSuccess),
-            backgroundColor: Colors.green,
+            backgroundColor: _primaryColor,
           ),
         );
       }
@@ -111,6 +112,13 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
           ),
         );
       }
+    } catch (e) {
+       ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erreur: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
     } finally {
       if (mounted) setState(() => _isPurchasing = false);
     }
@@ -148,170 +156,227 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
       backgroundColor: _backgroundColor,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: _primaryColor))
-          : SafeArea(
-              child: Column(
-                children: [
-                  // --- HEADER & FERMETURE ---
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.grey),
-                      onPressed: () => Navigator.of(context).pop(),
+          : Stack(
+              children: [
+                // Subtle Background Decoration
+                Positioned(
+                  top: -100,
+                  right: -100,
+                  child: Container(
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _primaryColor.withOpacity(0.05),
                     ),
                   ),
+                ),
+                Positioned(
+                  bottom: -50,
+                  left: -50,
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _primaryColor.withOpacity(0.05),
+                    ),
+                  ),
+                ),
 
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // --- TITRE & IMAGE ---
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: _primaryColor.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.diamond,
-                              size: 50,
-                              color: _primaryColor,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            l10n.paywallTitle,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                              height: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            l10n.paywallSubtitle,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                SafeArea(
+                  child: Column(
+                    children: [
+                      // --- HEADER & FERMETURE ---
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: Icon(Icons.close, color: _textGrey),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
 
-                          const SizedBox(height: 40),
-
-                          _buildBenefitItem(
-                            Icons.receipt_long,
-                            l10n.paywallBenefit1Title,
-                            l10n.paywallBenefit1Desc,
-                          ),
-                          _buildBenefitItem(
-                            Icons.restaurant_menu,
-                            l10n.paywallBenefit2Title,
-                            l10n.paywallBenefit2Desc,
-                          ),
-                          _buildBenefitItem(
-                            Icons.notifications_active,
-                            l10n.paywallBenefit3Title,
-                            l10n.paywallBenefit3Desc,
-                          ),
-                          _buildBenefitItem(
-                            Icons.qr_code_scanner,
-                            l10n.paywallBenefit4Title,
-                            l10n.paywallBenefit4Desc,
-                          ),
-                          _buildBenefitItem(
-                            Icons.group,
-                            l10n.paywallBenefit5Title,
-                            l10n.paywallBenefit5Desc,
-                          ),
-
-                          const SizedBox(height: 40),
-
-                          // --- SÉLECTION DU PLAN ---
-                          if (_packages.isNotEmpty)
-                            ..._packages.map(
-                              (pkg) => _buildPackageOption(pkg, l10n),
-                            ),
-
-                          const SizedBox(height: 20),
-
-                          // --- BOUTON D'ACTION ---
-                          SizedBox(
-                            width: double.infinity,
-                            height: 55,
-                            child: ElevatedButton(
-                              onPressed: _isPurchasing
-                                  ? null
-                                  : _purchaseSelectedPackage,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _primaryColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 10),
+                              // --- ICONE PREMIUM ---
+                              Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: _primaryColor.withOpacity(0.15),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
                                 ),
-                                elevation: 0,
+                                child: Icon(
+                                  Icons.workspace_premium,
+                                  size: 48,
+                                  color: _primaryColor,
+                                ),
                               ),
-                              child: _isPurchasing
-                                  ? const CircularProgressIndicator(
-                                      color: Colors.white,
-                                    )
-                                  : Text(
-                                      l10n.paywallSubscribeBtn,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                              const SizedBox(height: 24),
+                              
+                              // --- TITRE ---
+                              Text(
+                                "FRIGOZEN PREMIUM",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                  color: _primaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Devenez un Chef Pro",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: _textDark,
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                "Débloquez tout le potentiel de votre cuisine avec nos outils professionnels.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: _textGrey,
+                                  height: 1.4,
+                                ),
+                              ),
+
+                              const SizedBox(height: 40),
+
+                              // --- FEATURES ---
+                              _buildFeatureItem(
+                                Icons.camera_alt_outlined,
+                                "Scan Illimité",
+                                "Reconnaissance instantanée de vos tickets.",
+                              ),
+                              _buildFeatureItem(
+                                Icons.auto_awesome,
+                                "Chef IA & Photos HD",
+                                "Recettes sur-mesure et photos générées.",
+                              ),
+                              _buildFeatureItem(
+                                Icons.insights,
+                                "Statistiques Avancées",
+                                "Analysez votre consommation et votre santé.",
+                              ),
+                              _buildFeatureItem(
+                                Icons.cloud_outlined,
+                                "Alertes Cloud",
+                                "Notifications anti-gaspillage automatiques.",
+                              ),
+
+                              const SizedBox(height: 40),
+
+                              // --- SÉLECTION DU PLAN ---
+                              if (_packages.isNotEmpty)
+                                ..._packages.map(
+                                  (pkg) => _buildPackageOption(pkg, l10n),
+                                ),
+
+                              const SizedBox(height: 24),
+
+                              // --- BOUTON D'ACTION ---
+                              SizedBox(
+                                width: double.infinity,
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: _isPurchasing
+                                      ? null
+                                      : _purchaseSelectedPackage,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _primaryColor,
+                                    foregroundColor: Colors.white,
+                                    elevation: 4,
+                                    shadowColor: _primaryColor.withOpacity(0.4),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  child: _isPurchasing
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white,
+                                        )
+                                      : const Text(
+                                          "COMMENCER MAINTENANT",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1,
+                                          ),
+                                        ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // --- RESTORE & LEGAL ---
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextButton(
+                                    onPressed: _restorePurchases,
+                                    child: Text(
+                                      l10n.paywallRestoreBtn,
+                                      style: TextStyle(
+                                        color: _textGrey,
+                                        fontSize: 12,
                                       ),
                                     ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // --- RESTORE & LEGAL ---
-                          TextButton(
-                            onPressed: _restorePurchases,
-                            child: Text(
-                              l10n.paywallRestoreBtn,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
+                                  ),
+                                  Text("•", style: TextStyle(color: _textGrey)),
+                                  TextButton(
+                                    onPressed: () {}, // TODO: Add terms link
+                                    child: Text(
+                                      "Conditions",
+                                      style: TextStyle(
+                                        color: _textGrey,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
+                              const SizedBox(height: 20),
+                            ],
                           ),
-                          const SizedBox(height: 20),
-                          Text(
-                            l10n.paywallLegalText,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 11,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
     );
   }
 
-  // WIDGET : Ligne d'avantage
-  Widget _buildBenefitItem(IconData icon, String title, String subtitle) {
+  Widget _buildFeatureItem(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: _primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: _primaryColor, size: 24),
           ),
@@ -322,15 +387,16 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: _textDark,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  style: TextStyle(color: _textGrey, fontSize: 14),
                 ),
               ],
             ),
@@ -340,92 +406,166 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
     );
   }
 
-  // WIDGET : Option de prix (Mensuel / Annuel)
   Widget _buildPackageOption(Package package, AppLocalizations l10n) {
     final isSelected = _selectedPackage == package;
     final isAnnual = package.packageType == PackageType.annual;
+    final priceString = package.storeProduct.priceString;
+    
+    // Calculate monthly equivalent for annual plan
+    String? monthlyEquivalent;
+    if (isAnnual) {
+      final price = package.storeProduct.price;
+      final monthlyPrice = price / 12;
+      
+      // Attempt to extract currency symbol/code from priceString
+      // e.g. "$79.99" -> "$" or "79,99 €" -> "€"
+      // Simple heuristic: remove digits, dots, commas, and spaces
+      String currencySymbol = package.storeProduct.currencyCode; // Default to code (USD, EUR)
+      
+      // Try to find a symbol in the priceString if possible, otherwise fallback to code
+      // This is a basic approximation.
+      final symbolMatch = RegExp(r'[^\d\.,\s]+').firstMatch(priceString);
+      if (symbolMatch != null) {
+        currencySymbol = symbolMatch.group(0) ?? currencySymbol;
+      }
+
+      // Format: "6.66 € / mois" or "$6.66 / mois"
+      // We'll place the symbol at the end for consistency with typical EU formatting if it was EU,
+      // but since we don't know the locale perfectly, we'll try to mimic the priceString position?
+      // Too complex. Let's just append the code/symbol.
+      
+      monthlyEquivalent = "${monthlyPrice.toStringAsFixed(2)} $currencySymbol / mois";
+    }
 
     return GestureDetector(
       onTap: () => setState(() => _selectedPackage = package),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isSelected ? _primaryColor.withOpacity(0.05) : Colors.white,
+          color: _surfaceColor,
           border: Border.all(
-            color: isSelected ? _primaryColor : Colors.grey[300]!,
+            color: isSelected ? _primaryColor : Colors.grey[200]!,
             width: isSelected ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected 
+                  ? _primaryColor.withOpacity(0.15) 
+                  : Colors.black.withOpacity(0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            )
+          ],
         ),
-        child: Row(
+        child: Stack(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        isAnnual ? l10n.paywallAnnual : l10n.paywallMonthly,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                  // Radio Indicator
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected ? _primaryColor : Colors.grey[400]!,
+                        width: 2,
                       ),
-                      if (isAnnual) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
+                    ),
+                    child: isSelected
+                        ? Center(
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: _primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(width: 16),
+                  
+                  // Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isAnnual ? "Annuel" : "Mensuel",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: _textDark,
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.green[100],
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            l10n.paywallSaveLabel,
+                        ),
+                        if (isAnnual)
+                          Text(
+                            "12 mois d'accès illimité",
                             style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
+                              color: _textGrey,
+                              fontSize: 12,
                             ),
                           ),
-                        ),
                       ],
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    package.storeProduct.description,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+
+                  // Price
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        priceString,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: isSelected ? _primaryColor : _textDark,
+                        ),
+                      ),
+                      if (isAnnual && monthlyEquivalent != null)
+                        Text(
+                          monthlyEquivalent,
+                          style: TextStyle(
+                            color: _textGrey,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
-
-            // Prix
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  package.storeProduct.priceString,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+            
+            // Best Value Badge
+            if (isAnnual)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _accentColor,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(14),
+                      bottomLeft: Radius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    "BEST VALUE",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-                Text(
-                  isAnnual
-                      ? "/ ${l10n.paywallAnnual.toLowerCase()}"
-                      : "/ ${l10n.paywallMonthly.toLowerCase()}",
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                ),
-              ],
-            ),
+              ),
           ],
         ),
       ),
