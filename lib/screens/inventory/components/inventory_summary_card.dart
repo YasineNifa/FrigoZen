@@ -4,7 +4,9 @@ import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:provider/provider.dart';
 
 class InventorySummaryCard extends StatelessWidget {
-  const InventorySummaryCard({super.key});
+  final VoidCallback? onRecipePressed;
+
+  const InventorySummaryCard({super.key, this.onRecipePressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,49 +25,71 @@ class InventorySummaryCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
             ],
             border: Border.all(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: Column(
             children: [
-              _buildCompactStat(
-                context,
-                label: "Total",
-                value: "$totalCount",
-                icon: Icons.inventory_2_outlined,
-                color: Colors.blue,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildCompactStat(
+                    context,
+                    label: "Total",
+                    value: "$totalCount",
+                    icon: Icons.inventory_2_outlined,
+                    color: Colors.blue,
+                  ),
+                  Container(
+                    height: 24,
+                    width: 1,
+                    color: Colors.grey.withValues(alpha: 0.2),
+                  ),
+                  _buildCompactStat(
+                    context,
+                    label: "À manger",
+                    value: "$expiringCount",
+                    icon: Icons.timer_outlined,
+                    color: expiringCount > 0 ? Colors.orange : Colors.green,
+                    isBold: expiringCount > 0,
+                  ),
+                  Container(
+                    height: 24,
+                    width: 1,
+                    color: Colors.grey.withValues(alpha: 0.2),
+                  ),
+                  _buildCompactStat(
+                    context,
+                    label: "Courses",
+                    value: "$toBuyCount",
+                    icon: Icons.shopping_cart_outlined,
+                    color: Colors.purple,
+                  ),
+                ],
               ),
-              Container(
-                height: 24,
-                width: 1,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-              _buildCompactStat(
-                context,
-                label: "À manger",
-                value: "$expiringCount",
-                icon: Icons.timer_outlined,
-                color: expiringCount > 0 ? Colors.orange : Colors.green,
-                isBold: expiringCount > 0,
-              ),
-              Container(
-                height: 24,
-                width: 1,
-                color: Colors.grey.withOpacity(0.2),
-              ),
-              _buildCompactStat(
-                context,
-                label: "Courses",
-                value: "$toBuyCount",
-                icon: Icons.shopping_cart_outlined,
-                color: Colors.purple,
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: onRecipePressed,
+                  icon: const Icon(Icons.restaurant_menu, size: 18),
+                  label: const Text("Cuisiner avec mon frigo"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange[100],
+                    foregroundColor: Colors.orange[900],
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -88,7 +112,7 @@ class InventorySummaryCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(

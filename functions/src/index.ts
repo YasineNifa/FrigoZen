@@ -1,6 +1,8 @@
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
+import {getStorage} from "firebase-admin/storage";
+import {GoogleAuth} from "google-auth-library";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
@@ -49,11 +51,67 @@ async function getImageUrlFromUnsplash(
     }
     return null;
   } catch (error) {
-    logger.error("Unsplash Error:", error);
+    logger.error("Unsplash API Error:", error);
     return null;
   }
 }
 
+/**
+ * Génère une image avec Imagen 3 (Vertex AI) et l'upload sur Storage.
+ * @param {string} prompt - Description de l'image
+ * @return {Promise<string | null>} - URL de l'image ou null
+ */
+async function generateImageWithImagen(prompt: string): Promise<string | null> {
+  try {
+    const auth = new GoogleAuth({
+      scopes: "https://www.googleapis.com/auth/cloud-platform",
+    });
+    const client = await auth.getClient();
+    const accessToken = await client.getAccessToken();
+
+    const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/` +
+      `${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/` +
+      "imagen-3.0-generate-001:predict";
+
+    const response = await axios.post(
+      url,
+      {
+        instances: [{prompt: prompt}],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: "1:1",
+        },
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${accessToken.token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const predictions = response.data.predictions;
+    if (!predictions || predictions.length === 0) return null;
+
+    const base64Image = predictions[0].bytesBase64Encoded;
+    const buffer = Buffer.from(base64Image, "base64");
+    const randomStr = Math.random().toString(36).substring(7);
+    const filename = `generated_recipes/${Date.now()}_${randomStr}.png`;
+
+    const bucket = getStorage().bucket("frigozen-app.appspot.com");
+    const file = bucket.file(filename);
+
+    await file.save(buffer, {
+      metadata: {contentType: "image/png"},
+      public: true,
+    });
+
+    return file.publicUrl();
+  } catch (error) {
+    logger.error("Imagen API Error:", error);
+    return null;
+  }
+}
 // ===================================================================
 // FONCTION 1 : helloWorld
 // ===================================================================
@@ -203,7 +261,6 @@ export const getSmartItemData = onCall(
     }
   },
 );
-
 // ===================================================================
 // FONCTION 5 : generateRecipes (CORRECTIF CACHE + IMAGES)
 // ===================================================================
@@ -213,23 +270,39 @@ export const generateRecipes = onCall(
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Login required.");
     }
-    const {searchKey, inventory, language = "en"} = request.data;
+    const {
+      searchKey,
+      inventory,
+      language = "en",
+      preferences = {},
+    } = request.data;
     if (!inventory || !searchKey) {
       throw new HttpsError(
         "invalid-argument",
         "searchKey/inventory required."
       );
     }
+
+    // Generate a cache key that includes preferences
+    const prefsString = JSON.stringify(preferences);
+    // Simple hash for prefs to keep key short-ish
+    let prefsHash = 0;
+    for (let i = 0; i < prefsString.length; i++) {
+      prefsHash = ((prefsHash << 5) - prefsHash) + prefsString.charCodeAt(i);
+      prefsHash |= 0; // Convert to 32bit integer
+    }
+    const fullCacheKey = `${searchKey}_${prefsHash}`;
+
     const db = getFirestore();
     const recipesCollectionRef = db
       .collection("globalRecipeCache")
-      .doc(searchKey)
+      .doc(fullCacheKey)
       .collection("recipes");
 
     const cacheSnapshot = await recipesCollectionRef.get();
     if (!cacheSnapshot.empty) {
       logger.info(
-        `Cache HIT: ${searchKey}. Display ${cacheSnapshot.size} recipes.`
+        `Cache HIT: ${fullCacheKey}. Display ${cacheSnapshot.size} recipes.`
       );
       const recipes = cacheSnapshot.docs.map((doc) => doc.data());
       return {success: true, data: {recipes: recipes}};
@@ -237,12 +310,43 @@ export const generateRecipes = onCall(
 
     try {
       const targetLang = language || "en";
+      const now = new Date();
+      const todayStr = now.toISOString().split("T")[0];
+
+      // Construct preferences string for prompt
+      let prefsPrompt = "";
+      if (preferences.mealType && preferences.mealType !== "Any") {
+        prefsPrompt += `- Type de plat : ${preferences.mealType}\n`;
+      }
+      if (preferences.diet && preferences.diet !== "None") {
+        prefsPrompt += `- Régime : ${preferences.diet}\n`;
+      }
+      if (preferences.difficulty && preferences.difficulty !== "Any") {
+        prefsPrompt += `- Difficulté : ${preferences.difficulty}\n`;
+      }
+
+      // If no preferences, force expiration priority
+      const isStrictExpiration =
+        !preferences.mealType &&
+        !preferences.diet &&
+        !preferences.difficulty;
+
+      const expirationRule = isStrictExpiration ?
+        "4. **PRIORITÉ ABSOLUE :** Tu DOIS utiliser les produits dont " +
+        "la 'earliestExpirationDate' est proche de la date du jour." :
+        "4. **Priorité :** Essaie d'utiliser les produits " +
+        "qui expirent bientôt.";
+
       const prompt = `
         Tu es un Chef de cuisine familiale expérimenté et créatif.
         Ton objectif : Créer des recettes DÉLICIEUSES, SIMPLES et
         RÉALISTES pour éviter le gaspillage au quotidien.
 
+        Date du jour : ${todayStr}
         Inventaire utilisateur : ${JSON.stringify(inventory)}
+
+        PRÉFÉRENCES UTILISATEUR (A RESPECTER IMPÉRATIVEMENT) :
+        ${prefsPrompt}
 
         RÈGLES STRICTES :
         1. **Réalisme :** Ne propose QUE des recettes
@@ -250,11 +354,11 @@ export const generateRecipes = onCall(
         2. **Cohérence :** Ne mélange pas des ingrédients incompatibles.
         3. **Simplicité :** Privilégie des recettes avec
         peu d'ingrédients manquants.
-        4. **Priorité :** Utilise les produits qui expirent bientôt.
+        ${expirationRule}
         5. **LANGUE :** Génère le titre, la description et les
         instructions EXCLUSIVEMENT en **${targetLang}**.
 
-        Génère 5 recettes variées.
+        Génère 5 recettes variées (si possible selon les préférences).
         Pour chaque recette, JSON :
         - title: Titre appétissant (en ${targetLang})
         - description: Description courte (en ${targetLang})
@@ -309,9 +413,21 @@ export const generateRecipes = onCall(
         return {success: true, data: {recipes: []}};
       }
 
-      logger.info("Recherche d'images Unsplash...");
-      const imagePromises = recipesFromIA.map((recipe) => {
-        const query = recipe.imageSearchQuery || recipe.title;
+      logger.info("Génération des images (Mode Hybride)...");
+      const imagePromises = recipesFromIA.map(async (recipe, index) => {
+        // Recipe #1: Imagen 3 (Premium)
+        if (index === 0) {
+          const prompt = "Professional food photography of " +
+            `${recipe.title}. ${recipe.description}. High resolution, ` +
+            "delicious, restaurant quality, natural lighting.";
+          const aiImage = await generateImageWithImagen(prompt);
+          if (aiImage) return aiImage;
+          // Fallback to Unsplash if AI fails
+        }
+
+        // Others: Unsplash
+        let query = recipe.imageSearchQuery || recipe.title;
+        query = `${query} food photography delicious plate high resolution`;
         return getImageUrlFromUnsplash(query);
       });
       const imageUrls = await Promise.all(imagePromises);

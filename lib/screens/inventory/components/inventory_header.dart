@@ -27,14 +27,7 @@ class InventoryHeader extends StatelessWidget implements PreferredSizeWidget {
           return Text(l10n.inventoryTitle);
         },
       ),
-      actions: [
-        IconButton(
-          color: Colors.yellow[700],
-          icon: const Icon(Icons.lightbulb),
-          tooltip: l10n.suggestRecipeTooltip,
-          onPressed: onRecipePressed,
-        ),
-      ],
+      actions: [],
     );
   }
 

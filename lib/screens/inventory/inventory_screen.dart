@@ -15,6 +15,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
 
 import 'package:frigo_zen/screens/inventory/components/scan_options_sheet.dart';
+import 'package:frigo_zen/screens/recipes/components/recipe_filters_dialog.dart';
+import 'package:frigo_zen/screens/inventory/components/inventory_summary_card.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -81,17 +83,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
   Future<void> _triggerRecipeGeneration(BuildContext context) async {
     final hasAccess = await _checkPremiumStatus(context);
     if (!hasAccess) return;
-    if (_localRecipeCache.isNotEmpty) {
-      final recipesToShow = _localRecipeCache.take(3).toList();
-      _localRecipeCache.removeRange(0, recipesToShow.length);
+    // Show filters dialog
+    if (!context.mounted) return;
+    final preferences = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (ctx) => const RecipeFiltersDialog(),
+    );
 
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (ctx) => RecipeSuggestionScreen(recipes: recipesToShow),
-        ),
-      );
-      return;
-    }
+    if (preferences == null) return; // User cancelled
+    if (!context.mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -110,6 +111,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );
 
     try {
+      if (!context.mounted) return;
       final vm = context.read<InventoryViewModel>();
       final inventoryItems = vm.items;
       
@@ -138,6 +140,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
         'inventory': inventoryData,
         'searchKey': cacheKey,
         'language': userLanguage,
+        'preferences': preferences,
       });
 
       if (!context.mounted) return;
@@ -185,13 +188,16 @@ class _InventoryScreenState extends State<InventoryScreen> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: InventoryHeader(
-        onRecipePressed: () => _triggerRecipeGeneration(context),
+        onRecipePressed: () {}, // No-op, button removed from header
       ),
       body: Column(
         children: [
+          InventorySummaryCard(
+            onRecipePressed: () => _triggerRecipeGeneration(context),
+          ),
           const LocationFilterPills(),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
