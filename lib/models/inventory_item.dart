@@ -76,6 +76,22 @@ class InventoryItem {
     };
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'cleanedName': cleanedName,
+      'canonicalName': canonicalName,
+      'category': category,
+      'location': location,
+      'totalQuantity': totalQuantity,
+      'earliestExpirationDate': earliestExpirationDate.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'dvm': dvm,
+      'imageUrl': imageUrl,
+      'batches': batches.map((x) => x.toJson()).toList(),
+    };
+  }
+
   factory InventoryItem.fromMap(Map<String, dynamic> map, String id) {
     return InventoryItem(
       id: id,

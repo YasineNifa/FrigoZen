@@ -70,6 +70,21 @@ class Batch {
     };
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'quantity': quantity,
+      'expirationDate': expirationDate.toIso8601String(),
+      'addedAt': addedAt.toIso8601String(),
+      'storeName': storeName,
+      'imageUrl': imageUrl,
+      'nutriscore': nutriscore,
+      'name': name,
+      'cleanedName': cleanedName,
+      'canonicalName': canonicalName,
+      'brands': brands,
+    };
+  }
+
   factory Batch.fromMap(Map<String, dynamic> map) {
     return Batch(
       id: map['id'] as String?,

@@ -298,12 +298,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 color: Colors.red,
               ),
             ),
-          Text(
-            "$name ($quantity)",
-            style: TextStyle(
-              color: textColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              "$name ($quantity)",
+              style: TextStyle(
+                color: textColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

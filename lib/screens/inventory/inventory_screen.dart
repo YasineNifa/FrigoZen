@@ -271,7 +271,7 @@ class _InventoryScreenState extends State<InventoryScreen>
       }
 
       // Convert items to map for cloud function
-      final inventoryData = inventoryItems.map((item) => item.toMap()).toList();
+      final inventoryData = inventoryItems.map((item) => item.toJson()).toList();
 
       // Simple cache key generation
       final sortedItems = List.from(inventoryItems)..sort((a, b) => a.earliestExpirationDate.compareTo(b.earliestExpirationDate));
