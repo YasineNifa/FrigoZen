@@ -121,7 +121,7 @@ class InventoryItem {
       other.earliestExpirationDate == earliestExpirationDate &&
       other.createdAt == createdAt &&
       other.dvm == dvm &&
-      other.imageUrl == imageUrl
+      other.imageUrl == imageUrl;
   }
 
   @override
@@ -135,7 +135,7 @@ class InventoryItem {
       totalQuantity.hashCode ^
       earliestExpirationDate.hashCode ^
       createdAt.hashCode ^
-      dvm.hashCode ^
-      imageUrl.hashcode
+      imageUrl.hashCode ^
+      dvm.hashCode;
   }
 }

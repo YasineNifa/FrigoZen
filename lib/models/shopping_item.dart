@@ -86,7 +86,7 @@ class ShoppingItem {
       'nutriscore': nutriscore,
       'brands': brands,
       'storeName': storeName,
-      'expirationDate': Timestamp.fromDate(expirationDate),
+      'expirationDate': expirationDate != null ? Timestamp.fromDate(expirationDate!) : null,
     };
   }
 
@@ -106,7 +106,7 @@ class ShoppingItem {
       nutriscore: map['nutriscore'] as String?,
       brands: map['brands'] as String?,
       storeName: map['storeName'] as String?,
-      expirationDate: (map['expirationDate'] as Timestamp).toDate(),
+      expirationDate: (map['expirationDate'] as Timestamp?)?.toDate(),
     );
   }
 
