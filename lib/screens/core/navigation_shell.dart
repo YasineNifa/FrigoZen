@@ -5,6 +5,8 @@ import 'package:frigo_zen/screens/shopping/shopping_screen.dart';
 import 'package:frigo_zen/screens/recipes/favorites_screen.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/screens/dashboard/dashboard_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/screens/core/navigation_controller.dart';
 
 class NavigationShell extends StatefulWidget {
   const NavigationShell({super.key});
@@ -13,8 +15,10 @@ class NavigationShell extends StatefulWidget {
   State<NavigationShell> createState() => _NavigationShellState();
 }
 
+
+
 class _NavigationShellState extends State<NavigationShell> {
-  int _selectedIndex = 0;
+  // Removed local _selectedIndex
 
   // List of the screens
   final List<Widget> _screens = [
@@ -25,26 +29,24 @@ class _NavigationShellState extends State<NavigationShell> {
     const SettingsScreen(),
   ];
 
-  // Update the state of the activated tab.
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final navigationController = context.watch<NavigationController>();
+    final selectedIndex = navigationController.selectedIndex;
+
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: _screens[selectedIndex],
 
       // Navigation Bar
       bottomNavigationBar: NavigationBar(
         backgroundColor: Colors.grey[150],
         animationDuration: const Duration(milliseconds: 200),
         indicatorColor: Colors.green[100],
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: _onItemTapped,
+        selectedIndex: selectedIndex,
+        onDestinationSelected: (index) {
+          context.read<NavigationController>().setIndex(index);
+        },
         destinations: [
           NavigationDestination(
             icon: Icon(Icons.dashboard_outlined),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/services/recipe_service.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+import 'package:frigo_zen/screens/core/navigation_controller.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final dynamic recipeData;
@@ -75,6 +78,63 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.recipeDetailError(e.toString()))),
+        );
+      }
+    }
+
+  }
+
+
+
+  void _addMissingItemsToShoppingList(List<dynamic> missingItems) async {
+    final l10n = AppLocalizations.of(context)!;
+    final vm = context.read<ShoppingViewModel>();
+    
+    // Extract names
+    final names = missingItems.map((item) {
+      final map = Map<String, dynamic>.from(item);
+      return map['name'] as String;
+    }).toList();
+
+    if (names.isEmpty) return;
+
+    // Show processing message immediately
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ajout des ingrédients en cours... ⏳"),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+
+    try {
+      await vm.addItemsFromRecipe(names);
+      if (mounted) {
+        // Clear previous snackbar
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Ingrédients ajoutés à la liste !"),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: "VOIR",
+              textColor: Colors.white,
+              onPressed: () {
+                // Navigate to Shopping List (index 2)
+                context.read<NavigationController>().setIndex(2);
+                // Pop back to the main shell (remove recipe detail from stack)
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur lors de l'ajout : $e")),
         );
       }
     }
@@ -163,16 +223,33 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       true,
                     ),
 
-                    if (missingItems.isNotEmpty) ...[
-                      const SizedBox(height: 24),
-                      // Ingrédients Manquants
-                      _buildIngredientsSection(
-                        context,
-                        l10n.recipeDetailToBuy,
-                        missingItems,
-                        false,
-                      ),
-                    ],
+                      if (missingItems.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        // Ingrédients Manquants
+                        _buildIngredientsSection(
+                          context,
+                          l10n.recipeDetailToBuy,
+                          missingItems,
+                          false,
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _addMissingItemsToShoppingList(missingItems),
+                            icon: const Icon(Icons.add_shopping_cart),
+                            label: const Text("Ajouter à la liste de courses"),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Theme.of(context).primaryColor,
+                              side: BorderSide(color: Theme.of(context).primaryColor),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
 
                     const SizedBox(height: 32),
 

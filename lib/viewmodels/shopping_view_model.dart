@@ -98,15 +98,45 @@ class ShoppingViewModel extends ChangeNotifier {
         createdAt: DateTime.now(),
       );
 
-      await _shoppingRepository.addShoppingItem(_householdId!, newItem);
+      await addItem(newItem);
     } catch (e) {
-      print("Error adding item: $e");
+      print("Error adding smart item: $e");
       rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
+
+  Future<void> addItemsFromRecipe(List<String> ingredientNames) async {
+    if (_householdId == null || ingredientNames.isEmpty) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // We process them sequentially for now to avoid overwhelming the Cloud Function
+      // or hitting rate limits. In the future, we could have a bulk Cloud Function.
+      for (final name in ingredientNames) {
+        try {
+          // We assume addItemByName handles its own errors/loading state locally,
+          // but we want to manage the overall loading state here.
+          // Since addItemByName sets _isLoading=true/false, we need to be careful.
+          // Ideally, we should refactor addItemByName to not touch _isLoading if called internally,
+          // or just accept the flicker.
+          // For simplicity, we'll just call it.
+          await addItemByName(name);
+        } catch (e) {
+          print("Failed to add ingredient $name: $e");
+          // Continue adding other items even if one fails
+        }
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
 
   Future<void> toggleSelectAll() async {
     if (_householdId == null || _items.isEmpty) return;
