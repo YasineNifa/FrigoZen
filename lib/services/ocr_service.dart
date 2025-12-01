@@ -18,32 +18,31 @@ class OcrService {
     /*
     arg must change to ImageSource source String base64Image
     */
-    // Loading snackbar
-    final loadingSnackbar = SnackBar(
-      content: Row(
-        children: const [
-          CircularProgressIndicator(color: Colors.white),
-          SizedBox(width: 16),
-          Text('Analyzing receipt...'),
-        ],
-      ),
-      duration: const Duration(minutes: 5),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(loadingSnackbar);
-
     try {
-      // TODO: Uncomment the following lines to enable camera and gallery options + Modify the code above
-      /**/
       final imagePicker = ImagePicker();
       final XFile? pickedImage = await imagePicker.pickImage(
         source: source,
         imageQuality: 80,
       );
 
-      if (pickedImage == null) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        return;
-      }
+      if (pickedImage == null) return;
+
+      if (!context.mounted) return;
+
+      // Loading snackbar
+      final loadingSnackbar = SnackBar(
+        content: Row(
+          children: const [
+            CircularProgressIndicator(color: Colors.white),
+            SizedBox(width: 16),
+            Text('Analyzing receipt...'),
+          ],
+        ),
+        duration: const Duration(minutes: 5),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(loadingSnackbar);
+
+      debugPrint("Image picked, processing...");
 
       final bytes = await pickedImage.readAsBytes();
       img.Image? originalImage = img.decodeImage(bytes);
@@ -51,11 +50,13 @@ class OcrService {
         throw Exception("Loading image failed.");
       }
 
+      debugPrint("Image decoded, resizing...");
       final img.Image resizedImage = img.copyResize(originalImage, width: 800);
 
+      debugPrint("Image resized, encoding...");
       final String base64Image = base64Encode(img.encodeJpg(resizedImage));
 
-      /**/
+      debugPrint("Image encoded, calling Cloud Function...");
 
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
       final callable = functions.httpsCallable('processReceiptGemini');
@@ -64,16 +65,25 @@ class OcrService {
         'imageBase64': base64Image,
       });
 
+      debugPrint("Cloud Function returned.");
+
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       final data = result.data as Map<String, dynamic>;
       if (data['success'] == true) {
         final jsonData = data['data'];
         final List<dynamic> items = jsonData['items'] ?? [];
-        print("---------------------------------");
-        print("ITEMS :");
-        print(jsonData);
-        print("---------------------------------");
+        final String? storeName = jsonData['storeName'];
+
+        // Inject storeName into each item
+        if (storeName != null) {
+          for (var item in items) {
+            if (item is Map) {
+              item['storeName'] = storeName;
+            }
+          }
+        }
 
         // Check if the widget is still mounted before navigating
         if (context.mounted) {
@@ -95,6 +105,7 @@ class OcrService {
         ); // Changed to English
       }
     } on FirebaseFunctionsException catch (error) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -103,6 +114,7 @@ class OcrService {
         ),
       );
     } catch (error) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

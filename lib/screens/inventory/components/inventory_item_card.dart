@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/screens/inventory/edit_batches_sheet.dart';
@@ -74,7 +74,7 @@ class InventoryItemCard extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -101,18 +101,7 @@ class InventoryItemCard extends StatelessWidget {
     final int itemQuantity = item.totalQuantity;
 
     // Image logic: Item image > First batch image > null
-    String? imageUrl = item.imageUrl;
-    if ((imageUrl == null || imageUrl.isEmpty) && item.batches.isNotEmpty) {
-      imageUrl = item
-          .batches
-          .first
-          .imageUrl; // Assuming Batch has imageUrl? Wait, Batch model doesn't have imageUrl in my previous step?
-      // Let me check Batch model.
-      // Ah, I might have missed adding imageUrl to Batch model in step 1.
-      // The original code had: `batchesData[0]['imageUrl']`.
-      // I should check Batch model. If it's missing, I should add it or just ignore for now.
-      // For now, I will assume it might be missing and rely on item.imageUrl.
-    }
+    final String? imageUrl = item.displayImageUrl;
 
     final status = _getExpirationStatus(item.earliestExpirationDate);
     final statusText = status['text'] as String;
@@ -177,7 +166,7 @@ class InventoryItemCard extends StatelessWidget {
                         child: imageUrl != null && imageUrl.isNotEmpty
                             ? Image.network(
                                 imageUrl,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.contain,
                                 errorBuilder: (ctx, error, stackTrace) =>
                                     _buildInitialsAvatar(item.name),
                               )

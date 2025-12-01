@@ -15,6 +15,36 @@ class InventoryItem {
   final String? imageUrl;
   final List<Batch> batches;
 
+  String? get displayImageUrl {
+    // Try to find a small image first for better performance
+    for (final batch in batches) {
+      if (batch.images != null && 
+          batch.images!['image_front_small_url'] != null && 
+          batch.images!['image_front_small_url']!.isNotEmpty) {
+        return batch.images!['image_front_small_url'];
+      }
+    }
+    
+    // Fallback to regular image url
+    for (final batch in batches) {
+      if (batch.imageUrl != null && batch.imageUrl!.trim().isNotEmpty) {
+        return batch.imageUrl;
+      }
+    }
+    return imageUrl;
+  }
+
+  String? get displayImageOriginal {
+    for (final batch in batches) {
+      if (batch.images != null && 
+          batch.images!['image_front_url'] != null && 
+          batch.images!['image_front_url']!.isNotEmpty) {
+        return batch.images!['image_front_url'];
+      }
+    }
+    return displayImageUrl;
+  }
+
   InventoryItem({
     required this.id,
     required this.name,

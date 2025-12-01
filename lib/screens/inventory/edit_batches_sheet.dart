@@ -161,7 +161,7 @@ class EditBatchesSheet extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1), // Fond pastel
+        color: color.withValues(alpha: 0.1), // Fond pastel
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -249,8 +249,7 @@ class EditBatchesSheet extends StatelessWidget {
                           .name; // Batch doesn't have name yet, use item name
                       final String brand = ''; // Batch doesn't have brand yet
                       final String? batchImageUrl = batch.imageUrl;
-                      final String? nutriscore =
-                          null; // Batch doesn't have nutriscore yet
+                      final String? nutriscore = null; // Batch doesn't have nutriscore yet
                       final String storeName = batch.storeName ?? '';
                       final DateTime? addedAtTs = batch.addedAt;
                       final String addedDateStr = addedAtTs != null
@@ -271,10 +270,11 @@ class EditBatchesSheet extends StatelessWidget {
                       final isToday = expiryDay.isAtSameMomentAs(today);
 
                       Color statusColor = Colors.green[700]!;
-                      if (isExpired)
+                      if (isExpired) {
                         statusColor = Colors.red[700]!;
-                      else if (isToday)
+                      } else if (isToday) {
                         statusColor = Colors.orange[800]!;
+                      }
 
                       return Container(
                         decoration: BoxDecoration(
@@ -283,7 +283,7 @@ class EditBatchesSheet extends StatelessWidget {
                           border: Border.all(color: Colors.grey[200]!),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
+                              color: Colors.black.withValues(alpha: 0.03),
                               blurRadius: 5,
                               offset: const Offset(0, 2),
                             ),
@@ -335,7 +335,7 @@ class EditBatchesSheet extends StatelessWidget {
                                             batchImageUrl.isNotEmpty
                                         ? Image.network(
                                             batchImageUrl,
-                                            fit: BoxFit.cover,
+                                            fit: BoxFit.contain,
                                             errorBuilder:
                                                 (ctx, error, stackTrace) =>
                                                     _buildInitialsAvatar(

@@ -59,6 +59,7 @@ class InventoryService {
     String? nutriscore = '',
     String? storeName = '',
     String? brands = '',
+    Map<String, String>? images,
   }) async {
     final _inventoryCollection = await _getInventoryCollection();
     final now = Timestamp.now();
@@ -80,10 +81,11 @@ class InventoryService {
       'name': name, // Shop, Scan, Manual Add
       'cleanedName': cleanedName,
       'canonicalName': canonicalName,
-      'imageUrl': imageUrl,
+      'imageUrl': imageUrl, // Keep main image url for backward compatibility
       'nutriscore': nutriscore,
       'brands': brands,
       'storeName': storeName,
+      'images': images,
     };
 
     if (existingDoc != null) {

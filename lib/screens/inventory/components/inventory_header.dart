@@ -4,12 +4,10 @@ import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/services/household_service.dart';
 
 class InventoryHeader extends StatelessWidget implements PreferredSizeWidget {
-  final TabController tabController;
   final VoidCallback onRecipePressed;
 
   const InventoryHeader({
     super.key,
-    required this.tabController,
     required this.onRecipePressed,
   });
 
@@ -37,21 +35,9 @@ class InventoryHeader extends StatelessWidget implements PreferredSizeWidget {
           onPressed: onRecipePressed,
         ),
       ],
-      bottom: TabBar(
-        controller: tabController,
-        labelColor: Theme.of(context).primaryColor,
-        tabs: [
-          Tab(text: l10n.inventoryTabAll),
-          Tab(text: l10n.inventoryTabFridge),
-          Tab(text: l10n.inventoryTabPantry),
-          Tab(text: l10n.inventoryTabFreezer),
-        ],
-        indicatorColor: Theme.of(context).primaryColor,
-        unselectedLabelColor: Theme.of(context).disabledColor,
-      ),
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + kTextTabBarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

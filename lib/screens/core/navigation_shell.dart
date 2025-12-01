@@ -4,6 +4,7 @@ import 'package:frigo_zen/screens/settings/settings_screen.dart';
 import 'package:frigo_zen/screens/shopping/shopping_screen.dart';
 import 'package:frigo_zen/screens/recipes/favorites_screen.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/screens/dashboard/dashboard_screen.dart';
 
 class NavigationShell extends StatefulWidget {
   const NavigationShell({super.key});
@@ -15,8 +16,9 @@ class NavigationShell extends StatefulWidget {
 class _NavigationShellState extends State<NavigationShell> {
   int _selectedIndex = 0;
 
-  // List of the three screens
+  // List of the screens
   final List<Widget> _screens = [
+    const DashboardScreen(),
     const InventoryScreen(),
     const ShoppingScreen(),
     const FavoritesScreen(),
@@ -44,6 +46,11 @@ class _NavigationShellState extends State<NavigationShell> {
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onItemTapped,
         destinations: [
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: "Dashboard",
+          ),
           NavigationDestination(
             icon: Icon(Icons.inventory_2_outlined),
             selectedIcon: Icon(Icons.inventory_2),

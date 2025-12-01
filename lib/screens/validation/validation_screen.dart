@@ -69,11 +69,17 @@ class _ValidationScreenState extends State<ValidationScreen> {
   Future<void> _scanBarcodeAndUpdateItem(int index) async {
     try {
       // A. Lancer le scanner
-      var res = await Navigator.push(
+      var res = await SimpleBarcodeScanner.scanBarcode(
         context,
-        MaterialPageRoute(
-          builder: (context) => const SimpleBarcodeScannerPage(),
+        barcodeAppBar: const BarcodeAppBar(
+          appBarTitle: 'Scanner un code-barres',
+          centerTitle: false,
+          enableBackButton: true,
+          backButtonIcon: Icon(Icons.arrow_back_ios),
         ),
+        isShowFlashIcon: true,
+        delayMillis: 2000,
+        cameraFace: CameraFace.back,
       );
 
       if (res is String && res != '-1' && res.isNotEmpty) {
@@ -84,7 +90,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
 
         // C. Appeler Open Food Facts
         final url = Uri.parse(
-          'https://world.openfoodfacts.org/api/v2/product/$res?fields=product_name,brands,image_front_small_url,nutriscore_grade',
+          'https://world.openfoodfacts.org/api/v2/product/$res?fields=product_name,brands,image_front_small_url,image_front_url,image_front_thumb_url,image_nutrition_small_url,image_nutrition_thumb_url,image_nutrition_url,image_small_url,image_thumb_url,image_url,nutriscore_grade',
         );
         final response = await http.get(url);
 
@@ -114,6 +120,27 @@ class _ValidationScreenState extends State<ValidationScreen> {
                 _editableItems[index]['nutriscore'] =
                     product['nutriscore_grade'];
               }
+
+              // Capture all image variants
+              final Map<String, String> images = {};
+              final imageKeys = [
+                "image_front_small_url",
+                "image_front_thumb_url",
+                "image_front_url",
+                "image_nutrition_small_url",
+                "image_nutrition_thumb_url",
+                "image_nutrition_url",
+                "image_small_url",
+                "image_thumb_url",
+                "image_url"
+              ];
+
+              for (var key in imageKeys) {
+                if (product[key] != null && product[key].toString().isNotEmpty) {
+                  images[key] = product[key].toString();
+                }
+              }
+              _editableItems[index]['images'] = images;
 
               _editableItems[index]['_isLoading'] = false;
             });
@@ -182,8 +209,8 @@ class _ValidationScreenState extends State<ValidationScreen> {
         // On récupère les nouvelles données potentielles (image, nutri)
         final String? imageUrl = item['imageUrl'];
         final String? nutriscore = item['nutriscore'];
-        final String? storeName = item['imageUrl'];
-        final String? brands = item['nutriscore'];
+        final String? storeName = item['storeName'];
+        final String? brands = item['brands'];
 
         final int dvm = item['dvm'] ?? 7;
         final int dvmMillis = dvm * 24 * 60 * 60 * 1000;
@@ -203,6 +230,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
           nutriscore: nutriscore,
           storeName: storeName,
           brands: brands,
+          images: item['images'],
         );
       }
 
@@ -304,7 +332,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
                           : imageUrl != null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: Image.network(imageUrl, fit: BoxFit.cover),
+                              child: Image.network(imageUrl, fit: BoxFit.contain),
                             )
                           : const Icon(
                               Icons.qr_code_scanner,

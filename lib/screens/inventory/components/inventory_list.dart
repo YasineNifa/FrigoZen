@@ -19,7 +19,7 @@ class InventoryList extends StatelessWidget {
 
         if (items.isEmpty) {
           return InventoryEmptyState(
-            location: vm.selectedLocation,
+            filter: vm.selectedFilter,
             isSearch: vm.searchQuery.isNotEmpty,
           );
         }

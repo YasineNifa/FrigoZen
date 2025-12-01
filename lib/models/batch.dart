@@ -12,6 +12,7 @@ class Batch {
   final String? cleanedName;
   final String? canonicalName;
   final String? brands;
+  final Map<String, String>? images;
 
   Batch({
     this.id,
@@ -25,6 +26,7 @@ class Batch {
     this.cleanedName,
     this.canonicalName,
     this.brands,
+    this.images,
   });
 
   Batch copyWith({
@@ -39,6 +41,7 @@ class Batch {
     String? cleanedName,
     String? canonicalName,
     String? brands,
+    Map<String, String>? images,
   }) {
     return Batch(
       id: id ?? this.id,
@@ -52,6 +55,7 @@ class Batch {
       cleanedName: cleanedName ?? this.cleanedName,
       canonicalName: canonicalName ?? this.canonicalName,
       brands: brands ?? this.brands,
+      images: images ?? this.images,
     );
   }
 
@@ -67,6 +71,7 @@ class Batch {
       'cleanedName': cleanedName,
       'canonicalName': canonicalName,
       'brands': brands,
+      'images': images,
     };
   }
 
@@ -82,6 +87,7 @@ class Batch {
       'cleanedName': cleanedName,
       'canonicalName': canonicalName,
       'brands': brands,
+      'images': images,
     };
   }
 
@@ -98,12 +104,13 @@ class Batch {
       cleanedName: map['cleanedName'] as String?,
       canonicalName: map['canonicalName'] as String?,
       brands: map['brands'] as String?,
+      images: map['images'] != null ? Map<String, String>.from(map['images']) : null,
     );
   }
 
   @override
   String toString() {
-    return 'Batch(id: $id, quantity: $quantity, expirationDate: $expirationDate, addedAt: $addedAt, storeName: $storeName, imageUrl: $imageUrl, nutriscore: $nutriscore, name: $name, cleanedName: $cleanedName, canonicalName: $canonicalName, brands: $brands)';
+    return 'Batch(id: $id, quantity: $quantity, expirationDate: $expirationDate, addedAt: $addedAt, storeName: $storeName, imageUrl: $imageUrl, nutriscore: $nutriscore, name: $name, cleanedName: $cleanedName, canonicalName: $canonicalName, brands: $brands, images: $images)';
   }
 
   @override
@@ -121,7 +128,8 @@ class Batch {
       other.name == name &&
       other.cleanedName == cleanedName &&
       other.canonicalName == canonicalName &&
-      other.brands == brands;
+      other.brands == brands &&
+      other.images == images;
   }
 
   @override
@@ -136,6 +144,7 @@ class Batch {
       name.hashCode ^
       cleanedName.hashCode ^
       canonicalName.hashCode ^
-      brands.hashCode;
+      brands.hashCode ^
+      images.hashCode;
   }
 }

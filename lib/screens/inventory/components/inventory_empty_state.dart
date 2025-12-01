@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
+import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
+
 class InventoryEmptyState extends StatelessWidget {
-  final String location;
+  final LocationFilter filter;
   final bool isSearch;
 
   const InventoryEmptyState({
     super.key,
-    required this.location,
+    required this.filter,
     this.isSearch = false,
   });
 
@@ -17,12 +19,21 @@ class InventoryEmptyState extends StatelessWidget {
     String image = "assets/images/discu.png";
     if (isSearch) {
       image = "assets/images/discu.png";
-    } else if (location == "Congélateur") {
-      image = "assets/images/conge.png";
-    } else if (location == "Frigo") {
-      image = "assets/images/fridge.png";
-    } else if (location == "Placard") {
-      image = "assets/images/pant.png";
+    } else {
+      switch (filter) {
+        case LocationFilter.freezer:
+          image = "assets/images/conge.png";
+          break;
+        case LocationFilter.fridge:
+          image = "assets/images/fridge.png";
+          break;
+        case LocationFilter.pantry:
+          image = "assets/images/pant.png";
+          break;
+        case LocationFilter.all:
+          image = "assets/images/discu.png";
+          break;
+      }
     }
 
     String title = isSearch
@@ -49,7 +60,9 @@ class InventoryEmptyState extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],

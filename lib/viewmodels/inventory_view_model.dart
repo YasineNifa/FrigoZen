@@ -4,13 +4,20 @@ import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 
+enum LocationFilter {
+  all,
+  fridge,
+  pantry,
+  freezer
+}
+
 class InventoryViewModel extends ChangeNotifier {
   final InventoryRepository _inventoryRepository;
   
   // State
   List<InventoryItem> _items = [];
   bool _isLoading = false;
-  String _selectedLocation = "Tout";
+  LocationFilter _selectedFilter = LocationFilter.all;
   String _searchQuery = "";
   String? _householdId;
   StreamSubscription<List<InventoryItem>>? _inventorySubscription;
@@ -18,12 +25,31 @@ class InventoryViewModel extends ChangeNotifier {
   // Getters
   List<InventoryItem> get items => _items;
   bool get isLoading => _isLoading;
-  String get selectedLocation => _selectedLocation;
+  LocationFilter get selectedFilter => _selectedFilter;
   String get searchQuery => _searchQuery;
 
   List<InventoryItem> get filteredItems {
     return _items.where((item) {
-      final matchesLocation = _selectedLocation == "Tout" || item.location == _selectedLocation;
+      bool matchesLocation = false;
+      
+      switch (_selectedFilter) {
+        case LocationFilter.all:
+          matchesLocation = true;
+          break;
+        case LocationFilter.fridge:
+          final loc = item.location.toLowerCase();
+          matchesLocation = loc == 'frigo' || loc == 'fridge' || loc == 'refrigerator';
+          break;
+        case LocationFilter.pantry:
+          final loc = item.location.toLowerCase();
+          matchesLocation = loc == 'placard' || loc == 'pantry';
+          break;
+        case LocationFilter.freezer:
+          final loc = item.location.toLowerCase();
+          matchesLocation = loc == 'congélateur' || loc == 'freezer';
+          break;
+      }
+
       final matchesSearch = _searchQuery.isEmpty || 
           item.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           item.canonicalName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -31,6 +57,67 @@ class InventoryViewModel extends ChangeNotifier {
           item.category.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesLocation && matchesSearch;
     }).toList();
+  }
+
+  int get expiringSoonCount {
+    final now = DateTime.now();
+    return _items.where((item) {
+      final difference = item.earliestExpirationDate
+          .difference(DateTime(now.year, now.month, now.day))
+          .inDays;
+      return difference <= 3;
+    }).length;
+  }
+
+  Map<String, int> get nutriscoreDistribution {
+    final distribution = <String, int>{};
+    for (var item in _items) {
+      // Check batches for NutriScore
+      for (var batch in item.batches) {
+        if (batch.nutriscore != null && batch.nutriscore!.isNotEmpty) {
+          final score = batch.nutriscore!.toUpperCase();
+          distribution[score] = (distribution[score] ?? 0) + batch.quantity;
+        }
+      }
+    }
+    return distribution;
+  }
+
+  Map<String, int> get categoryDistribution {
+    final distribution = <String, int>{};
+    for (var item in _items) {
+      final category = item.category;
+      distribution[category] = (distribution[category] ?? 0) + item.totalQuantity;
+    }
+    return distribution;
+  }
+
+  Map<String, int> get locationDistribution {
+    final distribution = <String, int>{};
+    for (var item in _items) {
+      final location = item.location;
+      distribution[location] = (distribution[location] ?? 0) + item.totalQuantity;
+    }
+    return distribution;
+  }
+
+  List<InventoryItem> get expiringItems {
+    final sortedItems = List<InventoryItem>.from(_items);
+    sortedItems.sort((a, b) => a.earliestExpirationDate.compareTo(b.earliestExpirationDate));
+    return sortedItems.take(10).toList();
+  }
+
+  Map<String, int> get storeDistribution {
+    final distribution = <String, int>{};
+    for (var item in _items) {
+      for (var batch in item.batches) {
+        if (batch.storeName != null && batch.storeName!.isNotEmpty) {
+          final store = batch.storeName!;
+          distribution[store] = (distribution[store] ?? 0) + batch.quantity;
+        }
+      }
+    }
+    return distribution;
   }
 
   InventoryViewModel({required InventoryRepository inventoryRepository})
@@ -51,15 +138,15 @@ class InventoryViewModel extends ChangeNotifier {
         notifyListeners();
       },
       onError: (error) {
-        print("Error fetching inventory: $error");
+        debugPrint("Error fetching inventory: $error");
         _isLoading = false;
         notifyListeners();
       },
     );
   }
 
-  void setLocation(String location) {
-    _selectedLocation = location;
+  void setFilter(LocationFilter filter) {
+    _selectedFilter = filter;
     notifyListeners();
   }
 
