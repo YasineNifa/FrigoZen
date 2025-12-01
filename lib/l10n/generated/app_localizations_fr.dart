@@ -112,38 +112,38 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le mot de passe doit faire plus de 6 caractères.';
 
   @override
-  String get householdWelcome => 'Welcome home!';
+  String get householdWelcome => 'Bienvenue chez vous !';
 
   @override
   String get householdSubtitle =>
-      'To begin, create your family space or join an existing one.';
+      'Pour commencer, créez votre espace familial ou rejoignez-en un existant.';
 
   @override
-  String get householdCreateTitle => 'Create a new space';
+  String get householdCreateTitle => 'Créer un nouvel espace';
 
   @override
-  String get householdNameLabel => 'Household Name (e.g. My Home)';
+  String get householdNameLabel => 'Nom de la maison (ex: Chez Nous)';
 
   @override
-  String get householdCreateBtn => 'Create';
+  String get householdCreateBtn => 'Créer';
 
   @override
-  String get householdOr => 'OR';
+  String get householdOr => 'OU';
 
   @override
-  String get householdJoinTitle => 'Join existing space';
+  String get householdJoinTitle => 'Rejoindre un espace';
 
   @override
-  String get householdCodeLabel => 'Invitation Code (e.g. FZ-1234)';
+  String get householdCodeLabel => 'Code d\'invitation (ex: FZ-1234)';
 
   @override
-  String get householdJoinBtn => 'Join';
+  String get householdJoinBtn => 'Rejoindre';
 
   @override
-  String get householdErrorNameRequired => 'Name is required';
+  String get householdErrorNameRequired => 'Le nom est requis';
 
   @override
-  String get householdErrorCodeRequired => 'Code is required';
+  String get householdErrorCodeRequired => 'Le code est requis';
 
   @override
   String get addItemTitle => 'Ajouter un produit';
