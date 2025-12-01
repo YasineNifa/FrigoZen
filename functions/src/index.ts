@@ -2,7 +2,7 @@ import {initializeApp} from "firebase-admin/app";
 import {getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
-import {onMessagePublished} from "firebase-functions/v2/pubsub";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
 import {VertexAI, Part} from "@google-cloud/vertexai";
 import axios from "axios";
@@ -12,7 +12,6 @@ initializeApp();
 const PROJECT_ID = "frigozen-app";
 const LOCATION = "us-central1";
 const UNSPLASH_ACCESS_KEY = "SD6Z8wq-qz9w0680m4Yjd2jZStEs_TzB3oeNpOWMjFI";
-const EXPIRATION_CHECK_TOPIC = "daily-expiration-check";
 const vertexAI = new VertexAI({project: PROJECT_ID, location: LOCATION});
 const generativeModel = vertexAI.getGenerativeModel({
   model: "gemini-2.0-flash-lite",
@@ -337,80 +336,112 @@ export const generateRecipes = onCall(
 // ===================================================================
 // FONCTION 6 : checkExpirations (NOTIFICATIONS - MAISONS)
 // ===================================================================
-export const checkExpirations = onMessagePublished(
-  EXPIRATION_CHECK_TOPIC,
+export const checkExpiringItems = onSchedule(
+  "every day 10:00",
   async (event) => {
-    logger.info("Scan quotidien des péremptions...");
     const db = getFirestore();
     const messaging = getMessaging();
     const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
-    const threeDaysAgo = new Date(now);
-    threeDaysAgo.setDate(now.getDate() - 3);
+    const twoDaysLater = new Date();
+    twoDaysLater.setDate(now.getDate() + 2);
 
-    try {
-      const householdsSnapshot = await db.collection("households").get();
+    // 1. Query items expiring in the next 2 days
+    // Note: Requires a composite index on
+    // 'inventory' collection if we add more filters
+    // For now we just check the date range.
+    const snapshot = await db.collectionGroup("inventory")
+      .where("earliestExpirationDate", ">=", Timestamp.fromDate(now))
+      .where("earliestExpirationDate", "<=", Timestamp.fromDate(twoDaysLater))
+      .get();
 
-      for (const householdDoc of householdsSnapshot.docs) {
-        const householdId = householdDoc.id;
-        const householdData = householdDoc.data();
+    if (snapshot.empty) {
+      logger.info("No expiring items found.");
+      return;
+    }
 
-        const inventorySnapshot = await db
-          .collection("households")
-          .doc(householdId)
-          .collection("inventory")
-          .where(
-            "earliestExpirationDate", ">=", Timestamp.fromDate(threeDaysAgo)
-          )
-          .where(
-            "earliestExpirationDate", "<=", Timestamp.fromDate(tomorrow)
-          )
-          .get();
+    // 2. Group items by household
+    const householdItems: {[key: string]: string[]} = {};
 
-        if (inventorySnapshot.empty) {
-          continue;
+    snapshot.docs.forEach((doc) => {
+      // doc.ref.parent is 'inventory' collection
+      // doc.ref.parent.parent is the household document
+      const householdId = doc.ref.parent.parent?.id;
+      const itemName = doc.data().name;
+
+      if (householdId && itemName) {
+        if (!householdItems[householdId]) {
+          householdItems[householdId] = [];
         }
+        householdItems[householdId].push(itemName);
+      }
+    });
 
-        const expiringItems = inventorySnapshot.docs.map(
-          (doc) => doc.data().name
-        );
-        const msg = (
-          `🔔 ${expiringItems.length} articles expire soon : ` +
-          `${expiringItems.join(", ")}`
-        );
-        const members = householdData.members || [];
+    // 3. Send notifications for each household
+    for (const [householdId, items] of Object.entries(householdItems)) {
+      try {
+        // Get household members
+        const householdDoc =
+          await db.collection("households").doc(householdId).get();
+        if (!householdDoc.exists) continue;
 
-        if (members.length === 0) continue;
-        let allTokens: string[] = [];
+        const members = householdDoc.data()?.members as string[];
+        if (!members || members.length === 0) continue;
+
+        // Get tokens for all members
+        const tokens: string[] = [];
         for (const memberId of members) {
           const tokensSnapshot = await db
-            .collection("users").doc(memberId).collection("deviceTokens").get();
-          allTokens = allTokens.concat(tokensSnapshot.docs.map((t) => t.id));
+            .collection("users")
+            .doc(memberId)
+            .collection("deviceTokens")
+            .get();
+
+          tokensSnapshot.docs.forEach((t) => tokens.push(t.id));
         }
 
-        if (allTokens.length === 0) {
-          continue;
-        }
-        const uniqueTokens = [...new Set(allTokens)];
+        if (tokens.length === 0) continue;
 
+        // Construct message
+        const itemCount = items.length;
+        const itemText = items.slice(0, 2).join(", ");
+        const suffix = itemCount > 2 ? ` et ${itemCount - 2} autres` : "";
         const message: MulticastMessage = {
-          tokens: uniqueTokens,
+          tokens: tokens,
           notification: {
-            title: "🔔 Alert Anti-Gaspi FrigoZen",
-            body: msg.length > 220 ? `${msg.substring(0, 220)}...` : msg,
+            title: "🥕 Anti-Gaspi FrigoZen",
+            body: (
+              `Attention ! ${itemText}${suffix}` +
+              "expirent bientôt. Cuisinez-les !"
+            ),
           },
-          data: {screen: "inventory", householdId: householdId},
+          data: {
+            type: "expiration",
+            householdId: householdId,
+          },
         };
+
         const response = await messaging.sendEachForMulticast(message);
+        logger.info(
+          `Sent notifications to household ${householdId}:` +
+          `${response.successCount} success, ` +
+          `${response.failureCount} errors`
+        );
+
+        // Cleanup invalid tokens
         if (response.failureCount > 0) {
-          logger.warn(`Échec d'envoi partiel pour la maison ${householdId}.`);
+          const failedTokens: string[] = [];
+          response.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+              failedTokens.push(tokens[idx]);
+            }
+          });
+          // TODO: Delete failed tokens from Firestore if needed
+          logger.warn(
+            `Failed tokens for household ${householdId}:`, failedTokens
+          );
         }
+      } catch (error) {
+        logger.error(`Error processing household ${householdId}:`, error);
       }
-      return null;
-    } catch (error) {
-      logger.error("Error checkExpirations:", error);
-      return null;
     }
-  },
-);
+  });
