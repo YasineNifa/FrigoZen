@@ -24,12 +24,14 @@ class RevenueProvider with ChangeNotifier {
     Purchases.addCustomerInfoUpdateListener((info) {
       _customerInfo = info;
       notifyListeners();
+      _syncPremiumStatusToFirestore();
     });
 
     // 2. Initial fetch (anonymous or cached)
     try {
       _customerInfo = await Purchases.getCustomerInfo();
       notifyListeners();
+      _syncPremiumStatusToFirestore();
     } catch (e) {
       print("Error RevenueCat init: $e");
     }
@@ -98,6 +100,21 @@ class RevenueProvider with ChangeNotifier {
   void setCustomerInfo(CustomerInfo? info) {
     _customerInfo = info;
     notifyListeners();
+    _syncPremiumStatusToFirestore();
+  }
+
+  Future<void> _syncPremiumStatusToFirestore() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'isPremium': isPro,
+        'lastPremiumSync': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print("Error syncing premium status: $e");
+    }
   }
   
   Future<void> restorePurchases() async {

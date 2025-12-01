@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
@@ -100,10 +101,14 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
           ),
         );
       }
-    } on PurchasesError catch (e) {
-      if (e.code != PurchasesErrorCode.purchaseCancelledError) {
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.message ?? "Erreur inconnue"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -407,7 +412,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  isAnnual ? "29.99€" : "4.99€",
+                  package.storeProduct.priceString,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,

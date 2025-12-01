@@ -17,6 +17,7 @@ import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:frigo_zen/screens/inventory/components/scan_options_sheet.dart';
 import 'package:frigo_zen/screens/recipes/components/recipe_filters_dialog.dart';
 import 'package:frigo_zen/screens/inventory/components/inventory_summary_card.dart';
+import 'package:frigo_zen/screens/core/premium_guard.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -57,23 +58,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     super.dispose();
   }
 
-  Future<bool> _checkPremiumStatus(BuildContext context) async {
-    final isPro = context.read<RevenueProvider>().isPro;
 
-    if (isPro) {
-      return true;
-    } else {
-      try {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (ctx) => const ModernPaywallScreen()),
-        );
-        return context.read<RevenueProvider>().isPro;
-      } on PurchasesError catch (e) {
-        debugPrint("Error while displaying Paywall: $e");
-        return false;
-      }
-    }
-  }
 
   void _handleSearch() {
     context.read<InventoryViewModel>().setSearchQuery(_searchController.text.trim());
@@ -81,7 +66,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   // TODO: Move this logic to ViewModel or Service
   Future<void> _triggerRecipeGeneration(BuildContext context) async {
-    final hasAccess = await _checkPremiumStatus(context);
+    final hasAccess = await PremiumGuard.checkPremiumStatus(context);
     if (!hasAccess) return;
     // Show filters dialog
     if (!context.mounted) return;

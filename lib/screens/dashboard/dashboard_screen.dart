@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
+import 'package:frigo_zen/screens/dashboard/components/premium_stats_wrapper.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -89,8 +90,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: const [
-                    Expanded(child: StorageStatsCard()),
-                    Expanded(child: HealthStatsCard()),
+                    Expanded(
+                      child: PremiumStatsWrapper(child: StorageStatsCard()),
+                    ),
+                    Expanded(
+                      child: PremiumStatsWrapper(child: HealthStatsCard()),
+                    ),
                   ],
                 ),
               ),
@@ -101,8 +106,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: const [
-                    Expanded(child: CategoryStatsCard()),
-                    Expanded(child: StoreStatsCard()),
+                    Expanded(
+                      child: PremiumStatsWrapper(child: CategoryStatsCard()),
+                    ),
+                    Expanded(
+                      child: PremiumStatsWrapper(child: StoreStatsCard()),
+                    ),
                   ],
                 ),
               ),

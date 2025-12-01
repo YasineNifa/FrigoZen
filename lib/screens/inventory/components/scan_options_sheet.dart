@@ -5,7 +5,7 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
+import 'package:frigo_zen/screens/core/premium_guard.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -23,28 +23,10 @@ class ScanOptionsSheet extends StatefulWidget {
 }
 
 class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
-  Future<bool> _checkPremiumStatus(BuildContext context) async {
-    final isPro = context.read<RevenueProvider>().isPro;
 
-    if (isPro) {
-      return true;
-    } else {
-      try {
-        if (!context.mounted) return false;
-        await Navigator.of(context).push(
-          MaterialPageRoute(builder: (ctx) => const ModernPaywallScreen()),
-        );
-        if (!context.mounted) return false;
-        return context.read<RevenueProvider>().isPro;
-      } on PurchasesError catch (e) {
-        debugPrint("Error while displaying Paywall: $e");
-        return false;
-      }
-    }
-  }
 
   Future<void> _scanProductBarcode(BuildContext context) async {
-    final hasAccess = await _checkPremiumStatus(context);
+    final hasAccess = await PremiumGuard.checkPremiumStatus(context);
     if (!hasAccess) return;
 
     var barcode = await SimpleBarcodeScanner.scanBarcode(
@@ -227,7 +209,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                 ? const Icon(Icons.lock_outline, color: Colors.grey)
                 : null,
             onTap: () async {
-              final hasAccess = await _checkPremiumStatus(context);
+              final hasAccess = await PremiumGuard.checkPremiumStatus(context);
               if (!hasAccess) return;
               if (!context.mounted) return;
               Navigator.of(context).pop();
@@ -276,7 +258,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                 ? const Icon(Icons.lock_outline, color: Colors.grey)
                 : null,
             onTap: () async {
-              final hasAccess = await _checkPremiumStatus(context);
+              final hasAccess = await PremiumGuard.checkPremiumStatus(context);
               if (!hasAccess) return;
               if (!context.mounted) return;
               Navigator.of(context).pop();

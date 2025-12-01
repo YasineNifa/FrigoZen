@@ -498,66 +498,66 @@ export const checkExpiringItems = onSchedule(
         // Get household members
         const householdDoc =
           await db.collection("households").doc(householdId).get();
+
         if (!householdDoc.exists) continue;
 
-        const members = householdDoc.data()?.members as string[];
-        if (!members || members.length === 0) continue;
+        // Check if ANY member is premium (Shared Premium logic)
+        // Or check the household owner. For simplicity, we check if the
+        // user associated with the household has isPremium=true.
+        // Since we don't have a direct link here easily without querying users,
+        // we will query users who have this householdId.
 
-        // Get tokens for all members
+        const usersSnapshot = await db.collection("users")
+          .where("householdId", "==", householdId)
+          .get();
+
+        let isPremiumHousehold = false;
         const tokens: string[] = [];
-        for (const memberId of members) {
-          const tokensSnapshot = await db
-            .collection("users")
-            .doc(memberId)
-            .collection("deviceTokens")
-            .get();
 
-          tokensSnapshot.docs.forEach((t) => tokens.push(t.id));
+        usersSnapshot.docs.forEach((userDoc) => {
+          const userData = userDoc.data();
+          if (userData.isPremium === true) {
+            isPremiumHousehold = true;
+          }
+          if (userData.fcmToken) {
+            tokens.push(userData.fcmToken);
+          }
+        });
+
+        // GATE: If no one is premium, SKIP notification
+        if (!isPremiumHousehold) {
+          logger.info(
+            `Skipping notification for household ${householdId} (Not Premium)`
+          );
+          continue;
         }
 
         if (tokens.length === 0) continue;
 
-        // Construct message
-        const itemCount = items.length;
-        const itemText = items.slice(0, 2).join(", ");
-        const suffix = itemCount > 2 ? ` et ${itemCount - 2} autres` : "";
         const message: MulticastMessage = {
           tokens: tokens,
           notification: {
-            title: "🥕 Anti-Gaspi FrigoZen",
-            body: (
-              `Attention ! ${itemText}${suffix}` +
-              "expirent bientôt. Cuisinez-les !"
-            ),
+            title: "⚠️ Gaspillage imminent !",
+            body: `Vite ! ${items.length} produits expirent bientôt : ` +
+              `${items.slice(0, 3).join(", ")}` +
+              `${items.length > 3 ? "..." : ""}`,
           },
           data: {
-            type: "expiration",
+            type: "expiration_alert",
             householdId: householdId,
           },
         };
 
         const response = await messaging.sendEachForMulticast(message);
         logger.info(
-          `Sent notifications to household ${householdId}:` +
-          `${response.successCount} success, ` +
-          `${response.failureCount} errors`
+          `Sent ${response.successCount} notifications to ` +
+          `household ${householdId}`
         );
-
-        // Cleanup invalid tokens
-        if (response.failureCount > 0) {
-          const failedTokens: string[] = [];
-          response.responses.forEach((resp, idx) => {
-            if (!resp.success) {
-              failedTokens.push(tokens[idx]);
-            }
-          });
-          // TODO: Delete failed tokens from Firestore if needed
-          logger.warn(
-            `Failed tokens for household ${householdId}:`, failedTokens
-          );
-        }
       } catch (error) {
-        logger.error(`Error processing household ${householdId}:`, error);
+        logger.error(
+          `Error sending notification to household ${householdId}:`,
+          error
+        );
       }
     }
   });
