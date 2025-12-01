@@ -12,6 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+import 'package:frigo_zen/locator.dart';
 
 // 2. Créer un "Provider" simple pour notre inventaire
 // Il tiendra juste la liste des noms d'articles de l'inventaire.
@@ -46,15 +47,18 @@ Future<void> main() async {
   await Purchases.configure(
     PurchasesConfiguration("test_khYjXVBlKWQdgHIghJZqvHlaXyV"),
   );
-  final revenueProvider = RevenueProvider();
+  
+  setupLocator();
+  
+  final revenueProvider = locator<RevenueProvider>();
   await revenueProvider.init();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => InventoryProvider()),
-        ChangeNotifierProvider(create: (context) => InventoryViewModel()),
-        ChangeNotifierProvider(create: (context) => ShoppingViewModel()),
+        ChangeNotifierProvider(create: (context) => locator<InventoryViewModel>()),
+        ChangeNotifierProvider(create: (context) => locator<ShoppingViewModel>()),
         ChangeNotifierProvider.value(value: revenueProvider),
       ],
       child: FrigoZenApp(hasSeenOnboarding: hasSeenOnboarding),

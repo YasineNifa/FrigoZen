@@ -23,10 +23,10 @@ class ShoppingViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   ShoppingViewModel({
-    ShoppingRepository? shoppingRepository,
-    InventoryRepository? inventoryRepository,
-  })  : _shoppingRepository = shoppingRepository ?? ShoppingRepository(),
-        _inventoryRepository = inventoryRepository ?? InventoryRepository();
+    required ShoppingRepository shoppingRepository,
+    required InventoryRepository inventoryRepository,
+  })  : _shoppingRepository = shoppingRepository,
+        _inventoryRepository = inventoryRepository;
 
   void init(String householdId) {
     if (_householdId == householdId) return;

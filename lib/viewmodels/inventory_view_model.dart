@@ -33,8 +33,8 @@ class InventoryViewModel extends ChangeNotifier {
     }).toList();
   }
 
-  InventoryViewModel({InventoryRepository? inventoryRepository})
-      : _inventoryRepository = inventoryRepository ?? InventoryRepository();
+  InventoryViewModel({required InventoryRepository inventoryRepository})
+      : _inventoryRepository = inventoryRepository;
 
   void init(String householdId) {
     if (_householdId == householdId) return;
