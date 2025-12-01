@@ -115,7 +115,13 @@ class FrigoZenApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en'), Locale('fr'), Locale('de')],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('fr'),
+        Locale('de'),
+        Locale('es'),
+        Locale('ar'),
+      ],
       home: hasSeenOnboarding ? const AuthGate() : const OnboardingScreen(),
       // home: const OnboardingScreen(),
     );
