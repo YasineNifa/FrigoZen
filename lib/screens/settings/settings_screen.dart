@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/services.dart';
 import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
-import 'package:frigo_zen/screens/paywall/paywall_screen.dart';
 import 'package:frigo_zen/services/household_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -20,59 +19,85 @@ class SettingsScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
     final isPro = context.watch<RevenueProvider>().isPro;
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(title: Text(l10n.settingsTitle)),
+      backgroundColor: const Color(0xFFF5F7FA), // Light grey background
+      appBar: AppBar(
+        title: Text(
+          l10n.settingsTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+      ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 20),
         children: [
+          // --- SECTION: ACCOUNT ---
+          _buildSectionHeader(context, l10n.settingsAccountInfo),
           if (user != null)
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: Text(l10n.settingsAccountInfo),
-              subtitle: Text(user.email ?? l10n.settingsNoEmail),
+            _buildSettingsTile(
+              context,
+              icon: Icons.person_outline,
+              title: user.displayName ?? 'Utilisateur',
+              subtitle: user.email ?? l10n.settingsNoEmail,
+              onTap: () {
+                // TODO: Edit profile
+              },
             ),
+          
+          const SizedBox(height: 24),
 
-          const Divider(),
-          ListTile(
-            leading: Icon(
-              isPro ? Icons.star : Icons.star_border,
-              color: Colors.amber[700],
-            ),
-            title: Text(isPro ? l10n.settingsManageSub : l10n.settingsUpgrade),
-            subtitle: Text(
-              isPro ? l10n.settingsProMember : l10n.settingsUnlockFeatures,
-            ),
+          // --- SECTION: SUBSCRIPTION ---
+          _buildSectionHeader(context, "Abonnement"), // TODO: Add to l10n
+          _buildSettingsTile(
+            context,
+            icon: isPro ? Icons.star : Icons.star_border,
+            iconColor: Colors.amber[700],
+            title: isPro ? l10n.settingsManageSub : l10n.settingsUpgrade,
+            subtitle: isPro ? l10n.settingsProMember : l10n.settingsUnlockFeatures,
+            trailing: isPro 
+                ? Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.amber[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "PRO",
+                      style: TextStyle(
+                        color: Colors.amber[800],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  )
+                : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
             onTap: () async {
               if (isPro) {
-                // Si Pro -> Ouvrir le centre de gestion RevenueCat
                 try {
                   await RevenueCatUI.presentCustomerCenter();
                 } on PurchasesError catch (e) {
-                  print("Customer Center error: $e");
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.settingsErrorOpen)),
                   );
                 }
               } else {
-                // Si Pas Pro -> Ouvrir le Paywall
-                try {
-                  // await RevenueCatUI.presentPaywallIfNeeded("default");
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (ctx) => const ModernPaywallScreen(),
-                    ),
-                  );
-                } on PurchasesError catch (e) {
-                  print("Paywall error: $e");
-                }
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => const ModernPaywallScreen(),
+                  ),
+                );
               }
             },
           ),
-
-          ListTile(
-            leading: const Icon(Icons.restore),
-            title: Text(l10n.settingsRestore),
+          _buildSettingsTile(
+            context,
+            icon: Icons.restore,
+            title: l10n.settingsRestore,
             onTap: () async {
               try {
                 final customerInfo = await Purchases.restorePurchases();
@@ -88,124 +113,115 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
 
-          const Divider(),
+          const SizedBox(height: 24),
 
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text(
-              l10n.settingsFamilyHeader,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-
-          // WIDGET DU CODE D'INVITATION
+          // --- SECTION: HOUSEHOLD ---
+          _buildSectionHeader(context, l10n.settingsFamilyHeader),
           StreamBuilder<DocumentSnapshot?>(
             stream: HouseholdService().getCurrentHouseholdStream(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData || snapshot.data == null)
+              if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox();
+              }
 
               final data = snapshot.data!.data() as Map<String, dynamic>;
               final String inviteCode = data['inviteCode'] ?? '...';
-              final String householdName =
-                  data['name'] ?? l10n.settingsDefaultHouse;
+              final String householdName = data['name'] ?? l10n.settingsDefaultHouse;
 
-              // LOGIQUE PREMIUM
               if (!isPro) {
-                // CAS 1 : UTILISATEUR GRATUIT (Verrouillé)
-                return ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.lock, color: Colors.grey),
-                  ),
-                  title: Text(l10n.settingsInviteMembers),
-                  subtitle: Text(l10n.settingsInvitePremiumHint),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                return _buildSettingsTile(
+                  context,
+                  icon: Icons.lock_outline,
+                  title: l10n.settingsInviteMembers,
+                  subtitle: l10n.settingsInvitePremiumHint,
+                  trailing: const Icon(Icons.lock, size: 16, color: Colors.grey),
                   onTap: () {
-                    // Ouvre le Paywall
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        // builder: (ctx) => const PaywallScreen(),
                         builder: (ctx) => const ModernPaywallScreen(),
                       ),
                     );
                   },
                 );
               } else {
-                // CAS 2 : UTILISATEUR PREMIUM (Code visible)
                 return Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.green[50], // Fond vert léger
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.home_filled, color: Colors.green),
-                          const SizedBox(width: 8),
-                          Text(
-                            householdName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                              fontSize: 16,
-                            ),
+                          CircleAvatar(
+                            backgroundColor: Colors.green[50],
+                            child: Icon(Icons.home, color: Colors.green[700]),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.settingsInviteCodeLabel,
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            inviteCode,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.copy, color: Colors.green),
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(text: inviteCode),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.settingsCodeCopied),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  householdName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              );
-                            },
+                                Text(
+                                  l10n.settingsInviteCodeLabel,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.settingsShareHint,
-                        style: TextStyle(fontSize: 12, color: Colors.black45),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              inviteCode,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy, size: 20),
+                              color: theme.primaryColor,
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: inviteCode));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(l10n.settingsCodeCopied)),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -214,28 +230,134 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
 
-          const Divider(),
-          ListTile(
-            leading: Icon(Icons.logout, color: Colors.red[700]),
-            title: Text(
-              l10n.settingsLogout,
-              style: TextStyle(color: Colors.red[700]),
-            ),
-            onTap: () async {
-              context.read<RevenueProvider>().setCustomerInfo(null);
+          const SizedBox(height: 24),
 
-              try {
-                final isAnonymous = await Purchases.isAnonymous;
-                if (!isAnonymous) {
-                  await Purchases.logOut();
-                }
-              } catch (e) {
-                print("Error logout RevenueCat: $e");
-              }
-              await FirebaseAuth.instance.signOut();
+          // --- SECTION: ABOUT ---
+          _buildSectionHeader(context, "À propos"), // TODO: Add to l10n
+          _buildSettingsTile(
+            context,
+            icon: Icons.info_outline,
+            title: "Version",
+            trailing: const Text(
+              "1.0.0",
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ),
+          _buildSettingsTile(
+            context,
+            icon: Icons.privacy_tip_outlined,
+            title: "Politique de confidentialité",
+            onTap: () {
+              // TODO: Open URL
             },
           ),
+          _buildSettingsTile(
+            context,
+            icon: Icons.description_outlined,
+            title: "Conditions d'utilisation",
+            onTap: () {
+              // TODO: Open URL
+            },
+          ),
+
+          const SizedBox(height: 32),
+
+          // --- LOGOUT ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                context.read<RevenueProvider>().setCustomerInfo(null);
+                try {
+                  final isAnonymous = await Purchases.isAnonymous;
+                  if (!isAnonymous) {
+                    await Purchases.logOut();
+                  }
+                } catch (e) {
+                  print("Error logout RevenueCat: $e");
+                }
+                await FirebaseAuth.instance.signOut();
+              },
+              icon: const Icon(Icons.logout, color: Colors.red),
+              label: Text(
+                l10n.settingsLogout,
+                style: const TextStyle(color: Colors.red),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.red.shade200),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 40),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey[600],
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    Color? iconColor,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: (iconColor ?? Colors.grey[700])!.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: iconColor ?? Colors.grey[700], size: 20),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+        subtitle: subtitle != null
+            ? Text(
+                subtitle,
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              )
+            : null,
+        trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+        onTap: onTap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

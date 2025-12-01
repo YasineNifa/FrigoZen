@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frigo_zen/services/inventory_service.dart';
+import 'package:frigo_zen/models/inventory_item.dart';
+import 'package:frigo_zen/models/batch.dart';
+import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/theme/app_theme.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class EditBatchesSheet extends StatelessWidget {
-  final String docId;
-  final String itemName;
-  final List<dynamic> batches;
-  final InventoryService service;
+  final InventoryItem item;
 
-  const EditBatchesSheet({
-    super.key,
-    required this.docId,
-    required this.itemName,
-    required this.batches,
-    required this.service,
-  });
+  const EditBatchesSheet({super.key, required this.item});
 
   String _formatDate(Timestamp ts) {
     final date = ts.toDate();
     return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
   }
 
-  void _pickDate(BuildContext context, Map<String, dynamic> batch) async {
-    final currentTs = batch['expirationDate'] as Timestamp;
-    final initialDate = currentTs.toDate();
+  void _pickDate(
+    BuildContext context,
+    Batch batch,
+    InventoryViewModel vm,
+  ) async {
+    final initialDate = batch.expirationDate;
     final l10n = AppLocalizations.of(context)!;
 
     final pickedDate = await showDatePicker(
@@ -46,13 +44,13 @@ class EditBatchesSheet extends StatelessWidget {
 
     if (pickedDate != null) {
       try {
-        await service.updateBatchDate(docId, batch, pickedDate);
+        await vm.updateBatchDate(item, batch, pickedDate);
         if (context.mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.editBatchesSuccess),
-              backgroundColor: Colors.green,
+              backgroundColor: AppTheme.statusSafe,
             ),
           );
         }
@@ -67,6 +65,41 @@ class EditBatchesSheet extends StatelessWidget {
         }
       }
     }
+  }
+
+  void _showRenameDialog(BuildContext context, InventoryViewModel vm) {
+    final controller = TextEditingController(text: item.name);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Renommer le produit"), // TODO: Add to l10n
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: "Nouveau nom", // TODO: Add to l10n
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Annuler"), // TODO: Add to l10n
+          ),
+          TextButton(
+            onPressed: () async {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                await vm.updateItemName(item, newName);
+                if (ctx.mounted) Navigator.pop(ctx);
+              }
+            },
+            child: const Text("Enregistrer"), // TODO: Add to l10n
+          ),
+        ],
+      ),
+    );
   }
 
   Color _getNutriScoreColor(String? score) {
@@ -147,6 +180,8 @@ class EditBatchesSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final vm = context.read<InventoryViewModel>();
+    final batches = item.batches;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -172,11 +207,22 @@ class EditBatchesSheet extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          Text(
-            l10n.editBatchesTitle(itemName),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.editBatchesTitle(item.name),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit, size: 20),
+                onPressed: () => _showRenameDialog(context, vm),
+                tooltip: "Renommer", // TODO: Add to l10n
+              ),
+            ],
           ),
           const SizedBox(height: 4),
           Text(
@@ -192,28 +238,28 @@ class EditBatchesSheet extends StatelessWidget {
                     itemCount: batches.length,
                     separatorBuilder: (ctx, i) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      final batch = batches[index] as Map<String, dynamic>;
+                      final batch = batches[index];
 
                       // --- RÉCUPÉRATION DES DONNÉES RICHES ---
-                      final int quantity = batch['quantity'] ?? 1;
-                      final Timestamp ts = batch['expirationDate'];
+                      final int quantity = batch.quantity;
+                      final DateTime ts = batch.expirationDate;
 
                       // Données spécifiques au lot (si disponibles)
-                      final String specificName =
-                          batch['name'] ??
-                          itemName; // Le nom précis (ex: Cheddar Tex Mex)
-                      final String brand = batch['brands'] ?? '';
-                      final String? batchImageUrl = batch['imageUrl'];
-                      final String? nutriscore = batch['nutriscore'];
-                      final String storeName = batch['storeName'] ?? '';
-                      final Timestamp? addedAtTs = batch['addedAt'];
+                      final String specificName = item
+                          .name; // Batch doesn't have name yet, use item name
+                      final String brand = ''; // Batch doesn't have brand yet
+                      final String? batchImageUrl = batch.imageUrl;
+                      final String? nutriscore =
+                          null; // Batch doesn't have nutriscore yet
+                      final String storeName = batch.storeName ?? '';
+                      final DateTime? addedAtTs = batch.addedAt;
                       final String addedDateStr = addedAtTs != null
-                          ? _formatDate(addedAtTs)
+                          ? _formatDate(Timestamp.fromDate(addedAtTs))
                           : '';
 
                       // Calcul Expiration
                       final now = DateTime.now();
-                      final date = ts.toDate();
+                      final date = ts;
                       final today = DateTime(now.year, now.month, now.day);
                       final expiryDay = DateTime(
                         date.year,
@@ -436,6 +482,7 @@ class EditBatchesSheet extends StatelessWidget {
                                                   color: Colors.blue[800],
                                                 ),
                                                 const SizedBox(width: 4),
+                                                // TODO la valeur destoreName contient le lien vers l'image
                                                 Text(
                                                   storeName,
                                                   style: TextStyle(
@@ -463,7 +510,8 @@ class EditBatchesSheet extends StatelessWidget {
                                     ),
                                     color: Theme.of(context).primaryColor,
                                     visualDensity: VisualDensity.compact,
-                                    onPressed: () => _pickDate(context, batch),
+                                    onPressed: () =>
+                                        _pickDate(context, batch, vm),
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
@@ -478,7 +526,7 @@ class EditBatchesSheet extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        _formatDate(ts),
+                                        _formatDate(Timestamp.fromDate(ts)),
                                         style: TextStyle(
                                           color: statusColor,
                                           fontWeight: FontWeight.bold,

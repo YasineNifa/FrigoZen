@@ -25,8 +25,44 @@ class _ValidationScreenState extends State<ValidationScreen> {
   void initState() {
     super.initState();
     _editableItems = widget.scannedItems.map((item) {
-      return Map<String, dynamic>.from(item);
+      final map = Map<String, dynamic>.from(item);
+      
+      // 1. Smart Parsing of Quantity/Name
+      // If quantity is default (1) and name looks like "4 Laits", parse it.
+      if ((map['quantity'] == null || map['quantity'] == 1) && map['name'] != null) {
+        final parsed = _parseQuantityAndName(map['name']);
+        if (parsed['quantity'] != 1) {
+          map['quantity'] = parsed['quantity'];
+          map['name'] = parsed['name'];
+        }
+      }
+
+      // 2. Prioritize OCR name (already in 'name') > canonicalName > cleanedName
+      // Only overwrite if OCR name is empty
+      if (map['name'] == null || map['name'].toString().trim().isEmpty) {
+        if (map['canonicalName'] != null && map['canonicalName'].toString().isNotEmpty) {
+          map['name'] = map['canonicalName'];
+        } else if (map['cleanedName'] != null && map['cleanedName'].toString().isNotEmpty) {
+          map['name'] = map['cleanedName'];
+        }
+      }
+      return map;
     }).toList();
+  }
+
+  Map<String, dynamic> _parseQuantityAndName(String rawName) {
+    // Regex to match "Quantity x Name" or "Quantity Name"
+    // ^(\d+)\s*[xX]?\s*(.*)$
+    final regex = RegExp(r'^(\d+)\s*[xX]?\s*(.*)$');
+    final match = regex.firstMatch(rawName);
+
+    if (match != null) {
+      final quantity = int.parse(match.group(1)!);
+      final name = match.group(2)!.trim();
+      return {'quantity': quantity, 'name': name};
+    }
+
+    return {'quantity': 1, 'name': rawName};
   }
 
   // --- 2. NOUVELLE FONCTION : SCANNER ET METTRE À JOUR ---

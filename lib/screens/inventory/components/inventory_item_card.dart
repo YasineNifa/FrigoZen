@@ -2,10 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/screens/inventory/edit_batches_sheet.dart';
-import 'package:frigo_zen/services/inventory_service.dart';
+
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
+
 class InventoryItemCard extends StatelessWidget {
   final InventoryItem item;
 
@@ -48,10 +49,23 @@ class InventoryItemCard extends StatelessWidget {
     }
 
     final List<Color> colors = [
-      Colors.red, Colors.pink, Colors.purple, Colors.deepPurple, Colors.indigo,
-      Colors.blue, Colors.lightBlue, Colors.cyan, Colors.teal, Colors.green,
-      Colors.lightGreen, Colors.lime, Colors.amber, Colors.orange, Colors.deepOrange,
-      Colors.brown, Colors.blueGrey,
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.blueGrey,
     ];
 
     final color = colors[name.hashCode.abs() % colors.length];
@@ -79,15 +93,20 @@ class InventoryItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.read<InventoryViewModel>();
-    
+
     // Logic extracted from original _buildItemCard
-    final String displayTitle = item.cleanedName.isNotEmpty ? item.cleanedName : item.name;
+    final String displayTitle = item.cleanedName.isNotEmpty
+        ? item.cleanedName
+        : item.name;
     final int itemQuantity = item.totalQuantity;
-    
+
     // Image logic: Item image > First batch image > null
     String? imageUrl = item.imageUrl;
     if ((imageUrl == null || imageUrl.isEmpty) && item.batches.isNotEmpty) {
-      imageUrl = item.batches.first.imageUrl; // Assuming Batch has imageUrl? Wait, Batch model doesn't have imageUrl in my previous step?
+      imageUrl = item
+          .batches
+          .first
+          .imageUrl; // Assuming Batch has imageUrl? Wait, Batch model doesn't have imageUrl in my previous step?
       // Let me check Batch model.
       // Ah, I might have missed adding imageUrl to Batch model in step 1.
       // The original code had: `batchesData[0]['imageUrl']`.
@@ -138,12 +157,7 @@ class InventoryItemCard extends StatelessWidget {
                 context: context,
                 backgroundColor: Colors.transparent,
                 isScrollControlled: true,
-                builder: (ctx) => EditBatchesSheet(
-                  docId: item.id,
-                  itemName: displayTitle,
-                  batches: item.batches.map((b) => b.toMap()).toList(), // Convert back to map for legacy sheet
-                  service: InventoryService(), // Temporary
-                ),
+                builder: (ctx) => EditBatchesSheet(item: item),
               );
             },
             child: Padding(
@@ -218,7 +232,7 @@ class InventoryItemCard extends StatelessWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove, size: 16),
-                          color: AppTheme.textNeutral,
+                          color: AppTheme.textDark,
                           onPressed: () => vm.decrementItemQuantity(item),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(minWidth: 32),

@@ -165,6 +165,39 @@ class InventoryViewModel extends ChangeNotifier {
 
     await updateItem(updatedItem);
   }
+
+  Future<void> updateBatchDate(InventoryItem item, Batch batch, DateTime newDate) async {
+    if (_householdId == null) return;
+
+    final List<Batch> updatedBatches = List.from(item.batches);
+    final index = updatedBatches.indexOf(batch);
+    
+    if (index != -1) {
+      updatedBatches[index] = batch.copyWith(expirationDate: newDate);
+      updatedBatches.sort((a, b) => a.expirationDate.compareTo(b.expirationDate));
+
+      final updatedItem = item.copyWith(
+        batches: updatedBatches,
+        earliestExpirationDate: updatedBatches.first.expirationDate,
+      );
+
+      await updateItem(updatedItem);
+    }
+  }
+
+  Future<void> updateItemName(InventoryItem item, String newName) async {
+    if (_householdId == null) return;
+    
+    // We update both name and cleanedName to the new value
+    // Canonical name remains as is unless we want to re-normalize, 
+    // but usually manual rename overrides everything.
+    final updatedItem = item.copyWith(
+      name: newName,
+      cleanedName: newName,
+    );
+
+    await updateItem(updatedItem);
+  }
   
   bool doesItemExist(String canonicalName) {
     return _items.any((item) => item.canonicalName == canonicalName);

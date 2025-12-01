@@ -16,6 +16,9 @@ const EXPIRATION_CHECK_TOPIC = "daily-expiration-check";
 const vertexAI = new VertexAI({project: PROJECT_ID, location: LOCATION});
 const generativeModel = vertexAI.getGenerativeModel({
   model: "gemini-2.0-flash-lite",
+  generationConfig: {
+    temperature: 0.3,
+  },
 });
 
 /**
@@ -30,7 +33,7 @@ async function getImageUrlFromUnsplash(
     return null;
   }
   try {
-    const enhancedQuery = `${searchQuery} food photography cooked meal closeup`;
+    const enhancedQuery = `${searchQuery} food`;
     const response = await axios.get("https://api.unsplash.com/search/photos", {
       params: {
         query: enhancedQuery,
@@ -236,29 +239,31 @@ export const generateRecipes = onCall(
     try {
       const targetLang = language || "en";
       const prompt = `
-        Tu es un Chef étoilé au Guide Michelin.
-        Ton objectif : Créer des recettes DÉLICIEUSES et
-        RÉALISTES pour éviter le gaspillage.
+        Tu es un Chef de cuisine familiale expérimenté et créatif.
+        Ton objectif : Créer des recettes DÉLICIEUSES, SIMPLES et
+        RÉALISTES pour éviter le gaspillage au quotidien.
 
         Inventaire utilisateur : ${JSON.stringify(inventory)}
 
         RÈGLES STRICTES :
-        1. **Réalisme :** Ne propose QUE des recettes qui existent vraiment.
-        Pas d'inventions bizarres.
+        1. **Réalisme :** Ne propose QUE des recettes
+        qui existent vraiment et sont faisables à la maison.
         2. **Cohérence :** Ne mélange pas des ingrédients incompatibles.
-        3. **Simplicité :** Si les ingrédients manquent, propose
-        une recette classique et liste ce qui manque.
+        3. **Simplicité :** Privilégie des recettes avec
+        peu d'ingrédients manquants.
         4. **Priorité :** Utilise les produits qui expirent bientôt.
         5. **LANGUE :** Génère le titre, la description et les
         instructions EXCLUSIVEMENT en **${targetLang}**.
 
-        Génère 10 recettes.
+        Génère 5 recettes variées.
         Pour chaque recette, JSON :
         - title: Titre appétissant (en ${targetLang})
         - description: Description courte (en ${targetLang})
-        - imageSearchQuery: Une phrase descriptive en ANGLAIS
-        pour chercher une photo sur Unsplash (ex: "delicious
-        creamy chicken pasta on a plate restaurant style")
+        - imageSearchQuery: Mots-clés VISUELS en ANGLAIS pour
+        trouver la photo du plat.
+          Doit décrire le plat fini 
+          (ex: "spaghetti carbonara plate", "chocolate cake slice").
+          Pas de phrases complexes, juste des mots-clés.
         - usedItems: Liste des ingrédients utilisés
         - missingItems: Liste des ingrédients manquants
         - instructions: Liste des étapes (en ${targetLang})
