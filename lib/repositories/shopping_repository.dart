@@ -8,15 +8,15 @@ class ShoppingRepository {
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _getShoppingCollection(
-      String userId) {
+      String householdId) {
     return _firestore
-        .collection('users')
-        .doc(userId)
+        .collection('households')
+        .doc(householdId)
         .collection('shopping_list');
   }
 
-  Stream<List<ShoppingItem>> getShoppingListStream(String userId) {
-    return _getShoppingCollection(userId)
+  Stream<List<ShoppingItem>> getShoppingListStream(String householdId) {
+    return _getShoppingCollection(householdId)
         .orderBy('createdAt', descending: false)
         .snapshots()
         .map((snapshot) {
@@ -26,15 +26,15 @@ class ShoppingRepository {
     });
   }
 
-  Future<void> addShoppingItem(String userId, ShoppingItem item) async {
-    await _getShoppingCollection(userId).add(item.toMap());
+  Future<void> addShoppingItem(String householdId, ShoppingItem item) async {
+    await _getShoppingCollection(householdId).add(item.toMap());
   }
 
-  Future<void> updateShoppingItem(String userId, ShoppingItem item) async {
-    await _getShoppingCollection(userId).doc(item.id).update(item.toMap());
+  Future<void> updateShoppingItem(String householdId, ShoppingItem item) async {
+    await _getShoppingCollection(householdId).doc(item.id).update(item.toMap());
   }
 
-  Future<void> deleteShoppingItem(String userId, String itemId) async {
-    await _getShoppingCollection(userId).doc(itemId).delete();
+  Future<void> deleteShoppingItem(String householdId, String itemId) async {
+    await _getShoppingCollection(householdId).doc(itemId).delete();
   }
 }
