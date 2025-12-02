@@ -5,6 +5,8 @@ import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+import 'package:frigo_zen/repositories/recipe_repository.dart';
+import 'package:frigo_zen/viewmodels/recipes_view_model.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -13,6 +15,7 @@ void setupLocator() {
   locator.registerLazySingleton<InventoryRepository>(() => InventoryRepository());
   locator.registerLazySingleton<ShoppingRepository>(() => ShoppingRepository());
   locator.registerLazySingleton<HouseholdRepository>(() => HouseholdRepository());
+  locator.registerLazySingleton<RecipeRepository>(() => RecipeRepository());
 
   // Services
   locator.registerLazySingleton<RevenueProvider>(() => RevenueProvider());
@@ -27,6 +30,11 @@ void setupLocator() {
     () => ShoppingViewModel(
       shoppingRepository: locator<ShoppingRepository>(),
       inventoryRepository: locator<InventoryRepository>(),
+    ),
+  );
+  locator.registerFactory<RecipesViewModel>(
+    () => RecipesViewModel(
+      repository: locator<RecipeRepository>(),
     ),
   );
 }

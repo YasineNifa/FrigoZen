@@ -5,31 +5,71 @@ import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/screens/core/navigation_controller.dart';
 
-class RecipeDetailScreen extends StatefulWidget {
-  final dynamic recipeData;
+import 'package:frigo_zen/models/recipe.dart';
+import 'package:frigo_zen/locator.dart';
+import 'package:frigo_zen/repositories/recipe_repository.dart';
 
-  const RecipeDetailScreen({super.key, required this.recipeData});
+class RecipeDetailScreen extends StatefulWidget {
+  final Map<String, dynamic>? recipeData;
+  final Recipe? recipe;
+
+  const RecipeDetailScreen({
+    super.key,
+    this.recipeData,
+    this.recipe,
+  }) : assert(recipeData != null || recipe != null, 'Either recipeData or recipe must be provided');
 
   @override
   State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  final _recipeService = RecipeService();
+  final _favoritesService = RecipeService(); // Renamed for clarity
+  final _apiRepository = locator<RecipeRepository>();
+  
+  Recipe? _fullRecipe;
+  bool _isLoadingDetails = false;
   bool _isFavorite = false;
   String? _favoriteDocId;
 
   @override
   void initState() {
     super.initState();
+    _fullRecipe = widget.recipe;
     _checkIfFavorite();
+    _fetchFullDetailsIfNeeded();
+  }
+
+  Future<void> _fetchFullDetailsIfNeeded() async {
+    // If we have a recipe object but it lacks instructions (likely from category filter), fetch full details
+    if (_fullRecipe != null && _fullRecipe!.instructions.isEmpty && _fullRecipe!.id.isNotEmpty) {
+      setState(() {
+        _isLoadingDetails = true;
+      });
+
+      try {
+        final fullDetails = await _apiRepository.getRecipeById(_fullRecipe!.id);
+        if (fullDetails != null && mounted) {
+          setState(() {
+            _fullRecipe = fullDetails;
+          });
+        }
+      } catch (e) {
+        // print("Error fetching full details: $e");
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoadingDetails = false;
+          });
+        }
+      }
+    }
   }
 
   void _checkIfFavorite() async {
-    final recipe = Map<String, dynamic>.from(widget.recipeData);
-    final title = recipe['title'];
+    final title = _fullRecipe?.title ?? widget.recipeData?['title'];
     if (title != null) {
-      final docId = await _recipeService.getFavoriteDocId(title);
+      final docId = await _favoritesService.getFavoriteDocId(title);
       if (mounted) {
         setState(() {
           _isFavorite = docId != null;
@@ -40,8 +80,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   void _toggleFavorite() async {
-    final recipe = Map<String, dynamic>.from(widget.recipeData);
     final l10n = AppLocalizations.of(context)!;
+    final Map<String, dynamic> recipeMap = _fullRecipe?.toMap() ?? widget.recipeData!;
 
     // Optimistic UI update (update icon immediately)
     setState(() {
@@ -51,7 +91,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     try {
       if (_isFavorite) {
         // SAVE
-        await _recipeService.saveRecipe(recipe);
+        await _favoritesService.saveRecipe(recipeMap);
         // Re-fetch ID
         _checkIfFavorite();
         if (mounted) {
@@ -62,7 +102,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       } else {
         // REMOVE
         if (_favoriteDocId != null) {
-          await _recipeService.removeRecipe(_favoriteDocId!);
+          await _favoritesService.removeRecipe(_favoriteDocId!);
           if (mounted) {
             ScaffoldMessenger.of(
               context,
@@ -84,10 +124,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   }
 
-
-
   void _addMissingItemsToShoppingList(List<dynamic> missingItems) async {
-    final l10n = AppLocalizations.of(context)!;
     final vm = context.read<ShoppingViewModel>();
     
     // Extract names
@@ -143,13 +180,26 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final recipe = Map<String, dynamic>.from(widget.recipeData);
-    final String title = recipe['title'] ?? l10n.recipeDetailUntitled;
-    final String description = recipe['description'] ?? '';
-    final String? imageUrl = recipe['imageUrl'];
-    final List<dynamic> usedItems = recipe['usedItems'] ?? [];
-    final List<dynamic> missingItems = recipe['missingItems'] ?? [];
-    final List<dynamic> instructions = recipe['instructions'] ?? [];
+    
+    // Use _fullRecipe if available, otherwise fallback to widget.recipeData
+    final String title = _fullRecipe?.title ?? widget.recipeData?['title'] ?? l10n.recipeDetailUntitled;
+    final String description = _fullRecipe?.category ?? widget.recipeData?['description'] ?? ''; 
+    final String? imageUrl = _fullRecipe?.imageUrl ?? widget.recipeData?['imageUrl'];
+    
+    // Smart Recipe Data
+    final List<dynamic> usedItems = widget.recipeData?['usedItems'] ?? [];
+    final List<dynamic> missingItems = widget.recipeData?['missingItems'] ?? [];
+    
+    // API Recipe Data
+    final List<Map<String, String>> apiIngredients = _fullRecipe?.ingredients ?? [];
+    
+    // Instructions
+    List<dynamic> instructions = [];
+    if (_fullRecipe != null) {
+      instructions = _fullRecipe!.instructions.split(RegExp(r'\r\n|\r|\n')).where((s) => s.trim().isNotEmpty).toList();
+    } else {
+      instructions = widget.recipeData?['instructions'] ?? [];
+    }
 
     return Scaffold(
       body: CustomScrollView(
@@ -162,7 +212,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               Container(
                 margin: const EdgeInsets.only(right: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
@@ -203,40 +253,55 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      description.isEmpty
-                          ? l10n.recipeDetailNoDesc
-                          : description,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[700],
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Ingrédients Possédés
-                    _buildIngredientsSection(
-                      context,
-                      l10n.recipeDetailFridge,
-                      usedItems,
-                      true,
-                    ),
-
-                      if (missingItems.isNotEmpty) ...[
-                        const SizedBox(height: 24),
-                        // Ingrédients Manquants
-                        _buildIngredientsSection(
-                          context,
-                          l10n.recipeDetailToBuy,
-                          missingItems,
-                          false,
+                    if (_isLoadingDetails)
+                      const Center(child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: CircularProgressIndicator(),
+                      ))
+                    else ...[
+                      if (description.isNotEmpty)
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                          height: 1.4,
                         ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // --- INGREDIENTS SECTION ---
+                      if (_fullRecipe != null) ...[
+                        // API Recipe View (Single List)
+                        Text(
+                          "Ingrédients",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...apiIngredients.map((ing) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.circle, size: 8, color: Colors.green),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text("${ing['measure']} ${ing['name']}", style: const TextStyle(fontSize: 16))),
+                            ],
+                          ),
+                        )),
                         const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            onPressed: () => _addMissingItemsToShoppingList(missingItems),
+                            onPressed: () {
+                               // Add all ingredients to shopping list
+                               final names = apiIngredients.map((e) => e['name']!).toList();
+                               _addMissingItemsToShoppingList(names);
+                            },
                             icon: const Icon(Icons.add_shopping_cart),
                             label: const Text("Ajouter à la liste de courses"),
                             style: OutlinedButton.styleFrom(
@@ -249,24 +314,62 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             ),
                           ),
                         ),
+                      ] else ...[
+                        // Smart Recipe View (Fridge + Missing)
+                        // Ingrédients Possédés
+                        _buildIngredientsSection(
+                          context,
+                          l10n.recipeDetailFridge,
+                          usedItems,
+                          true,
+                        ),
+
+                        if (missingItems.isNotEmpty) ...[
+                          const SizedBox(height: 24),
+                          // Ingrédients Manquants
+                          _buildIngredientsSection(
+                            context,
+                            l10n.recipeDetailToBuy,
+                            missingItems,
+                            false,
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => _addMissingItemsToShoppingList(missingItems),
+                              icon: const Icon(Icons.add_shopping_cart),
+                              label: const Text("Ajouter à la liste de courses"),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Theme.of(context).primaryColor,
+                                side: BorderSide(color: Theme.of(context).primaryColor),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
 
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
-                    // Instructions
-                    Text(
-                      l10n.recipeDetailPreparation,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                        letterSpacing: 1.2,
+                      // Instructions
+                      Text(
+                        l10n.recipeDetailPreparation,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          letterSpacing: 1.2,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    for (int i = 0; i < instructions.length; i++)
-                      _buildInstructionStep(i + 1, instructions[i]),
-                    const SizedBox(height: 30),
+                      const SizedBox(height: 16),
+                      for (int i = 0; i < instructions.length; i++)
+                        _buildInstructionStep(i + 1, instructions[i]),
+                      const SizedBox(height: 30),
+                    ],
                   ],
                 ),
               ),
@@ -339,15 +442,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     final quantity = item['quantity'] ?? '';
     final isExpiring = item['isExpiringSoon'] == true;
 
-    final primaryColor =
-        Colors.green; // Or Theme.of(context).primaryColor if you pass context
+
 
     Color bgColor = isOwned
-        ? const Color(0xFF6B9C5F).withOpacity(0.1)
+        ? const Color(0xFF6B9C5F).withValues(alpha: 0.1)
         : Colors.orange[50]!;
     Color textColor = isOwned ? const Color(0xFF6B9C5F) : Colors.orange[800]!;
     Color borderColor = isOwned
-        ? const Color(0xFF6B9C5F).withOpacity(0.3)
+        ? const Color(0xFF6B9C5F).withValues(alpha: 0.3)
         : Colors.orange[200]!;
 
     if (isOwned && isExpiring) {

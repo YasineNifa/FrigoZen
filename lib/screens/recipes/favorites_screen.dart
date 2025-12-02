@@ -8,8 +8,8 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/screens/paywall/paywall_screen.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
-class FavoritesScreen extends StatelessWidget {
-  const FavoritesScreen({super.key});
+class FavoritesTab extends StatelessWidget {
+  const FavoritesTab({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +17,9 @@ class FavoritesScreen extends StatelessWidget {
     final isPro = context.watch<RevenueProvider>().isPro;
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(title: Text(l10n.favoritesTitle)),
-      body: isPro
-          ? _buildFavoritesList(context, recipeService)
-          : _buildLockedState(context),
-    );
+    return isPro
+        ? _buildFavoritesList(context, recipeService)
+        : _buildLockedState(context);
   }
 
   Widget _buildFavoritesList(

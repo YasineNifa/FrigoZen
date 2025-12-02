@@ -17,6 +17,39 @@ samples, guidance on mobile development, and a full API reference.
 
 
 
+
+
+Based on the current state of the app and the "Premium" features we've hinted at, here are my recommendations for the next steps:
+
+1. Recipe Discovery Hub (New Feature) 🍳
+Currently, we only have "Favorites" and AI suggestions based on inventory. We could build a proper Recipes Tab where users can:
+
+Search for recipes (e.g., "Pasta", "Vegan").
+Filter by difficulty, time, or dietary preferences.
+Save to Favorites (already implemented).
+This aligns with the "Chef IA" promise.
+2. Shopping List Polish (Improvement) 🛒
+The shopping list is functional but basic. We could improve it by:
+
+Grouping by Category: Show "Produce", "Dairy", etc., headers (the data is there, just not the UI).
+Smart Merging: Fix the "Move to Inventory" logic to merge with existing items instead of creating duplicates.
+Sharing: Add a button to share the list as text.
+3. Expiry Notifications (Improvement) 🔔
+The AuthGate sets up notifications, but we aren't scheduling them yet. We could:
+
+Schedule Local Notifications when an item is 2 days away from expiring.
+Add a settings toggle for these alerts.
+This aligns with "Alertes Cloud" / Anti-waste.
+4. Dietary Preferences (Settings) ⚙️
+Add a section in Settings to define:
+
+Diet: Vegetarian, Vegan, Gluten-Free, etc.
+Allergies: Peanuts, Shellfish, etc.
+These would then be used by the AI when generating recipes.
+Which one would you like to tackle next? (Or do you have something else in mind?)
+
+
+
 # TODO:
 - Donner la possibilité à l'utilisateur de changer la date péremption
 - Traduction

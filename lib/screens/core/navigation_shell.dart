@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/inventory/inventory_screen.dart';
 import 'package:frigo_zen/screens/settings/settings_screen.dart';
 import 'package:frigo_zen/screens/shopping/shopping_screen.dart';
-import 'package:frigo_zen/screens/recipes/favorites_screen.dart';
+import 'package:frigo_zen/screens/recipes/recipes_screen.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/screens/dashboard/dashboard_screen.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +25,7 @@ class _NavigationShellState extends State<NavigationShell> {
     const DashboardScreen(),
     const InventoryScreen(),
     const ShoppingScreen(),
-    const FavoritesScreen(),
+    const RecipesScreen(),
     const SettingsScreen(),
   ];
 
@@ -64,9 +64,9 @@ class _NavigationShellState extends State<NavigationShell> {
             label: l10n.shoppingListTab,
           ),
           NavigationDestination(
-            icon: Icon(Icons.favorite_border),
-            selectedIcon: Icon(Icons.favorite),
-            label: l10n.favoritesTab,
+            icon: Icon(Icons.restaurant_menu_outlined),
+            selectedIcon: Icon(Icons.restaurant_menu),
+            label: "Recettes", // TODO: Localize
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
