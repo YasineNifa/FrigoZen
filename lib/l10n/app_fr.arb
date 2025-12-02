@@ -166,5 +166,29 @@
   "editBatchesExpiredPrefix": "PÉRIMÉ LE",
   "editBatchesExpiresPrefix": "Expire le",
   "editBatchesSuccess": "Date mise à jour avec succès ! ✅",
-  "editBatchesError": "Erreur : {error}"
+  "editBatchesError": "Erreur : {error}",
+  "@_MEAL_PLANNER_SCREEN": {},
+  "mealPlannerTitle": "Mon Semainier",
+  "mealPlannerGenerateList": "Générer la liste de courses",
+  "mealPlannerLunch": "Déjeuner ☀️",
+  "mealPlannerDinner": "Dîner 🌙",
+  "mealPlannerAddMeal": "Ajouter un repas",
+  "mealPlannerEditMeal": "Modifier le repas",
+  "mealPlannerMealNameLabel": "Nom du repas",
+  "mealPlannerMealNameHint": "Ex: Pâtes carbo",
+  "mealPlannerIngredientsLabel": "Ingrédients (séparés par des virgules)",
+  "mealPlannerIngredientsHint": "Ex: Pâtes, Lardons, Crème, Oeufs",
+  "mealPlannerCancel": "Annuler",
+  "mealPlannerModify": "Modifier",
+  "mealPlannerAdd": "Ajouter",
+  "mealPlannerAnalyzing": "Analyse de l'inventaire et génération de la liste... ⏳",
+  "mealPlannerAddedIngredients": "{count} ingrédients ajoutés à la liste !",
+  "@mealPlannerAddedIngredients": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mealPlannerViewList": "VOIR",
+  "paywallBenefitSmartListTitle": "Liste Intelligente",
+  "paywallBenefitSmartListDesc": "Génération automatique et intelligente."
 }

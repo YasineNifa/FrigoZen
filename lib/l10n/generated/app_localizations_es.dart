@@ -516,4 +516,63 @@ class AppLocalizationsEs extends AppLocalizations {
   String editBatchesError(String error) {
     return 'Error: $error';
   }
+
+  @override
+  String get mealPlannerTitle => 'Mi Planificador de Comidas';
+
+  @override
+  String get mealPlannerGenerateList => 'Generar lista de compras';
+
+  @override
+  String get mealPlannerLunch => 'Almuerzo ☀️';
+
+  @override
+  String get mealPlannerDinner => 'Cena 🌙';
+
+  @override
+  String get mealPlannerAddMeal => 'Añadir una comida';
+
+  @override
+  String get mealPlannerEditMeal => 'Editar comida';
+
+  @override
+  String get mealPlannerMealNameLabel => 'Nombre de la comida';
+
+  @override
+  String get mealPlannerMealNameHint => 'Ej: Pasta Carbonara';
+
+  @override
+  String get mealPlannerIngredientsLabel =>
+      'Ingredientes (separados por comas)';
+
+  @override
+  String get mealPlannerIngredientsHint => 'Ej: Pasta, Tocino, Crema, Huevos';
+
+  @override
+  String get mealPlannerCancel => 'Cancelar';
+
+  @override
+  String get mealPlannerModify => 'Modificar';
+
+  @override
+  String get mealPlannerAdd => 'Añadir';
+
+  @override
+  String get mealPlannerAnalyzing =>
+      'Analizando inventario y generando lista... ⏳';
+
+  @override
+  String mealPlannerAddedIngredients(int count) {
+    return '¡$count ingredientes añadidos a la lista!';
+  }
+
+  @override
+  String get mealPlannerViewList => 'VER';
+
+  @override
+  String get paywallBenefitSmartListTitle => 'Lista Inteligente';
+
+  @override
+  String get paywallBenefitSmartListDesc =>
+      'Generación automática e inteligente.';
 }

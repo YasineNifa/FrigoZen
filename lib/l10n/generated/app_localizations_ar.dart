@@ -510,4 +510,61 @@ class AppLocalizationsAr extends AppLocalizations {
   String editBatchesError(String error) {
     return 'خطأ: $error';
   }
+
+  @override
+  String get mealPlannerTitle => 'مخطط الوجبات';
+
+  @override
+  String get mealPlannerGenerateList => 'إنشاء قائمة التسوق';
+
+  @override
+  String get mealPlannerLunch => 'الغداء ☀️';
+
+  @override
+  String get mealPlannerDinner => 'العشاء 🌙';
+
+  @override
+  String get mealPlannerAddMeal => 'إضافة وجبة';
+
+  @override
+  String get mealPlannerEditMeal => 'تعديل الوجبة';
+
+  @override
+  String get mealPlannerMealNameLabel => 'اسم الوجبة';
+
+  @override
+  String get mealPlannerMealNameHint => 'مثال: معكرونة كاربونارا';
+
+  @override
+  String get mealPlannerIngredientsLabel => 'المكونات (مفصولة بفواصل)';
+
+  @override
+  String get mealPlannerIngredientsHint =>
+      'مثال: معكرونة، لحم مقدد، كريمة، بيض';
+
+  @override
+  String get mealPlannerCancel => 'إلغاء';
+
+  @override
+  String get mealPlannerModify => 'تعديل';
+
+  @override
+  String get mealPlannerAdd => 'إضافة';
+
+  @override
+  String get mealPlannerAnalyzing => 'جاري تحليل المخزون وإنشاء القائمة... ⏳';
+
+  @override
+  String mealPlannerAddedIngredients(int count) {
+    return 'تمت إضافة $count مكونات إلى القائمة!';
+  }
+
+  @override
+  String get mealPlannerViewList => 'عرض';
+
+  @override
+  String get paywallBenefitSmartListTitle => 'قائمة ذكية';
+
+  @override
+  String get paywallBenefitSmartListDesc => 'إنشاء تلقائي وذكي.';
 }

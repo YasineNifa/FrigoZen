@@ -43,12 +43,13 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<MealPlannerViewModel>();
     final mealsForDay = vm.meals.where((m) => isSameDay(m.date, _selectedDate)).toList();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
 
 
       appBar: AppBar(
-        title: const Text("Mon Semainier"),
+        title: Text(l10n.mealPlannerTitle),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -60,7 +61,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart_checkout, color: Colors.green),
-            tooltip: "Générer la liste de courses",
+            tooltip: l10n.mealPlannerGenerateList,
             onPressed: () => _generateShoppingList(context),
           ),
         ],
@@ -79,9 +80,9 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      _buildMealSection("Déjeuner ☀️", MealType.lunch, mealsForDay),
+                      _buildMealSection(l10n.mealPlannerLunch, MealType.lunch, mealsForDay),
                       const SizedBox(height: 24),
-                      _buildMealSection("Dîner 🌙", MealType.dinner, mealsForDay),
+                      _buildMealSection(l10n.mealPlannerDinner, MealType.dinner, mealsForDay),
                     ],
                   ),
           ),
@@ -203,7 +204,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    hasMeal ? meal.recipeName : "Ajouter un repas",
+                    hasMeal ? meal.recipeName : l10n.mealPlannerAddMeal,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: hasMeal ? FontWeight.w600 : FontWeight.normal,
@@ -225,6 +226,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
   }
 
   void _showAddMealDialog(MealType type, {MealPlan? existingMeal}) {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: existingMeal?.recipeName ?? '');
     final ingredientsController = TextEditingController(
       text: existingMeal?.ingredients.join(', ') ?? ''
@@ -233,26 +235,26 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(existingMeal != null ? "Modifier le repas" : "Ajouter un repas"),
+        title: Text(existingMeal != null ? l10n.mealPlannerEditMeal : l10n.mealPlannerAddMeal),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: "Nom du repas",
-                hintText: "Ex: Pâtes carbo",
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.mealPlannerMealNameLabel,
+                hintText: l10n.mealPlannerMealNameHint,
+                border: const OutlineInputBorder(),
               ),
               autofocus: true,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: ingredientsController,
-              decoration: const InputDecoration(
-                labelText: "Ingrédients (séparés par des virgules)",
-                hintText: "Ex: Pâtes, Lardons, Crème, Oeufs",
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.mealPlannerIngredientsLabel,
+                hintText: l10n.mealPlannerIngredientsHint,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
@@ -261,7 +263,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Annuler"),
+            child: Text(l10n.mealPlannerCancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -293,7 +295,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
               backgroundColor: const Color(0xFF6B9C5F),
               foregroundColor: Colors.white,
             ),
-            child: Text(existingMeal != null ? "Modifier" : "Ajouter"),
+            child: Text(existingMeal != null ? l10n.mealPlannerModify : l10n.mealPlannerAdd),
           ),
         ],
       ),
@@ -309,9 +311,10 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
     final shopping = context.read<ShoppingViewModel>();
     final planner = context.read<MealPlannerViewModel>();
     final isPro = context.read<RevenueProvider>().isPro;
+    final l10n = AppLocalizations.of(context)!;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Analyse de l'inventaire et génération de la liste... ⏳")),
+      SnackBar(content: Text(l10n.mealPlannerAnalyzing)),
     );
 
     try {
@@ -320,10 +323,10 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("$count ingrédients ajoutés à la liste !"),
+            content: Text(l10n.mealPlannerAddedIngredients(count)),
             backgroundColor: Colors.green,
             action: SnackBarAction(
-              label: "VOIR",
+              label: l10n.mealPlannerViewList,
               textColor: Colors.white,
               onPressed: () {
                  // Navigate to Shopping List (index 2)

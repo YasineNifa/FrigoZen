@@ -166,5 +166,29 @@
   "editBatchesExpiredPrefix": "انتهت صلاحيته في",
   "editBatchesExpiresPrefix": "تنتهي صلاحيته في",
   "editBatchesSuccess": "تم تحديث التاريخ بنجاح! ✅",
-  "editBatchesError": "خطأ: {error}"
+  "editBatchesError": "خطأ: {error}",
+  "@_MEAL_PLANNER_SCREEN": {},
+  "mealPlannerTitle": "مخطط الوجبات",
+  "mealPlannerGenerateList": "إنشاء قائمة التسوق",
+  "mealPlannerLunch": "الغداء ☀️",
+  "mealPlannerDinner": "العشاء 🌙",
+  "mealPlannerAddMeal": "إضافة وجبة",
+  "mealPlannerEditMeal": "تعديل الوجبة",
+  "mealPlannerMealNameLabel": "اسم الوجبة",
+  "mealPlannerMealNameHint": "مثال: معكرونة كاربونارا",
+  "mealPlannerIngredientsLabel": "المكونات (مفصولة بفواصل)",
+  "mealPlannerIngredientsHint": "مثال: معكرونة، لحم مقدد، كريمة، بيض",
+  "mealPlannerCancel": "إلغاء",
+  "mealPlannerModify": "تعديل",
+  "mealPlannerAdd": "إضافة",
+  "mealPlannerAnalyzing": "جاري تحليل المخزون وإنشاء القائمة... ⏳",
+  "mealPlannerAddedIngredients": "تمت إضافة {count} مكونات إلى القائمة!",
+  "@mealPlannerAddedIngredients": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mealPlannerViewList": "عرض",
+  "paywallBenefitSmartListTitle": "قائمة ذكية",
+  "paywallBenefitSmartListDesc": "إنشاء تلقائي وذكي."
 }

@@ -166,5 +166,29 @@
   "editBatchesExpiredPrefix": "ABGELAUFEN AM",
   "editBatchesExpiresPrefix": "Läuft ab am",
   "editBatchesSuccess": "Datum erfolgreich aktualisiert! ✅",
-  "editBatchesError": "Fehler: {error}"
+  "editBatchesError": "Fehler: {error}",
+  "@_MEAL_PLANNER_SCREEN": {},
+  "mealPlannerTitle": "Mein Essensplaner",
+  "mealPlannerGenerateList": "Einkaufsliste erstellen",
+  "mealPlannerLunch": "Mittagessen ☀️",
+  "mealPlannerDinner": "Abendessen 🌙",
+  "mealPlannerAddMeal": "Mahlzeit hinzufügen",
+  "mealPlannerEditMeal": "Mahlzeit bearbeiten",
+  "mealPlannerMealNameLabel": "Name der Mahlzeit",
+  "mealPlannerMealNameHint": "Bsp: Pasta Carbonara",
+  "mealPlannerIngredientsLabel": "Zutaten (durch Kommas getrennt)",
+  "mealPlannerIngredientsHint": "Bsp: Nudeln, Speck, Sahne, Eier",
+  "mealPlannerCancel": "Abbrechen",
+  "mealPlannerModify": "Ändern",
+  "mealPlannerAdd": "Hinzufügen",
+  "mealPlannerAnalyzing": "Inventar analysieren und Liste erstellen... ⏳",
+  "mealPlannerAddedIngredients": "{count} Zutaten zur Liste hinzugefügt!",
+  "@mealPlannerAddedIngredients": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mealPlannerViewList": "ANSEHEN",
+  "paywallBenefitSmartListTitle": "Intelligente Liste",
+  "paywallBenefitSmartListDesc": "Automatische und intelligente Erstellung."
 }

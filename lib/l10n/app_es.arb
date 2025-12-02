@@ -166,5 +166,29 @@
   "editBatchesExpiredPrefix": "CADUCADO EL",
   "editBatchesExpiresPrefix": "Caduca el",
   "editBatchesSuccess": "¡Fecha actualizada con éxito! ✅",
-  "editBatchesError": "Error: {error}"
+  "editBatchesError": "Error: {error}",
+  "@_MEAL_PLANNER_SCREEN": {},
+  "mealPlannerTitle": "Mi Planificador de Comidas",
+  "mealPlannerGenerateList": "Generar lista de compras",
+  "mealPlannerLunch": "Almuerzo ☀️",
+  "mealPlannerDinner": "Cena 🌙",
+  "mealPlannerAddMeal": "Añadir una comida",
+  "mealPlannerEditMeal": "Editar comida",
+  "mealPlannerMealNameLabel": "Nombre de la comida",
+  "mealPlannerMealNameHint": "Ej: Pasta Carbonara",
+  "mealPlannerIngredientsLabel": "Ingredientes (separados por comas)",
+  "mealPlannerIngredientsHint": "Ej: Pasta, Tocino, Crema, Huevos",
+  "mealPlannerCancel": "Cancelar",
+  "mealPlannerModify": "Modificar",
+  "mealPlannerAdd": "Añadir",
+  "mealPlannerAnalyzing": "Analizando inventario y generando lista... ⏳",
+  "mealPlannerAddedIngredients": "¡{count} ingredientes añadidos a la lista!",
+  "@mealPlannerAddedIngredients": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mealPlannerViewList": "VER",
+  "paywallBenefitSmartListTitle": "Lista Inteligente",
+  "paywallBenefitSmartListDesc": "Generación automática e inteligente."
 }

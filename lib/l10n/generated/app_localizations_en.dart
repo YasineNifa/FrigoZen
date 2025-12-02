@@ -512,4 +512,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String editBatchesError(String error) {
     return 'Error: $error';
   }
+
+  @override
+  String get mealPlannerTitle => 'My Meal Planner';
+
+  @override
+  String get mealPlannerGenerateList => 'Generate shopping list';
+
+  @override
+  String get mealPlannerLunch => 'Lunch ☀️';
+
+  @override
+  String get mealPlannerDinner => 'Dinner 🌙';
+
+  @override
+  String get mealPlannerAddMeal => 'Add a meal';
+
+  @override
+  String get mealPlannerEditMeal => 'Edit meal';
+
+  @override
+  String get mealPlannerMealNameLabel => 'Meal name';
+
+  @override
+  String get mealPlannerMealNameHint => 'Ex: Carbonara Pasta';
+
+  @override
+  String get mealPlannerIngredientsLabel => 'Ingredients (comma separated)';
+
+  @override
+  String get mealPlannerIngredientsHint => 'Ex: Pasta, Bacon, Cream, Eggs';
+
+  @override
+  String get mealPlannerCancel => 'Cancel';
+
+  @override
+  String get mealPlannerModify => 'Modify';
+
+  @override
+  String get mealPlannerAdd => 'Add';
+
+  @override
+  String get mealPlannerAnalyzing =>
+      'Analyzing inventory and generating list... ⏳';
+
+  @override
+  String mealPlannerAddedIngredients(int count) {
+    return '$count ingredients added to the list!';
+  }
+
+  @override
+  String get mealPlannerViewList => 'VIEW';
+
+  @override
+  String get paywallBenefitSmartListTitle => 'Smart List';
+
+  @override
+  String get paywallBenefitSmartListDesc => 'Automatic and smart generation.';
 }

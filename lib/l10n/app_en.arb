@@ -247,5 +247,29 @@
     "placeholders": {
       "error": { "type": "String" }
     }
-  }
+  },
+  "@_MEAL_PLANNER_SCREEN": {},
+  "mealPlannerTitle": "My Meal Planner",
+  "mealPlannerGenerateList": "Generate shopping list",
+  "mealPlannerLunch": "Lunch ☀️",
+  "mealPlannerDinner": "Dinner 🌙",
+  "mealPlannerAddMeal": "Add a meal",
+  "mealPlannerEditMeal": "Edit meal",
+  "mealPlannerMealNameLabel": "Meal name",
+  "mealPlannerMealNameHint": "Ex: Carbonara Pasta",
+  "mealPlannerIngredientsLabel": "Ingredients (comma separated)",
+  "mealPlannerIngredientsHint": "Ex: Pasta, Bacon, Cream, Eggs",
+  "mealPlannerCancel": "Cancel",
+  "mealPlannerModify": "Modify",
+  "mealPlannerAdd": "Add",
+  "mealPlannerAnalyzing": "Analyzing inventory and generating list... ⏳",
+  "mealPlannerAddedIngredients": "{count} ingredients added to the list!",
+  "@mealPlannerAddedIngredients": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mealPlannerViewList": "VIEW",
+  "paywallBenefitSmartListTitle": "Smart List",
+  "paywallBenefitSmartListDesc": "Automatic and smart generation."
 }

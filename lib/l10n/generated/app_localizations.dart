@@ -1027,6 +1027,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error: {error}'**
   String editBatchesError(String error);
+
+  /// No description provided for @mealPlannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Meal Planner'**
+  String get mealPlannerTitle;
+
+  /// No description provided for @mealPlannerGenerateList.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate shopping list'**
+  String get mealPlannerGenerateList;
+
+  /// No description provided for @mealPlannerLunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch ☀️'**
+  String get mealPlannerLunch;
+
+  /// No description provided for @mealPlannerDinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner 🌙'**
+  String get mealPlannerDinner;
+
+  /// No description provided for @mealPlannerAddMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a meal'**
+  String get mealPlannerAddMeal;
+
+  /// No description provided for @mealPlannerEditMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit meal'**
+  String get mealPlannerEditMeal;
+
+  /// No description provided for @mealPlannerMealNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal name'**
+  String get mealPlannerMealNameLabel;
+
+  /// No description provided for @mealPlannerMealNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: Carbonara Pasta'**
+  String get mealPlannerMealNameHint;
+
+  /// No description provided for @mealPlannerIngredientsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients (comma separated)'**
+  String get mealPlannerIngredientsLabel;
+
+  /// No description provided for @mealPlannerIngredientsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: Pasta, Bacon, Cream, Eggs'**
+  String get mealPlannerIngredientsHint;
+
+  /// No description provided for @mealPlannerCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get mealPlannerCancel;
+
+  /// No description provided for @mealPlannerModify.
+  ///
+  /// In en, this message translates to:
+  /// **'Modify'**
+  String get mealPlannerModify;
+
+  /// No description provided for @mealPlannerAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get mealPlannerAdd;
+
+  /// No description provided for @mealPlannerAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing inventory and generating list... ⏳'**
+  String get mealPlannerAnalyzing;
+
+  /// No description provided for @mealPlannerAddedIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ingredients added to the list!'**
+  String mealPlannerAddedIngredients(int count);
+
+  /// No description provided for @mealPlannerViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'VIEW'**
+  String get mealPlannerViewList;
+
+  /// No description provided for @paywallBenefitSmartListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart List'**
+  String get paywallBenefitSmartListTitle;
+
+  /// No description provided for @paywallBenefitSmartListDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic and smart generation.'**
+  String get paywallBenefitSmartListDesc;
 }
 
 class _AppLocalizationsDelegate

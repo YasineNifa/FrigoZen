@@ -273,8 +273,8 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                               ),
                               _buildFeatureItem(
                                 Icons.shopping_cart_checkout,
-                                "Liste Intelligente",
-                                "Génération automatique et intelligente.",
+                                l10n.paywallBenefitSmartListTitle,
+                                l10n.paywallBenefitSmartListDesc,
                               ),
                               _buildFeatureItem(
                                 Icons.insights,
