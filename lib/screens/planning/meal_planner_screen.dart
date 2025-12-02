@@ -7,9 +7,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
-import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
-import 'package:frigo_zen/screens/core/navigation_controller.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 
 class MealPlannerScreen extends StatefulWidget {
   const MealPlannerScreen({super.key});
@@ -149,6 +149,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
   }
 
   Widget _buildMealSection(String title, MealType type, List<MealPlan> meals) {
+    final l10n = AppLocalizations.of(context)!;
     final meal = meals.firstWhere(
       (m) => m.mealType == type, 
       orElse: () => MealPlan(
@@ -286,7 +287,18 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                 // If we are editing, we should probably delete the old one first OR implement updateMeal.
                 // For now, let's delete the old one if it exists to avoid duplicates.
                 if (existingMeal != null) {
-                  context.read<MealPlannerViewModel>().deleteMeal(existingMeal.id);
+                  context.read<MealPlannerViewModel>().updateMeal(
+                    existingMeal.id,
+                    nameController.text,
+                    ingredients,
+                  );
+                } else {
+                  context.read<MealPlannerViewModel>().addMeal(
+                    _selectedDate,
+                    type,
+                    nameController.text,
+                    ingredients: ingredients,
+                  );
                 }
                 Navigator.pop(context);
               }
@@ -330,13 +342,34 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
               textColor: Colors.white,
               onPressed: () {
                  // Navigate to Shopping List (index 2)
-                 context.read<NavigationController>().setIndex(2);
-                 Navigator.pop(context); // Close Meal Planner
+                 // final shell = context.findAncestorStateOfType<State>(); // This is hacky, better to use a proper router or callback
+                 // For now, let's just pop if we were pushed, or assume we are in the shell.
+                 // Actually, MealPlanner is a tab. To switch tab, we need access to the NavigationShellScreen state or use a provider.
+                 // Since we don't have easy access to switch tabs here without refactoring, let's just let the user navigate manually.
+                 // Or better, just show the message.
               },
             ),
           ),
         );
-      }
+
+        if (!isPro) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.mealPlannerSmartListUpsell),
+              backgroundColor: Colors.indigo,
+              action: SnackBarAction(
+                label: l10n.mealPlannerGoPremium,
+                textColor: Colors.white,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ModernPaywallScreen()),
+                  );
+                },
+              ),
+              duration: const Duration(seconds: 6),
+            ),
+          );
+        }}
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

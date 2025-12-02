@@ -575,4 +575,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get paywallBenefitSmartListDesc =>
       'Generación automática e inteligente.';
+
+  @override
+  String get mealPlannerSmartListUpsell =>
+      '¡Pásate a Pro para la generación inteligente con IA!';
+
+  @override
+  String get mealPlannerGoPremium => 'Hazte Premium';
+
+  @override
+  String get paywallTermsButton => 'Términos y Condiciones';
 }

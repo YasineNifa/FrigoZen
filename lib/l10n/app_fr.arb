@@ -190,5 +190,8 @@
   },
   "mealPlannerViewList": "VOIR",
   "paywallBenefitSmartListTitle": "Liste Intelligente",
-  "paywallBenefitSmartListDesc": "Génération automatique et intelligente."
+  "paywallBenefitSmartListDesc": "Génération automatique et intelligente.",
+  "mealPlannerSmartListUpsell": "Passez Pro pour la génération intelligente par IA !",
+  "mealPlannerGoPremium": "Devenir Premium",
+  "paywallTermsButton": "Conditions Générales"
 }

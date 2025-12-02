@@ -4,6 +4,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ModernPaywallScreen extends StatefulWidget {
   const ModernPaywallScreen({super.key});
@@ -347,13 +348,15 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                                   ),
                                   Text("•", style: TextStyle(color: _textGrey)),
                                   TextButton(
-                                    onPressed: () {}, // TODO: Add terms link
+                                    onPressed: () async {
+                                      const url = 'https://frigozen.com/terms';
+                                      if (await canLaunchUrl(Uri.parse(url))) {
+                                        await launchUrl(Uri.parse(url));
+                                      }
+                                    },
                                     child: Text(
-                                      "Conditions",
-                                      style: TextStyle(
-                                        color: _textGrey,
-                                        fontSize: 12,
-                                      ),
+                                      l10n.paywallTermsButton,
+                                      style: const TextStyle(color: Colors.white70, fontSize: 12),
                                     ),
                                   ),
                                 ],

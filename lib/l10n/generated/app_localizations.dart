@@ -1135,6 +1135,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Automatic and smart generation.'**
   String get paywallBenefitSmartListDesc;
+
+  /// No description provided for @mealPlannerSmartListUpsell.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Pro for AI-powered smart list generation!'**
+  String get mealPlannerSmartListUpsell;
+
+  /// No description provided for @mealPlannerGoPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Premium'**
+  String get mealPlannerGoPremium;
+
+  /// No description provided for @paywallTermsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get paywallTermsButton;
 }
 
 class _AppLocalizationsDelegate

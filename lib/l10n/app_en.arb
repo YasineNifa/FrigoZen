@@ -271,5 +271,8 @@
   },
   "mealPlannerViewList": "VIEW",
   "paywallBenefitSmartListTitle": "Smart List",
-  "paywallBenefitSmartListDesc": "Automatic and smart generation."
+  "paywallBenefitSmartListDesc": "Automatic and smart generation.",
+  "mealPlannerSmartListUpsell": "Upgrade to Pro for AI-powered smart list generation!",
+  "mealPlannerGoPremium": "Go Premium",
+  "paywallTermsButton": "Terms & Conditions"
 }

@@ -567,4 +567,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paywallBenefitSmartListDesc => 'إنشاء تلقائي وذكي.';
+
+  @override
+  String get mealPlannerSmartListUpsell =>
+      'انتقل إلى Pro لإنشاء قائمة ذكية بالذكاء الاصطناعي!';
+
+  @override
+  String get mealPlannerGoPremium => 'كن Premium';
+
+  @override
+  String get paywallTermsButton => 'الشروط والأحكام';
 }

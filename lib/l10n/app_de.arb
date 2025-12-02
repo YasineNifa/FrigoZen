@@ -190,5 +190,8 @@
   },
   "mealPlannerViewList": "ANSEHEN",
   "paywallBenefitSmartListTitle": "Intelligente Liste",
-  "paywallBenefitSmartListDesc": "Automatische und intelligente Erstellung."
+  "paywallBenefitSmartListDesc": "Automatische und intelligente Erstellung.",
+  "mealPlannerSmartListUpsell": "Wechseln Sie zu Pro für intelligente KI-Generierung!",
+  "mealPlannerGoPremium": "Premium werden",
+  "paywallTermsButton": "AGB"
 }

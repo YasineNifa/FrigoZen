@@ -21,6 +21,26 @@ class MealPlan {
     this.ingredients = const [],
   });
 
+  MealPlan copyWith({
+    String? id,
+    DateTime? date,
+    MealType? mealType,
+    String? recipeId,
+    String? recipeName,
+    String? householdId,
+    List<String>? ingredients,
+  }) {
+    return MealPlan(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      mealType: mealType ?? this.mealType,
+      recipeId: recipeId ?? this.recipeId,
+      recipeName: recipeName ?? this.recipeName,
+      householdId: householdId ?? this.householdId,
+      ingredients: ingredients ?? this.ingredients,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'date': Timestamp.fromDate(date),

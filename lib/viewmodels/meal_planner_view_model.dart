@@ -73,6 +73,39 @@ class MealPlannerViewModel extends ChangeNotifier {
         .delete();
   }
 
+  Future<void> updateMeal(String mealId, String newName, List<String> newIngredients) async {
+    if (_householdId == null) return;
+
+    // Optimistic update
+    final index = _meals.indexWhere((m) => m.id == mealId);
+    if (index != -1) {
+      final oldMeal = _meals[index];
+      final updatedMeal = oldMeal.copyWith(
+        recipeName: newName,
+        ingredients: newIngredients,
+      );
+      _meals[index] = updatedMeal;
+      notifyListeners();
+
+      try {
+        await _firestore
+            .collection('households')
+            .doc(_householdId)
+            .collection('meal_plans')
+            .doc(mealId)
+            .update({
+          'recipeName': newName,
+          'ingredients': newIngredients,
+        });
+      } catch (e) {
+        // Revert on failure
+        _meals[index] = oldMeal;
+        notifyListeners();
+        rethrow;
+      }
+    }
+  }
+
   Future<int> generateShoppingList(InventoryViewModel inventory, ShoppingViewModel shopping, {bool isPro = false}) async {
     if (_meals.isEmpty) return 0;
 

@@ -190,5 +190,8 @@
   },
   "mealPlannerViewList": "عرض",
   "paywallBenefitSmartListTitle": "قائمة ذكية",
-  "paywallBenefitSmartListDesc": "إنشاء تلقائي وذكي."
+  "paywallBenefitSmartListDesc": "إنشاء تلقائي وذكي.",
+  "mealPlannerSmartListUpsell": "انتقل إلى Pro لإنشاء قائمة ذكية بالذكاء الاصطناعي!",
+  "mealPlannerGoPremium": "كن Premium",
+  "paywallTermsButton": "الشروط والأحكام"
 }
