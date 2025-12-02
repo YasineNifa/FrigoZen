@@ -11,6 +11,8 @@ import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/screens/dashboard/components/premium_stats_wrapper.dart';
+import 'package:frigo_zen/screens/planning/meal_planner_screen.dart';
+import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -71,16 +73,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Expanded(
                     child: _buildActionButton(
                       context,
-                      icon: Icons.add_circle_outline,
-                      label: "Ajouter un produit",
+                      icon: Icons.qr_code_scanner,
+                      label: "Scanner",
                       color: Theme.of(context).primaryColor,
                       onTap: () => _showImageSourceDialog(context),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildActionButton(
+                      context,
+                      icon: Icons.add,
+                      label: "Ajouter",
+                      color: Theme.of(context).primaryColor,
+                      onTap: () => _showAddDialog(context),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
+            // Meal Planner Card (New)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MealPlannerScreen()),
+                ),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [const Color(0xFF6B9C5F), const Color(0xFF8BC34A)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6B9C5F).withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.calendar_month, color: Colors.white, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Mon Semainier",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "Planifiez vos repas de la semaine",
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             const ExpiringSoonCarousel(),
             const SizedBox(height: 8),
             const SizedBox(height: 8),
@@ -123,8 +201,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+
+
+  void _showAddDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const AddItemSheet(),
+    );
+  }
+
   Widget _buildActionButton(
     BuildContext context, {
+// ...
     required IconData icon,
     required String label,
     required Color color,

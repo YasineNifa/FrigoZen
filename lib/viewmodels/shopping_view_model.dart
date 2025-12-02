@@ -71,11 +71,8 @@ class ShoppingViewModel extends ChangeNotifier {
     await _shoppingRepository.updateShoppingItem(_householdId!, updatedItem);
   }
 
-  Future<void> addItemByName(String name) async {
-    if (_householdId == null || name.trim().isEmpty) return;
-
-    _isLoading = true;
-    notifyListeners();
+  Future<ShoppingItem?> resolveItemName(String name) async {
+    if (name.trim().isEmpty) return null;
 
     try {
       final functions = FirebaseFunctions.instanceFor(region: "us-central1");
@@ -85,7 +82,7 @@ class ShoppingViewModel extends ChangeNotifier {
         result.data['item'],
       );
 
-      final newItem = ShoppingItem(
+      return ShoppingItem(
         id: '',
         name: itemData['name'] ?? name,
         cleanedName: itemData['cleanedName'] ?? name,
@@ -97,8 +94,34 @@ class ShoppingViewModel extends ChangeNotifier {
         isChecked: false,
         createdAt: DateTime.now(),
       );
+    } catch (e) {
+      print("Error resolving smart item: $e");
+      // Fallback to basic item if resolution fails
+      return ShoppingItem(
+        id: '',
+        name: name,
+        cleanedName: name.toLowerCase().trim(),
+        canonicalName: name.toLowerCase().trim(),
+        quantity: 1,
+        isChecked: false,
+        createdAt: DateTime.now(),
+        category: 'Other',
+        location: 'Frigo',
+      );
+    }
+  }
 
-      await addItem(newItem);
+  Future<void> addItemByName(String name) async {
+    if (_householdId == null || name.trim().isEmpty) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final newItem = await resolveItemName(name);
+      if (newItem != null) {
+        await addItem(newItem);
+      }
     } catch (e) {
       print("Error adding smart item: $e");
       rethrow;

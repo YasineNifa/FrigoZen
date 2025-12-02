@@ -14,6 +14,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/screens/core/navigation_controller.dart';
+import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
 
 // 2. Créer un "Provider" simple pour notre inventaire
 // Il tiendra juste la liste des noms d'articles de l'inventaire.
@@ -60,7 +61,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => InventoryProvider()),
         ChangeNotifierProvider(create: (context) => locator<InventoryViewModel>()),
         ChangeNotifierProvider(create: (context) => locator<ShoppingViewModel>()),
-
+        ChangeNotifierProvider(create: (context) => MealPlannerViewModel()),
         ChangeNotifierProvider(create: (context) => NavigationController()),
         ChangeNotifierProvider.value(value: revenueProvider),
       ],
