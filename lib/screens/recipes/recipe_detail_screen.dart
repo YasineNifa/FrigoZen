@@ -129,47 +129,62 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     
     // Extract names
     final names = missingItems.map((item) {
-      final map = Map<String, dynamic>.from(item);
-      return map['name'] as String;
-    }).toList();
+      if (item is String) {
+        return item;
+      } else if (item is Map) {
+        return item['name'] as String;
+      }
+      return '';
+    }).where((name) => name.isNotEmpty).toList();
 
     if (names.isEmpty) return;
 
-    // Show processing message immediately
+    // Show loading dialog
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Ajout des ingrédients en cours... ⏳"),
-          duration: Duration(seconds: 1),
-        ),
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
       );
     }
 
     try {
       await vm.addItemsFromRecipe(names);
+      
       if (mounted) {
-        // Clear previous snackbar
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        // Close loading dialog
+        Navigator.of(context).pop();
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Ingrédients ajoutés à la liste !"),
-            backgroundColor: Colors.green,
-            action: SnackBarAction(
-              label: "VOIR",
-              textColor: Colors.white,
-              onPressed: () {
-                // Navigate to Shopping List (index 2)
-                context.read<NavigationController>().setIndex(2);
-                // Pop back to the main shell (remove recipe detail from stack)
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-            ),
+        // Show success dialog
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Ingrédients ajoutés !"),
+            content: const Text("Les ingrédients ont été ajoutés à votre liste de courses. Voulez-vous la voir maintenant ?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Rester ici"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  // Navigate to Shopping List (index 2)
+                  context.read<NavigationController>().setIndex(2);
+                  // Pop back to the main shell (remove recipe detail from stack)
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                child: const Text("Voir la liste"),
+              ),
+            ],
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        // Close loading dialog if open
+        Navigator.of(context).pop();
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur lors de l'ajout : $e")),
         );
