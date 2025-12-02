@@ -41,11 +41,21 @@ class CustomizedInputField extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
-            onPressed: onAdd,
+            icon: isAdding 
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(Icons.add_shopping_cart, color: Colors.white),
+            onPressed: isAdding ? null : onAdd,
             style: IconButton.styleFrom(
               backgroundColor: Colors.green[400],
               foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.green[200], // Lighter green when disabled
             ),
           ),
         ],

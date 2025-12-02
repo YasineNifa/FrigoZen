@@ -23,6 +23,7 @@ class ShoppingScreen extends StatefulWidget {
 class _ShoppingScreenState extends State<ShoppingScreen> {
   final _textController = TextEditingController();
   late ConfettiController _confettiController;
+  bool _isLocalLoading = false;
 
   @override
   void initState() {
@@ -63,21 +64,44 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
     FocusScope.of(context).unfocus();
 
+    // Set loading state manually since we are doing logic outside VM first
+    setState(() {
+      // We can't easily set VM loading state from here without a method.
+      // But CustomizedInputField uses `vm.isLoading`.
+      // We should probably add `setLoading(true)` to VM or handle it locally.
+      // Since `CustomizedInputField` takes `isAdding`, we can pass a local state if we want,
+      // OR we can use a local boolean `_isAdding` and pass `vm.isLoading || _isAdding`.
+    });
+    
+    // Actually, let's use a local state variable `_isLocalLoading`
+    // I need to add it to the state class first.
+    // Wait, I can't add a variable in this replace block easily if it's far away.
+    // I'll assume I can add it or I'll just use the VM's `addItemByName` which sets loading.
+    // But `resolveItemName` does NOT set loading.
+    
+    // Plan:
+    // 1. Add `bool _isLocalLoading = false;` to state.
+    // 2. Wrap logic in try/finally setting this bool.
+    // 3. Update `CustomizedInputField` to use `vm.isLoading || _isLocalLoading`.
+    
+    // Since I can't do all in one block if they are far apart, I will do it in steps.
+    // This block is for `_addItem`. I will assume `_isLocalLoading` exists.
+    
+    setState(() {
+      _isLocalLoading = true;
+    });
+
     try {
-      // 1. Resolve item name to get canonical data
-      // We use a temporary loading state or just await (UI might freeze slightly but it's a network call)
-      // Ideally we should show a loading indicator.
-      // Since `_addItem` is async, we can show a loading indicator if we want.
-      // But for now, let's just await.
-      
+      // 1. Resolve item name
       final resolvedItem = await vm.resolveItemName(itemName);
       
+      if (!mounted) return;
+
       if (resolvedItem != null) {
         final canonicalName = resolvedItem.canonicalName;
         final nameToCheck = resolvedItem.name;
 
-        // 2. Check for duplicates in inventory using canonical name
-        
+        // 2. Check for duplicates
         final existsInInventory = inventoryVM.items.any((item) {
             final match = item.canonicalName.toLowerCase() == canonicalName.toLowerCase() ||
                           item.name.toLowerCase() == nameToCheck.toLowerCase();
@@ -85,7 +109,11 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         });
         
         if (existsInInventory) {
-          if (!mounted) return;
+          // Hide loading before dialog
+          setState(() {
+             _isLocalLoading = false;
+          });
+
           final shouldAdd = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
@@ -108,14 +136,15 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             _textController.clear();
             return;
           }
+          
+          // Show loading again if proceeding
+          setState(() {
+             _isLocalLoading = true;
+          });
         }
         
-        // 3. Add the resolved item directly (optimization: we already resolved it)
-        // But `addItemByName` resolves it again. 
-        // We can call `vm.addItem(resolvedItem)` directly to save a call!
         await vm.addItem(resolvedItem);
       } else {
-        // Fallback if resolution failed (shouldn't happen often as resolveItemName returns fallback)
         await vm.addItemByName(itemName);
       }
 
@@ -129,6 +158,12 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
             backgroundColor: Colors.red[700],
           ),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLocalLoading = false;
+        });
       }
     }
   }
@@ -160,7 +195,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 ),
                 child: CustomizedInputField(
                   textController: _textController,
-                  isAdding: vm.isLoading, // Use VM loading state
+                  isAdding: vm.isLoading || _isLocalLoading, // Use VM loading state or local state
                   onAdd: _addItem,
                 ),
               ),
@@ -220,8 +255,36 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text("Courses terminées ! 🎉"),
-                        content: Text(l10n.shoppingMovedSuccess(checkedCount)),
+                        contentPadding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "Courses terminées ! 🎉",
+                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    l10n.shoppingMovedSuccess(checkedCount),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
