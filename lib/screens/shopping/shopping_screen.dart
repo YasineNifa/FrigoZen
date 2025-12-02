@@ -66,7 +66,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         final nameToCheck = resolvedItem.name;
 
         // 2. Check for duplicates in inventory using canonical name
-        print("DEBUG: Checking for duplicates for '$nameToCheck' (canonical: '$canonicalName')");
+
         
         final existsInInventory = inventoryVM.items.any((item) {
             final match = item.canonicalName.toLowerCase() == canonicalName.toLowerCase() ||
@@ -134,10 +134,23 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       appBar: const ShoppingHeader(),
       body: Column(
         children: [
-          CustomizedInputField(
-            textController: _textController,
-            isAdding: vm.isLoading, // Use VM loading state
-            onAdd: _addItem,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: CustomizedInputField(
+              textController: _textController,
+              isAdding: vm.isLoading, // Use VM loading state
+              onAdd: _addItem,
+            ),
           ),
           const Expanded(
             child: ShoppingListView(),

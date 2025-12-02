@@ -37,4 +37,17 @@ class ShoppingRepository {
   Future<void> deleteShoppingItem(String householdId, String itemId) async {
     await _getShoppingCollection(householdId).doc(itemId).delete();
   }
+
+  Future<void> clearShoppingList(String householdId) async {
+    final collection = _getShoppingCollection(householdId);
+    final snapshot = await collection.get();
+    
+    if (snapshot.docs.isEmpty) return;
+
+    final batch = _firestore.batch();
+    for (var doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
+  }
 }

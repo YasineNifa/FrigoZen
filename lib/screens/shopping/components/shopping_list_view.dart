@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/components/shopping_list_empty_state.dart';
+import 'package:frigo_zen/models/shopping_item.dart';
 import 'package:frigo_zen/components/shopping_list_tile.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:provider/provider.dart';
-import 'package:frigo_zen/theme/app_theme.dart';
+
 
 class ShoppingListView extends StatelessWidget {
   const ShoppingListView({super.key});
@@ -20,20 +21,53 @@ class ShoppingListView extends StatelessWidget {
           return const ShoppingListEmptyState();
         }
 
+        // Group items by category
+        final groupedItems = <String, List<ShoppingItem>>{};
+        for (var item in vm.items) {
+          final category = item.category.isNotEmpty ? item.category : 'Autres';
+          if (!groupedItems.containsKey(category)) {
+            groupedItems[category] = [];
+          }
+          groupedItems[category]!.add(item);
+        }
+
+        // Sort categories (optional: define a specific order)
+        final sortedCategories = groupedItems.keys.toList()..sort();
+
         return ListView.builder(
-          itemCount: vm.items.length,
-          itemBuilder: (context, index) {
-            final item = vm.items[index];
-            return ShoppinglistTile(
-              title: item.name,
-              id: item.id ?? '',
-              isChecked: item.isChecked,
-              onToggle: () => vm.toggleItemChecked(item),
-              onDelete: () {
-                if (item.id != null) {
-                  vm.deleteItem(item.id!);
-                }
-              },
+          padding: const EdgeInsets.only(bottom: 100), // Space for FAB
+          itemCount: sortedCategories.length,
+          itemBuilder: (context, sectionIndex) {
+            final category = sortedCategories[sectionIndex];
+            final items = groupedItems[category]!;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                  child: Text(
+                    category.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[600],
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+                ...items.map((item) => Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      child: ShoppinglistTile(
+                        item: item, // Pass the whole item
+                        onToggle: () => vm.toggleItemChecked(item),
+                        onDelete: () {
+                          vm.deleteItem(item.id);
+                        },
+                      ),
+                    )),
+              ],
             );
           },
         );

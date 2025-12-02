@@ -65,6 +65,18 @@ class ShoppingViewModel extends ChangeNotifier {
     await _shoppingRepository.deleteShoppingItem(_householdId!, itemId);
   }
 
+  Future<void> clearList() async {
+    if (_householdId == null) return;
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _shoppingRepository.clearShoppingList(_householdId!);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> toggleItemChecked(ShoppingItem item) async {
     if (_householdId == null) return;
     final updatedItem = item.copyWith(isChecked: !item.isChecked);

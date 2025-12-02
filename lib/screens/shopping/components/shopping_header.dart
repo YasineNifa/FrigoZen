@@ -24,6 +24,37 @@ class ShoppingHeader extends StatelessWidget implements PreferredSizeWidget {
             tooltip: allChecked ? "Tout décocher" : "Tout cocher",
             onPressed: () => vm.toggleSelectAll(),
           ),
+        if (vm.items.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            tooltip: "Tout supprimer",
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Tout supprimer ?"),
+                  content: const Text(
+                      "Voulez-vous vraiment vider votre liste de courses ? Cette action est irréversible."),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Annuler"),
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        vm.clearList();
+                      },
+                      child: const Text("Supprimer"),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
       ],
     );
   }
