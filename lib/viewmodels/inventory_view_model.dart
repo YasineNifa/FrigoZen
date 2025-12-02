@@ -285,6 +285,28 @@ class InventoryViewModel extends ChangeNotifier {
 
     await updateItem(updatedItem);
   }
+
+  Future<void> updateBatchDetails(InventoryItem item, Batch oldBatch, Batch newBatch) async {
+    if (_householdId == null) return;
+
+    final List<Batch> updatedBatches = List.from(item.batches);
+    final index = updatedBatches.indexOf(oldBatch);
+
+    if (index != -1) {
+      updatedBatches[index] = newBatch;
+      updatedBatches.sort((a, b) => a.expirationDate.compareTo(b.expirationDate));
+
+      final newTotalQuantity = updatedBatches.fold(0, (sum, b) => sum + b.quantity);
+
+      final updatedItem = item.copyWith(
+        totalQuantity: newTotalQuantity,
+        batches: updatedBatches,
+        earliestExpirationDate: updatedBatches.first.expirationDate,
+      );
+
+      await updateItem(updatedItem);
+    }
+  }
   
   bool doesItemExist(String canonicalName) {
     return _items.any((item) => item.canonicalName == canonicalName);

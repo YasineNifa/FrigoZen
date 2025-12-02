@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
-import 'package:frigo_zen/models/batch.dart';
+
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/components/initials_avatar.dart';
+import 'package:frigo_zen/screens/inventory/components/edit_batch_dialog.dart';
 
 class EditBatchesSheet extends StatelessWidget {
   final InventoryItem item;
@@ -18,55 +19,7 @@ class EditBatchesSheet extends StatelessWidget {
     return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
   }
 
-  void _pickDate(
-    BuildContext context,
-    Batch batch,
-    InventoryViewModel vm,
-  ) async {
-    final initialDate = batch.expirationDate;
-    final l10n = AppLocalizations.of(context)!;
 
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-      lastDate: DateTime.now().add(const Duration(days: 3650)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate != null) {
-      try {
-        await vm.updateBatchDate(item, batch, pickedDate);
-        if (context.mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.editBatchesSuccess),
-              backgroundColor: AppTheme.statusSafe,
-            ),
-          );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.editBatchesError(e.toString())),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
-  }
 
   void _showRenameDialog(BuildContext context, InventoryViewModel vm) {
     final controller = TextEditingController(text: item.name);
@@ -125,8 +78,19 @@ class EditBatchesSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final vm = context.read<InventoryViewModel>();
-    final batches = item.batches;
+    
+    return Consumer<InventoryViewModel>(
+      builder: (context, vm, child) {
+        // Find the latest version of the item
+        InventoryItem currentItem;
+        try {
+          currentItem = vm.items.firstWhere((i) => i.id == item.id);
+        } catch (e) {
+          // Item might have been deleted or not found, fallback to initial item
+          currentItem = item;
+        }
+
+        final batches = currentItem.batches;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -156,7 +120,7 @@ class EditBatchesSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  l10n.editBatchesTitle(item.name),
+                  l10n.editBatchesTitle(currentItem.name),
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -192,7 +156,7 @@ class EditBatchesSheet extends StatelessWidget {
                       // Données spécifiques au lot (si disponibles), sinon fallback sur l'item
                       final String specificName = (batch.name != null && batch.name!.isNotEmpty) 
                           ? batch.name! 
-                          : item.name;
+                          : currentItem.name;
                       final String brand = batch.brands ?? '';
                       final String? batchImageUrl = batch.imageUrl; // Already correct
                       final String? nutriscore = batch.nutriscore;
@@ -223,7 +187,7 @@ class EditBatchesSheet extends StatelessWidget {
                       // Determine name for initials (prefer cleanedName)
                       final String initialsName = (batch.cleanedName != null && batch.cleanedName!.isNotEmpty)
                           ? batch.cleanedName!
-                          : (item.cleanedName.isNotEmpty ? item.cleanedName : specificName);
+                          : (currentItem.cleanedName.isNotEmpty ? currentItem.cleanedName : specificName);
 
                       return Container(
                         decoration: BoxDecoration(
@@ -430,13 +394,49 @@ class EditBatchesSheet extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(
-                                      Icons.edit_calendar_outlined,
-                                    ),
-                                    color: Theme.of(context).primaryColor,
+                                    icon: const Icon(Icons.edit_outlined),
+                                    color: Colors.grey[600],
                                     visualDensity: VisualDensity.compact,
-                                    onPressed: () =>
-                                        _pickDate(context, batch, vm),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => EditBatchDialog(
+                                          batch: batch,
+                                          onSave: (updatedBatch) async {
+                                            try {
+                                              await vm.updateBatchDetails(
+                                                currentItem,
+                                                batch,
+                                                updatedBatch,
+                                              );
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        l10n.editBatchesSuccess),
+                                                    backgroundColor:
+                                                        AppTheme.statusSafe,
+                                                  ),
+                                                );
+                                              }
+                                            } catch (e) {
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        l10n.editBatchesError(
+                                                            e.toString())),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          },
+                                        ),
+                                      );
+                                    },
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
@@ -482,6 +482,8 @@ class EditBatchesSheet extends StatelessWidget {
           ),
         ],
       ),
+        );
+      },
     );
   }
 }
