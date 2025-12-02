@@ -150,22 +150,41 @@ class ShoppingViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // We process them sequentially for now to avoid overwhelming the Cloud Function
-      // or hitting rate limits. In the future, we could have a bulk Cloud Function.
-      for (final name in ingredientNames) {
-        try {
-          // We assume addItemByName handles its own errors/loading state locally,
-          // but we want to manage the overall loading state here.
-          // Since addItemByName sets _isLoading=true/false, we need to be careful.
-          // Ideally, we should refactor addItemByName to not touch _isLoading if called internally,
-          // or just accept the flicker.
-          // For simplicity, we'll just call it.
-          await addItemByName(name);
-        } catch (e) {
-          print("Failed to add ingredient $name: $e");
-          // Continue adding other items even if one fails
+      final List<ShoppingItem> itemsToAdd = [];
+      
+      // Resolve all items first
+      // We can do this in parallel for speed
+      final results = await Future.wait(
+        ingredientNames.map((name) => resolveItemName(name)),
+      );
+
+      for (var i = 0; i < results.length; i++) {
+        final item = results[i];
+        if (item != null) {
+          itemsToAdd.add(item);
+        } else {
+          // Fallback if resolution failed (shouldn't happen often)
+           itemsToAdd.add(ShoppingItem(
+            id: '',
+            name: ingredientNames[i],
+            cleanedName: ingredientNames[i].toLowerCase().trim(),
+            canonicalName: ingredientNames[i].toLowerCase().trim(),
+            quantity: 1,
+            isChecked: false,
+            createdAt: DateTime.now(),
+            category: 'Other',
+            location: 'Frigo',
+          ));
         }
       }
+
+      if (itemsToAdd.isNotEmpty) {
+        await _shoppingRepository.addShoppingItems(_householdId!, itemsToAdd);
+      }
+
+    } catch (e) {
+      print("Error adding ingredients from recipe: $e");
+      // We might want to rethrow or show error
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -187,13 +206,15 @@ class ShoppingViewModel extends ChangeNotifier {
     // I should probably add `updateShoppingItems` to Repository.
     // For this step, I will iterate.
     
+    final List<ShoppingItem> itemsToUpdate = [];
     for (var item in _items) {
       if (item.isChecked != newValue) {
-        await _shoppingRepository.updateShoppingItem(
-          _householdId!,
-          item.copyWith(isChecked: newValue),
-        );
+        itemsToUpdate.add(item.copyWith(isChecked: newValue));
       }
+    }
+
+    if (itemsToUpdate.isNotEmpty) {
+      await _shoppingRepository.updateShoppingItems(_householdId!, itemsToUpdate);
     }
   }
 
@@ -207,29 +228,10 @@ class ShoppingViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final List<String> itemIdsToDelete = [];
+
       for (var item in checkedItems) {
         // Create InventoryItem from ShoppingItem
-        // We need to check if it exists first? 
-        // The original logic used `upsertItemToInventory` which handled merging.
-        // My `InventoryRepository` has `addInventoryItem` and `updateInventoryItem`.
-        // It does NOT have upsert logic exposed directly that handles merging batches.
-        // I need to replicate that logic or add it to Repository.
-        // Since I already replicated batch logic in InventoryViewModel, I should probably reuse it?
-        // But I can't easily call InventoryViewModel methods here without dependency.
-        // I will implement the "add to inventory" logic here using the Repository.
-        
-        // 1. Check if item exists
-        // This requires querying by canonicalName. Repository doesn't expose that yet?
-        // I'll need to add `findItemByCanonicalName` to InventoryRepository or fetch all.
-        // Fetching all is expensive.
-        // For now, I will assume I can add it as a new item if I can't check, 
-        // OR I will rely on the fact that `InventoryRepository` might need an upsert method.
-        // Let's look at `InventoryRepository` again.
-        // It only has basic CRUD.
-        // I will implement a basic "add as new" for now, or "fetch and update".
-        // Since I don't want to overcomplicate this step, I will use `InventoryRepository` to add/update.
-        // But wait, `InventoryItem` structure is complex (batches).
-        // I'll create a new InventoryItem with one batch.
         
         // Logic:
         // 1. Create Batch
@@ -246,7 +248,6 @@ class ShoppingViewModel extends ChangeNotifier {
           brands: item.brands,
           imageUrl: item.imageUrl,
           nutriscore: item.nutriscore,
-          // images: item.images, // ShoppingItem doesn't have images map yet, only imageUrl
         );
         
         // 2. Create InventoryItem
@@ -264,14 +265,16 @@ class ShoppingViewModel extends ChangeNotifier {
           dvm: item.dvm ?? 7,
         );
 
-        // 3. Add to Inventory (Upsert)
+        // 3. Add to Inventory (Upsert) - Still sequential for now as InventoryRepo doesn't support batch upsert logic easily yet
         await _inventoryRepository.upsertInventoryItem(_householdId!, inventoryItem);
 
-        // 4. Remove from Shopping List
-        // item.id is non-nullable in ShoppingItem model? No, it's String.
-        // Wait, ShoppingItem definition: final String id;
-        // So it's never null.
-        await _shoppingRepository.deleteShoppingItem(_householdId!, item.id);
+        // 4. Collect ID for batch deletion
+        itemIdsToDelete.add(item.id);
+      }
+
+      // Batch delete from shopping list
+      if (itemIdsToDelete.isNotEmpty) {
+        await _shoppingRepository.deleteShoppingItems(_householdId!, itemIdsToDelete);
       }
     } catch (e) {
       print("Error moving items: $e");

@@ -50,4 +50,39 @@ class ShoppingRepository {
     }
     await batch.commit();
   }
+
+  Future<void> addShoppingItems(String householdId, List<ShoppingItem> items) async {
+    final batch = _firestore.batch();
+    final collection = _getShoppingCollection(householdId);
+    
+    for (var item in items) {
+      final docRef = collection.doc(); // Auto-generate ID if not provided or new
+      // Note: If item.id is empty, we generate one. If it has one, we use it?
+      // ShoppingItem usually has empty ID before adding.
+      // We should probably update the item with the ID?
+      // But here we just write.
+      batch.set(docRef, item.toMap());
+    }
+    await batch.commit();
+  }
+
+  Future<void> updateShoppingItems(String householdId, List<ShoppingItem> items) async {
+    final batch = _firestore.batch();
+    final collection = _getShoppingCollection(householdId);
+    
+    for (var item in items) {
+      batch.update(collection.doc(item.id), item.toMap());
+    }
+    await batch.commit();
+  }
+
+  Future<void> deleteShoppingItems(String householdId, List<String> itemIds) async {
+    final batch = _firestore.batch();
+    final collection = _getShoppingCollection(householdId);
+    
+    for (var id in itemIds) {
+      batch.delete(collection.doc(id));
+    }
+    await batch.commit();
+  }
 }
