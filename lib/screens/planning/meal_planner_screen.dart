@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
@@ -184,10 +185,10 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: hasMeal ? const Color(0xFF6B9C5F).withOpacity(0.1) : Colors.grey[100],
+              color: hasMeal ? const Color(0xFF6B9C5F).withValues(alpha: 0.1) : Colors.grey[100],
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: hasMeal ? const Color(0xFF6B9C5F).withOpacity(0.3) : Colors.grey[300]!,
+                color: hasMeal ? const Color(0xFF6B9C5F).withValues(alpha: 0.3) : Colors.grey[300]!,
               ),
             ),
             child: Row(
@@ -326,55 +327,110 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
     final isPro = context.read<RevenueProvider>().isPro;
     final l10n = AppLocalizations.of(context)!;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.mealPlannerAnalyzing)),
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     try {
       final count = await planner.generateShoppingList(inventory, shopping, isPro: isPro);
-      if (mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.mealPlannerAddedIngredients(count)),
-            backgroundColor: Colors.green,
-            action: SnackBarAction(
-              label: l10n.mealPlannerViewList,
-              textColor: Colors.white,
-              onPressed: () {
-                 // Navigate to Shopping List (index 2)
-                 context.read<NavigationController>().setIndex(2);
-                 // Since MealPlannerScreen is pushed on top of NavigationShell, we need to pop it
-                 // to reveal the NavigationShell which will now show the Shopping List.
-                 Navigator.of(context).pop();
-              },
-            ),
-          ),
-        );
+      
+      if (!mounted) return;
+      
+      // Close loading dialog
+      Navigator.of(context).pop();
 
-        // Only show upsell if items were added and user is not pro
-        if (!isPro && count > 0) {
-          // Delay slightly to let the first snackbar be seen/read?
-          // Or just queue it. ScaffoldMessenger queues by default.
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.mealPlannerSmartListUpsell),
-              backgroundColor: Colors.indigo,
-              action: SnackBarAction(
-                label: l10n.mealPlannerGoPremium,
-                textColor: Colors.white,
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ModernPaywallScreen()),
-                  );
-                },
+      if (count > 0) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(l10n.mealPlannerAddedIngredients(count)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Les ingrédients ont été ajoutés à votre liste de courses."),
+                  if (!isPro) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.indigo.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.indigo.withValues(alpha: 0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.mealPlannerSmartListUpsell,
+                            style: const TextStyle(fontSize: 13, color: Colors.indigo),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context); // Close dialog
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const ModernPaywallScreen()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.indigo,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              child: Text(l10n.mealPlannerGoPremium),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              duration: const Duration(seconds: 6),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                    // Navigate to Shopping List (index 2)
+                    context.read<NavigationController>().setIndex(2);
+                    // Pop back to the main shell
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(l10n.mealPlannerViewList),
+                ),
+              ],
             ),
           );
-        }}
+        } else {
+          // No items added (maybe already exist)
+           showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Aucun ingrédient ajouté"),
+              content: const Text("Tous les ingrédients nécessaires sont déjà dans votre liste ou votre inventaire."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+        }
     } catch (e) {
       if (mounted) {
+        // Close loading dialog
+        Navigator.of(context).pop();
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Erreur : $e")),
         );
