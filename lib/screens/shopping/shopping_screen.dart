@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:frigo_zen/components/input_field.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/screens/shopping/components/shopping_header.dart';
 import 'package:frigo_zen/screens/shopping/components/shopping_list_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
+import 'package:frigo_zen/screens/core/navigation_controller.dart';
 
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
@@ -34,6 +36,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
       final householdId = await HouseholdRepository().getHouseholdIdForUser(userId);
       if (householdId != null && mounted) {
         context.read<ShoppingViewModel>().init(householdId);
+        context.read<InventoryViewModel>().init(householdId);
       }
     }
   }
@@ -45,38 +48,43 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     final vm = context.read<ShoppingViewModel>();
     final l10n = AppLocalizations.of(context)!;
 
+    final inventoryVM = context.read<InventoryViewModel>();
+
     FocusScope.of(context).unfocus();
 
     try {
-      // Check for duplicates?
-      // The original code checked inventory for duplicates.
-      // Accessing InventoryProvider here is fine as it's just a check.
-      // But ideally logic should be in VM.
-      // For now, I'll keep the check here or move it to VM.
-      // Moving to VM is better but requires VM to know about InventoryProvider or Repository.
-      // I already injected InventoryRepository into ShoppingViewModel.
-      // So I can just call `vm.addItemByName(itemName)` and let it handle logic.
-      // But the duplicate check was against *Inventory*, asking user if they want to add anyway.
-      // That requires UI interaction (SnackBar with Action).
-      // So I should check here first.
-      
-      // Access InventoryViewModel to check existence (since InventoryProvider is being phased out/refactored)
-      // Or use InventoryProvider as it's still there.
-      // Let's use InventoryProvider for now as it holds the list of names efficiently.
-      
-      // Wait, I can't easily access InventoryProvider inside VM without passing it.
-      // So keeping the check here is pragmatic.
-      
-      // final inventory = context.read<InventoryProvider>();
-      // if (inventory.doesItemExist(itemName)) { ... }
-      
-      // However, `InventoryProvider` uses `_itemNames` which is updated by `InventoryScreen`.
-      // If user goes directly to ShoppingScreen, `InventoryProvider` might be empty!
-      // This is a flaw in the original design or my understanding.
-      // `InventoryScreen` updates `InventoryProvider` in `build`.
-      // If `InventoryScreen` hasn't been built, `InventoryProvider` is empty.
-      // So this check might be flaky.
-      // Assuming it works as before:
+      // Check for duplicates in inventory
+      final existsInInventory = inventoryVM.items.any((item) => 
+          item.name.toLowerCase() == itemName.toLowerCase() || 
+          item.cleanedName.toLowerCase() == itemName.toLowerCase() ||
+          item.canonicalName.toLowerCase() == itemName.toLowerCase()
+      );
+
+      if (existsInInventory) {
+        if (!mounted) return;
+        final shouldAdd = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Produit déjà en stock"),
+            content: Text("Vous avez déjà '$itemName' dans votre inventaire. Voulez-vous l'ajouter quand même à la liste de courses ?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Non"),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Oui, ajouter"),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldAdd != true) {
+          _textController.clear();
+          return;
+        }
+      }
       
       await vm.addItemByName(itemName);
       _textController.clear();
@@ -141,17 +149,32 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
               onPressed: vm.isLoading ? null : () async {
                 try {
                   await vm.moveCheckedItemsToInventory();
-                  if (mounted) {
-                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                  if (!context.mounted) return;
+                  
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Courses terminées !"),
                         content: Text(l10n.shoppingMovedSuccess(checkedCount)),
-                        backgroundColor: Colors.green[700],
-                        duration: const Duration(seconds: 2),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Rester ici"),
+                          ),
+                          FilledButton(
+                            onPressed: () {
+                              Navigator.pop(context); // Close dialog
+                              // Navigate to Inventory (index 1)
+                              context.read<NavigationController>().setIndex(1);
+                            },
+                            child: const Text("Voir l'inventaire"),
+                          ),
+                        ],
                       ),
                     );
-                  }
+
                 } catch (e) {
-                  if (mounted) {
+                  if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(l10n.shoppingMoveError(e.toString()))),
                     );
