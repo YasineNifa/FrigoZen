@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/screens/inventory/edit_batches_sheet.dart';
+import 'package:frigo_zen/components/initials_avatar.dart';
 
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
@@ -34,61 +35,7 @@ class InventoryItemCard extends StatelessWidget {
     }
   }
 
-  // Helper pour générer un avatar avec initiales et couleur unique
-  Widget _buildInitialsAvatar(String name) {
-    String initials = "";
-    if (name.isNotEmpty) {
-      final trimmed = name.trim();
-      if (trimmed.length >= 2) {
-        initials = trimmed.substring(0, 2).toUpperCase();
-      } else if (trimmed.isNotEmpty) {
-        initials = trimmed.substring(0, 1).toUpperCase();
-      } else {
-        initials = "?";
-      }
-    }
 
-    final List<Color> colors = [
-      Colors.red,
-      Colors.pink,
-      Colors.purple,
-      Colors.deepPurple,
-      Colors.indigo,
-      Colors.blue,
-      Colors.lightBlue,
-      Colors.cyan,
-      Colors.teal,
-      Colors.green,
-      Colors.lightGreen,
-      Colors.lime,
-      Colors.amber,
-      Colors.orange,
-      Colors.deepOrange,
-      Colors.brown,
-      Colors.blueGrey,
-    ];
-
-    final color = colors[name.hashCode.abs() % colors.length];
-
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(
-          initials,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,9 +115,9 @@ class InventoryItemCard extends StatelessWidget {
                                 imageUrl,
                                 fit: BoxFit.contain,
                                 errorBuilder: (ctx, error, stackTrace) =>
-                                    _buildInitialsAvatar(displayTitle),
+                                    InitialsAvatar(name: displayTitle),
                               )
-                            : _buildInitialsAvatar(displayTitle),
+                            : InitialsAvatar(name: displayTitle),
                       ),
                     ],
                   ),

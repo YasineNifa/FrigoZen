@@ -6,6 +6,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/components/initials_avatar.dart';
 
 class EditBatchesSheet extends StatelessWidget {
   final InventoryItem item;
@@ -119,63 +120,7 @@ class EditBatchesSheet extends StatelessWidget {
     }
   }
 
-  Widget _buildInitialsAvatar(String name) {
-    String initials = "";
-    if (name.isNotEmpty) {
-      final trimmed = name.trim();
-      if (trimmed.length >= 2) {
-        initials = trimmed.substring(0, 2).toUpperCase();
-      } else if (trimmed.isNotEmpty) {
-        initials = trimmed.substring(0, 1).toUpperCase();
-      } else {
-        initials = "?";
-      }
-    }
 
-    // 2. Générer une couleur unique basée sur le nom (Hashcode)
-    // On utilise une liste de couleurs "FrigoZen" douces
-    final List<Color> colors = [
-      Colors.red,
-      Colors.pink,
-      Colors.purple,
-      Colors.deepPurple,
-      Colors.indigo,
-      Colors.blue,
-      Colors.lightBlue,
-      Colors.cyan,
-      Colors.teal,
-      Colors.green,
-      Colors.lightGreen,
-      Colors.lime,
-      Colors.amber,
-      Colors.orange,
-      Colors.deepOrange,
-      Colors.brown,
-      Colors.blueGrey,
-    ];
-
-    // L'opérateur % assure qu'on reste toujours dans la limite de la liste
-    final color = colors[name.hashCode.abs() % colors.length];
-
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1), // Fond pastel
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(
-          initials,
-          style: TextStyle(
-            color: color, // Texte de la couleur vive
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -318,11 +263,11 @@ class EditBatchesSheet extends StatelessWidget {
                                             fit: BoxFit.contain,
                                             errorBuilder:
                                                 (ctx, error, stackTrace) =>
-                                                    _buildInitialsAvatar(
-                                                      initialsName,
+                                                    InitialsAvatar(
+                                                      name: initialsName,
                                                     ),
                                           )
-                                        : _buildInitialsAvatar(initialsName),
+                                        : InitialsAvatar(name: initialsName),
                                   ),
 
                                   // Le Badge Nutri-Score (En bas à droite)

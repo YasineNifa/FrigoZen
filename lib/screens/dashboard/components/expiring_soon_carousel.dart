@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:frigo_zen/components/initials_avatar.dart';
 
 class ExpiringSoonCarousel extends StatelessWidget {
   const ExpiringSoonCarousel({super.key});
@@ -67,20 +68,16 @@ class ExpiringSoonCarousel extends StatelessWidget {
                                 ? Image.network(
                                     item.displayImageUrl!,
                                     fit: BoxFit.contain,
-                                    errorBuilder: (c, o, s) => Container(
-                                      color: Colors.grey[200],
-                                      child: const Icon(
-                                        Icons.fastfood,
-                                        color: Colors.grey,
-                                      ),
+                                    errorBuilder: (c, o, s) => InitialsAvatar(
+                                      name: item.cleanedName.isNotEmpty
+                                          ? item.cleanedName
+                                          : item.name,
                                     ),
                                   )
-                                : Container(
-                                    color: Colors.grey[200],
-                                    child: const Icon(
-                                      Icons.fastfood,
-                                      color: Colors.grey,
-                                    ),
+                                : InitialsAvatar(
+                                    name: item.cleanedName.isNotEmpty
+                                        ? item.cleanedName
+                                        : item.name,
                                   ),
                           ),
                         ),
@@ -90,7 +87,7 @@ class ExpiringSoonCarousel extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                item.name,
+                                item.cleanedName.isNotEmpty ? item.cleanedName : item.name,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -125,4 +122,6 @@ class ExpiringSoonCarousel extends StatelessWidget {
       },
     );
   }
+
+
 }
