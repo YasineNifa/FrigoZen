@@ -272,6 +272,11 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                                 "Recettes sur-mesure et photos générées.",
                               ),
                               _buildFeatureItem(
+                                Icons.shopping_cart_checkout,
+                                "Liste Intelligente",
+                                "Génération automatique et intelligente.",
+                              ),
+                              _buildFeatureItem(
                                 Icons.insights,
                                 "Statistiques Avancées",
                                 "Analysez votre consommation et votre santé.",
