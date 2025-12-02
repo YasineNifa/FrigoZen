@@ -168,9 +168,9 @@ class InventoryItemCard extends StatelessWidget {
                                 imageUrl,
                                 fit: BoxFit.contain,
                                 errorBuilder: (ctx, error, stackTrace) =>
-                                    _buildInitialsAvatar(item.name),
+                                    _buildInitialsAvatar(displayTitle),
                               )
-                            : _buildInitialsAvatar(item.name),
+                            : _buildInitialsAvatar(displayTitle),
                       ),
                     ],
                   ),

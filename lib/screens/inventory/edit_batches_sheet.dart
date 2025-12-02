@@ -244,17 +244,16 @@ class EditBatchesSheet extends StatelessWidget {
                       final int quantity = batch.quantity;
                       final DateTime ts = batch.expirationDate;
 
-                      // Données spécifiques au lot (si disponibles)
-                      final String specificName = item
-                          .name; // Batch doesn't have name yet, use item name
-                      final String brand = ''; // Batch doesn't have brand yet
-                      final String? batchImageUrl = batch.imageUrl;
-                      final String? nutriscore = null; // Batch doesn't have nutriscore yet
+                      // Données spécifiques au lot (si disponibles), sinon fallback sur l'item
+                      final String specificName = (batch.name != null && batch.name!.isNotEmpty) 
+                          ? batch.name! 
+                          : item.name;
+                      final String brand = batch.brands ?? '';
+                      final String? batchImageUrl = batch.imageUrl; // Already correct
+                      final String? nutriscore = batch.nutriscore;
                       final String storeName = batch.storeName ?? '';
-                      final DateTime? addedAtTs = batch.addedAt;
-                      final String addedDateStr = addedAtTs != null
-                          ? _formatDate(Timestamp.fromDate(addedAtTs))
-                          : '';
+                      final DateTime addedAtTs = batch.addedAt;
+                      final String addedDateStr = _formatDate(Timestamp.fromDate(addedAtTs));
 
                       // Calcul Expiration
                       final now = DateTime.now();
@@ -276,6 +275,11 @@ class EditBatchesSheet extends StatelessWidget {
                         statusColor = Colors.orange[800]!;
                       }
 
+                      // Determine name for initials (prefer cleanedName)
+                      final String initialsName = (batch.cleanedName != null && batch.cleanedName!.isNotEmpty)
+                          ? batch.cleanedName!
+                          : (item.cleanedName.isNotEmpty ? item.cleanedName : specificName);
+
                       return Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -295,30 +299,6 @@ class EditBatchesSheet extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // 1. IMAGE SPÉCIFIQUE DU LOT
-                              // Container(
-                              //   width: 60,
-                              //   height: 60,
-                              //   decoration: BoxDecoration(
-                              //     borderRadius: BorderRadius.circular(8),
-                              //     color: Colors.grey[100],
-                              //     image:
-                              //         batchImageUrl != null &&
-                              //             batchImageUrl.isNotEmpty
-                              //         ? DecorationImage(
-                              //             image: NetworkImage(batchImageUrl),
-                              //             fit: BoxFit.cover,
-                              //           )
-                              //         : null,
-                              //   ),
-                              //   child:
-                              //       batchImageUrl == null ||
-                              //           batchImageUrl.isEmpty
-                              //       ? Icon(
-                              //           Icons.fastfood,
-                              //           color: Colors.grey[400],
-                              //         )
-                              //       : null,
-                              // ),
                               Stack(
                                 children: [
                                   // L'Image de base
@@ -339,10 +319,10 @@ class EditBatchesSheet extends StatelessWidget {
                                             errorBuilder:
                                                 (ctx, error, stackTrace) =>
                                                     _buildInitialsAvatar(
-                                                      specificName,
+                                                      initialsName,
                                                     ),
                                           )
-                                        : _buildInitialsAvatar(specificName),
+                                        : _buildInitialsAvatar(initialsName),
                                   ),
 
                                   // Le Badge Nutri-Score (En bas à droite)

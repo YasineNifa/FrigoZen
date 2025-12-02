@@ -27,23 +27,23 @@ class InventoryService {
   }
 
   Future<void> removeItemFromInventory(String documentId) async {
-    final _inventoryCollection = await _getInventoryCollection();
-    await _inventoryCollection.doc(documentId).delete();
+    final inventoryCollection = await _getInventoryCollection();
+    await inventoryCollection.doc(documentId).delete();
   }
 
   Future<void> updateItem(String documentId, Map<String, dynamic> data) async {
-    final _inventoryCollection = await _getInventoryCollection();
-    await _inventoryCollection.doc(documentId).update(data);
+    final inventoryCollection = await _getInventoryCollection();
+    await inventoryCollection.doc(documentId).update(data);
   }
 
   Future<DocumentSnapshot> getInventoryDocument(String documentId) async {
-    final _inventoryCollection = await _getInventoryCollection();
-    return await _inventoryCollection.doc(documentId).get();
+    final inventoryCollection = await _getInventoryCollection();
+    return await inventoryCollection.doc(documentId).get();
   }
 
   Future<QuerySnapshot> getInventory() async {
-    final _inventoryCollection = await _getInventoryCollection();
-    return await _inventoryCollection.get();
+    final inventoryCollection = await _getInventoryCollection();
+    return await inventoryCollection.get();
   }
 
   Future<void> upsertItemToInventory({
@@ -61,9 +61,9 @@ class InventoryService {
     String? brands = '',
     Map<String, String>? images,
   }) async {
-    final _inventoryCollection = await _getInventoryCollection();
+    final inventoryCollection = await _getInventoryCollection();
     final now = Timestamp.now();
-    final existingDoc = await _findExistingItem(canonicalName);
+    final existingDoc = await _findExistingItem(canonicalName, name);
     final Timestamp finalExpirationDate;
     if (expirationDate != null) {
       finalExpirationDate = expirationDate;
@@ -98,7 +98,7 @@ class InventoryService {
         newTotalQuantity += (batch['quantity'] as int? ?? 0);
       }
 
-      await _inventoryCollection.doc(existingDoc.id).update({
+      await inventoryCollection.doc(existingDoc.id).update({
         'batches': newBatches,
         'totalQuantity': newTotalQuantity,
         'earliestExpirationDate': getEarliestDate(newBatches),
@@ -108,7 +108,7 @@ class InventoryService {
         'location': location ?? data['location'] ?? 'Fridge',
       });
     } else {
-      await _inventoryCollection.add({
+      await inventoryCollection.add({
         'name': name,
         'cleanedName': cleanedName,
         'canonicalName': canonicalName,
@@ -123,16 +123,45 @@ class InventoryService {
     }
   }
 
-  Future<QueryDocumentSnapshot?> _findExistingItem(String canonicalName) async {
-    final _inventoryCollection = await _getInventoryCollection();
-    final query = await _inventoryCollection
+  Future<QueryDocumentSnapshot?> _findExistingItem(String canonicalName, String name) async {
+    final inventoryCollection = await _getInventoryCollection();
+    print("DEBUG: _findExistingItem searching for canonicalName: '$canonicalName', name: '$name'");
+    
+    // 1. Try exact canonicalName
+    var query = await inventoryCollection
         .where('canonicalName', isEqualTo: canonicalName)
         .limit(1)
         .get();
-
     if (query.docs.isNotEmpty) {
+      print("DEBUG: Found exact canonicalName match: ${query.docs.first.id}");
       return query.docs.first;
     }
+
+    // 2. Try lowercase canonicalName (if different)
+    if (canonicalName != canonicalName.toLowerCase()) {
+       print("DEBUG: Trying lowercase canonicalName: '${canonicalName.toLowerCase()}'");
+       query = await inventoryCollection
+          .where('canonicalName', isEqualTo: canonicalName.toLowerCase())
+          .limit(1)
+          .get();
+       if (query.docs.isNotEmpty) {
+         print("DEBUG: Found lowercase canonicalName match: ${query.docs.first.id}");
+         return query.docs.first;
+       }
+    }
+
+    // 3. Try exact name match (fallback)
+    print("DEBUG: Trying exact name match: '$name'");
+    query = await inventoryCollection
+        .where('name', isEqualTo: name)
+        .limit(1)
+        .get();
+    if (query.docs.isNotEmpty) {
+      print("DEBUG: Found name match: ${query.docs.first.id}");
+      return query.docs.first;
+    }
+
+    print("DEBUG: No existing item found.");
     return null;
   }
 

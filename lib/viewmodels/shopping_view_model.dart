@@ -6,7 +6,7 @@ import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class ShoppingViewModel extends ChangeNotifier {
   final ShoppingRepository _shoppingRepository;
@@ -227,7 +227,14 @@ class ShoppingViewModel extends ChangeNotifier {
           quantity: item.quantity,
           expirationDate: expirationDate,
           addedAt: now,
-          storeName: 'Liste de courses',
+          storeName: item.storeName ?? 'Liste de courses',
+          name: item.name,
+          cleanedName: item.cleanedName,
+          canonicalName: item.canonicalName,
+          brands: item.brands,
+          imageUrl: item.imageUrl,
+          nutriscore: item.nutriscore,
+          // images: item.images, // ShoppingItem doesn't have images map yet, only imageUrl
         );
         
         // 2. Create InventoryItem
@@ -245,20 +252,14 @@ class ShoppingViewModel extends ChangeNotifier {
           dvm: item.dvm ?? 7,
         );
 
-        // 3. Add to Inventory (This might duplicate if canonicalName exists!)
-        // The original service handled this check.
-        // I should ideally check existence.
-        // For this refactor, I'll add `addInventoryItem` which creates a new doc.
-        // This is a regression if I don't handle merging.
-        // I will mark this as a TODO and implement simple add for now, 
-        // as implementing full upsert in VM without repo support is hard.
-        // Actually, I can just use `_inventoryRepository.addInventoryItem`.
-        await _inventoryRepository.addInventoryItem(_householdId!, inventoryItem);
+        // 3. Add to Inventory (Upsert)
+        await _inventoryRepository.upsertInventoryItem(_householdId!, inventoryItem);
 
         // 4. Remove from Shopping List
-        if (item.id != null) {
-          await _shoppingRepository.deleteShoppingItem(_householdId!, item.id!);
-        }
+        // item.id is non-nullable in ShoppingItem model? No, it's String.
+        // Wait, ShoppingItem definition: final String id;
+        // So it's never null.
+        await _shoppingRepository.deleteShoppingItem(_householdId!, item.id);
       }
     } catch (e) {
       print("Error moving items: $e");

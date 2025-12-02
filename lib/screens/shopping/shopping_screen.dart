@@ -53,40 +53,62 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     FocusScope.of(context).unfocus();
 
     try {
-      // Check for duplicates in inventory
-      final existsInInventory = inventoryVM.items.any((item) => 
-          item.name.toLowerCase() == itemName.toLowerCase() || 
-          item.cleanedName.toLowerCase() == itemName.toLowerCase() ||
-          item.canonicalName.toLowerCase() == itemName.toLowerCase()
-      );
-
-      if (existsInInventory) {
-        if (!mounted) return;
-        final shouldAdd = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("Produit déjà en stock"),
-            content: Text("Vous avez déjà '$itemName' dans votre inventaire. Voulez-vous l'ajouter quand même à la liste de courses ?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Non"),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text("Oui, ajouter"),
-              ),
-            ],
-          ),
-        );
-
-        if (shouldAdd != true) {
-          _textController.clear();
-          return;
-        }
-      }
+      // 1. Resolve item name to get canonical data
+      // We use a temporary loading state or just await (UI might freeze slightly but it's a network call)
+      // Ideally we should show a loading indicator.
+      // Since `_addItem` is async, we can show a loading indicator if we want.
+      // But for now, let's just await.
       
-      await vm.addItemByName(itemName);
+      final resolvedItem = await vm.resolveItemName(itemName);
+      
+      if (resolvedItem != null) {
+        final canonicalName = resolvedItem.canonicalName;
+        final nameToCheck = resolvedItem.name;
+
+        // 2. Check for duplicates in inventory using canonical name
+        print("DEBUG: Checking for duplicates for '$nameToCheck' (canonical: '$canonicalName')");
+        
+        final existsInInventory = inventoryVM.items.any((item) {
+            final match = item.canonicalName.toLowerCase() == canonicalName.toLowerCase() ||
+                          item.name.toLowerCase() == nameToCheck.toLowerCase();
+            return match;
+        });
+        
+        if (existsInInventory) {
+          if (!mounted) return;
+          final shouldAdd = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Produit déjà en stock"),
+              content: Text("Vous avez déjà '$nameToCheck' dans votre inventaire. Voulez-vous l'ajouter quand même à la liste de courses ?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text("Non"),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text("Oui, ajouter"),
+                ),
+              ],
+            ),
+          );
+
+          if (shouldAdd != true) {
+            _textController.clear();
+            return;
+          }
+        }
+        
+        // 3. Add the resolved item directly (optimization: we already resolved it)
+        // But `addItemByName` resolves it again. 
+        // We can call `vm.addItem(resolvedItem)` directly to save a call!
+        await vm.addItem(resolvedItem);
+      } else {
+        // Fallback if resolution failed (shouldn't happen often as resolveItemName returns fallback)
+        await vm.addItemByName(itemName);
+      }
+
       _textController.clear();
       
     } catch (error) {

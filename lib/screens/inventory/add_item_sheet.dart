@@ -35,6 +35,12 @@ class _AddItemSheetState extends State<AddItemSheet> {
         final String name = itemData['name'] ?? l10n.shoppingItemNoTitle;
         final String cleanedName = itemData['cleanedName'] ?? name;
         final String canonicalName = itemData['canonicalName'] ?? name;
+        
+        print("DEBUG: AddItemSheet - Cloud Function Result:");
+        print("DEBUG: name: '$name'");
+        print("DEBUG: cleanedName: '$cleanedName'");
+        print("DEBUG: canonicalName: '$canonicalName'");
+
         final int dvm = itemData['dvm'];
         final String category = itemData['category'] ?? 'Other';
         final String location = itemData['location'] ?? 'Frigo';
