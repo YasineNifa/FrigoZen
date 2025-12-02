@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+import 'package:frigo_zen/screens/core/navigation_controller.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
@@ -342,17 +343,19 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
               textColor: Colors.white,
               onPressed: () {
                  // Navigate to Shopping List (index 2)
-                 // final shell = context.findAncestorStateOfType<State>(); // This is hacky, better to use a proper router or callback
-                 // For now, let's just pop if we were pushed, or assume we are in the shell.
-                 // Actually, MealPlanner is a tab. To switch tab, we need access to the NavigationShellScreen state or use a provider.
-                 // Since we don't have easy access to switch tabs here without refactoring, let's just let the user navigate manually.
-                 // Or better, just show the message.
+                 context.read<NavigationController>().setIndex(2);
+                 // Since MealPlannerScreen is pushed on top of NavigationShell, we need to pop it
+                 // to reveal the NavigationShell which will now show the Shopping List.
+                 Navigator.of(context).pop();
               },
             ),
           ),
         );
 
-        if (!isPro) {
+        // Only show upsell if items were added and user is not pro
+        if (!isPro && count > 0) {
+          // Delay slightly to let the first snackbar be seen/read?
+          // Or just queue it. ScaffoldMessenger queues by default.
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.mealPlannerSmartListUpsell),
