@@ -494,12 +494,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String editBatchesTitle(String itemName) {
-    return 'Gérer les dates : $itemName';
+    return 'Gérer les lots : $itemName';
   }
 
   @override
   String get editBatchesSubtitle =>
-      'Cliquez sur le crayon pour modifier la date d\'un lot.';
+      'Cliquez sur le crayon pour modifier les détails d\'un lot.';
 
   @override
   String get editBatchesEmpty => 'Aucune information de date.';
@@ -511,7 +511,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editBatchesExpiresPrefix => 'Expire le';
 
   @override
-  String get editBatchesSuccess => 'Date mise à jour avec succès ! ✅';
+  String get editBatchesSuccess => 'Lot mis à jour avec succès ! ✅';
 
   @override
   String editBatchesError(String error) {
