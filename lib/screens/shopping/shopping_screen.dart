@@ -11,6 +11,8 @@ import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 import 'package:frigo_zen/screens/core/navigation_controller.dart';
 
+import 'package:confetti/confetti.dart';
+
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
 
@@ -20,14 +22,23 @@ class ShoppingScreen extends StatefulWidget {
 
 class _ShoppingScreenState extends State<ShoppingScreen> {
   final _textController = TextEditingController();
+  late ConfettiController _confettiController;
 
   @override
   void initState() {
     super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
     // Initialize ViewModel
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initViewModel();
     });
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _textController.dispose();
+    super.dispose();
   }
 
   Future<void> _initViewModel() async {
@@ -66,7 +77,6 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         final nameToCheck = resolvedItem.name;
 
         // 2. Check for duplicates in inventory using canonical name
-
         
         final existsInInventory = inventoryVM.items.any((item) {
             final match = item.canonicalName.toLowerCase() == canonicalName.toLowerCase() ||
@@ -132,28 +142,47 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: const ShoppingHeader(),
-      body: Column(
+      body: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
+                child: CustomizedInputField(
+                  textController: _textController,
+                  isAdding: vm.isLoading, // Use VM loading state
+                  onAdd: _addItem,
+                ),
+              ),
+              const Expanded(
+                child: ShoppingListView(),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              colors: const [
+                Colors.green,
+                Colors.blue,
+                Colors.pink,
+                Colors.orange,
+                Colors.purple
               ],
             ),
-            child: CustomizedInputField(
-              textController: _textController,
-              isAdding: vm.isLoading, // Use VM loading state
-              onAdd: _addItem,
-            ),
-          ),
-          const Expanded(
-            child: ShoppingListView(),
           ),
         ],
       ),
@@ -186,10 +215,12 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                   await vm.moveCheckedItemsToInventory();
                   if (!context.mounted) return;
                   
+                  _confettiController.play();
+
                   showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text("Courses terminées !"),
+                        title: const Text("Courses terminées ! 🎉"),
                         content: Text(l10n.shoppingMovedSuccess(checkedCount)),
                         actions: [
                           TextButton(
