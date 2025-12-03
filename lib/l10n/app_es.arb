@@ -339,6 +339,22 @@
   "recipeFilterMealType": "Meal Type",
   "recipeFilterDiet": "Diet",
   "recipeFilterDifficulty": "Difficulty",
-  "recipeFilterGenerate": "Generate",
-  "recipeFilterCancel": "Cancel"
+  "recipeFilterGenerate": "Generar",
+  "recipeFilterCancel": "Cancelar",
+  "settingsSubscriptionHeader": "Suscripción",
+  "settingsAboutHeader": "Acerca de",
+  "settingsVersion": "Versión",
+  "settingsPrivacyPolicy": "Política de privacidad",
+  "settingsTermsOfService": "Términos de servicio",
+  "settingsEditProfileTitle": "Editar perfil",
+  "settingsDisplayNameLabel": "Nombre para mostrar",
+  "settingsCancelBtn": "Cancelar",
+  "settingsSaveBtn": "Guardar",
+  "settingsProfileUpdated": "¡Perfil actualizado!",
+  "settingsErrorGeneric": "Error: {error}",
+  "@settingsErrorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }

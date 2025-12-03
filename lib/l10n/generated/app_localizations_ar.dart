@@ -877,8 +877,43 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recipeFilterDifficulty => 'Difficulty';
 
   @override
-  String get recipeFilterGenerate => 'Generate';
+  String get recipeFilterGenerate => 'توليد';
 
   @override
-  String get recipeFilterCancel => 'Cancel';
+  String get recipeFilterCancel => 'إلغاء';
+
+  @override
+  String get settingsSubscriptionHeader => 'الاشتراك';
+
+  @override
+  String get settingsAboutHeader => 'حول';
+
+  @override
+  String get settingsVersion => 'الإصدار';
+
+  @override
+  String get settingsPrivacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get settingsTermsOfService => 'شروط الخدمة';
+
+  @override
+  String get settingsEditProfileTitle => 'تعديل الملف الشخصي';
+
+  @override
+  String get settingsDisplayNameLabel => 'الاسم المعروض';
+
+  @override
+  String get settingsCancelBtn => 'إلغاء';
+
+  @override
+  String get settingsSaveBtn => 'حفظ';
+
+  @override
+  String get settingsProfileUpdated => 'تم تحديث الملف الشخصي!';
+
+  @override
+  String settingsErrorGeneric(String error) {
+    return 'خطأ: $error';
+  }
 }

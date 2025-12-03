@@ -883,4 +883,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipeFilterCancel => 'Cancel';
+
+  @override
+  String get settingsSubscriptionHeader => 'Subscription';
+
+  @override
+  String get settingsAboutHeader => 'About';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsPrivacyPolicy => 'Privacy Policy';
+
+  @override
+  String get settingsTermsOfService => 'Terms of Service';
+
+  @override
+  String get settingsEditProfileTitle => 'Edit Profile';
+
+  @override
+  String get settingsDisplayNameLabel => 'Display Name';
+
+  @override
+  String get settingsCancelBtn => 'Cancel';
+
+  @override
+  String get settingsSaveBtn => 'Save';
+
+  @override
+  String get settingsProfileUpdated => 'Profile updated!';
+
+  @override
+  String settingsErrorGeneric(String error) {
+    return 'Error: $error';
+  }
 }

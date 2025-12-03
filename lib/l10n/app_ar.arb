@@ -339,6 +339,22 @@
   "recipeFilterMealType": "Meal Type",
   "recipeFilterDiet": "Diet",
   "recipeFilterDifficulty": "Difficulty",
-  "recipeFilterGenerate": "Generate",
-  "recipeFilterCancel": "Cancel"
+  "recipeFilterGenerate": "توليد",
+  "recipeFilterCancel": "إلغاء",
+  "settingsSubscriptionHeader": "الاشتراك",
+  "settingsAboutHeader": "حول",
+  "settingsVersion": "الإصدار",
+  "settingsPrivacyPolicy": "سياسة الخصوصية",
+  "settingsTermsOfService": "شروط الخدمة",
+  "settingsEditProfileTitle": "تعديل الملف الشخصي",
+  "settingsDisplayNameLabel": "الاسم المعروض",
+  "settingsCancelBtn": "إلغاء",
+  "settingsSaveBtn": "حفظ",
+  "settingsProfileUpdated": "تم تحديث الملف الشخصي!",
+  "settingsErrorGeneric": "خطأ: {error}",
+  "@settingsErrorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }

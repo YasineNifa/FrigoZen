@@ -1717,6 +1717,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get recipeFilterCancel;
+
+  /// No description provided for @settingsSubscriptionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get settingsSubscriptionHeader;
+
+  /// No description provided for @settingsAboutHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAboutHeader;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get settingsVersion;
+
+  /// No description provided for @settingsPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get settingsPrivacyPolicy;
+
+  /// No description provided for @settingsTermsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get settingsTermsOfService;
+
+  /// No description provided for @settingsEditProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get settingsEditProfileTitle;
+
+  /// No description provided for @settingsDisplayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display Name'**
+  String get settingsDisplayNameLabel;
+
+  /// No description provided for @settingsCancelBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get settingsCancelBtn;
+
+  /// No description provided for @settingsSaveBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get settingsSaveBtn;
+
+  /// No description provided for @settingsProfileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated!'**
+  String get settingsProfileUpdated;
+
+  /// No description provided for @settingsErrorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String settingsErrorGeneric(String error);
 }
 
 class _AppLocalizationsDelegate

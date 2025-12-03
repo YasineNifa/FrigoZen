@@ -340,5 +340,21 @@
   "recipeFilterDiet": "Régime",
   "recipeFilterDifficulty": "Difficulté",
   "recipeFilterGenerate": "Générer",
-  "recipeFilterCancel": "Annuler"
+  "recipeFilterCancel": "Annuler",
+  "settingsSubscriptionHeader": "Abonnement",
+  "settingsAboutHeader": "À propos",
+  "settingsVersion": "Version",
+  "settingsPrivacyPolicy": "Politique de confidentialité",
+  "settingsTermsOfService": "Conditions d'utilisation",
+  "settingsEditProfileTitle": "Modifier le profil",
+  "settingsDisplayNameLabel": "Nom d'affichage",
+  "settingsCancelBtn": "Annuler",
+  "settingsSaveBtn": "Enregistrer",
+  "settingsProfileUpdated": "Profil mis à jour !",
+  "settingsErrorGeneric": "Erreur : {error}",
+  "@settingsErrorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }

@@ -886,8 +886,43 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recipeFilterDifficulty => 'Difficulty';
 
   @override
-  String get recipeFilterGenerate => 'Generate';
+  String get recipeFilterGenerate => 'Generieren';
 
   @override
-  String get recipeFilterCancel => 'Cancel';
+  String get recipeFilterCancel => 'Abbrechen';
+
+  @override
+  String get settingsSubscriptionHeader => 'Abonnement';
+
+  @override
+  String get settingsAboutHeader => 'Über';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsPrivacyPolicy => 'Datenschutzerklärung';
+
+  @override
+  String get settingsTermsOfService => 'Nutzungsbedingungen';
+
+  @override
+  String get settingsEditProfileTitle => 'Profil bearbeiten';
+
+  @override
+  String get settingsDisplayNameLabel => 'Anzeigename';
+
+  @override
+  String get settingsCancelBtn => 'Abbrechen';
+
+  @override
+  String get settingsSaveBtn => 'Speichern';
+
+  @override
+  String get settingsProfileUpdated => 'Profil aktualisiert!';
+
+  @override
+  String settingsErrorGeneric(String error) {
+    return 'Fehler: $error';
+  }
 }

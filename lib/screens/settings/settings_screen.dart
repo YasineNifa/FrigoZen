@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // --- SECTION: SUBSCRIPTION ---
-          _buildSectionHeader(context, "Abonnement"), // TODO: Add to l10n
+          _buildSectionHeader(context, l10n.settingsSubscriptionHeader),
           _buildSettingsTile(
             context,
             icon: isPro ? Icons.star : Icons.star_border,
@@ -284,11 +284,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // --- SECTION: ABOUT ---
-          _buildSectionHeader(context, "À propos"), // TODO: Add to l10n
+          _buildSectionHeader(context, l10n.settingsAboutHeader),
           _buildSettingsTile(
             context,
             icon: Icons.info_outline,
-            title: "Version",
+            title: l10n.settingsVersion,
             trailing: const Text(
               "1.0.0",
               style: TextStyle(color: Colors.grey, fontSize: 14),
@@ -297,7 +297,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingsTile(
             context,
             icon: Icons.privacy_tip_outlined,
-            title: "Politique de confidentialité",
+            title: l10n.settingsPrivacyPolicy,
             onTap: () {
               // TODO: Open URL
             },
@@ -305,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingsTile(
             context,
             icon: Icons.description_outlined,
-            title: "Conditions d'utilisation",
+            title: l10n.settingsTermsOfService,
             onTap: () {
               // TODO: Open URL
             },
@@ -357,18 +357,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Modifier le profil"),
+        title: Text(AppLocalizations.of(context)!.settingsEditProfileTitle),
         content: TextField(
           controller: nameController,
-          decoration: const InputDecoration(
-            labelText: "Nom d'affichage",
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.settingsDisplayNameLabel,
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Annuler"),
+            child: Text(AppLocalizations.of(context)!.settingsCancelBtn),
           ),
           FilledButton(
             onPressed: () async {
@@ -383,18 +383,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   });
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Profil mis à jour !")),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.settingsProfileUpdated)),
                   );
                 }
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Erreur : $e")),
+                    SnackBar(content: Text(AppLocalizations.of(context)!.settingsErrorGeneric(e.toString()))),
                   );
                 }
               }
             },
-            child: const Text("Enregistrer"),
+            child: Text(AppLocalizations.of(context)!.settingsSaveBtn),
           ),
         ],
       ),
