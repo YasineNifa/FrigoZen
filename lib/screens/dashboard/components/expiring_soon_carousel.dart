@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/components/initials_avatar.dart';
+import 'package:frigo_zen/components/skeleton.dart';
 
 class ExpiringSoonCarousel extends StatelessWidget {
   const ExpiringSoonCarousel({super.key});
@@ -10,6 +11,50 @@ class ExpiringSoonCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<InventoryViewModel>(
       builder: (context, vm, child) {
+        if (vm.isLoading) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: const Skeleton(width: 150, height: 20),
+              ),
+              SizedBox(
+                height: 140,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  itemCount: 3,
+                  itemBuilder: (context, index) => Container(
+                    width: 120,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        const Expanded(child: Skeleton(width: double.infinity, borderRadius: 12)),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Skeleton(width: 80, height: 12),
+                              const SizedBox(height: 4),
+                              const Skeleton(width: 50, height: 10),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
         final items = vm.expiringItems;
         if (items.isEmpty) return const SizedBox.shrink();
 

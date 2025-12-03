@@ -8,6 +8,8 @@ import 'package:frigo_zen/screens/core/navigation_controller.dart';
 import 'package:frigo_zen/models/recipe.dart';
 import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/repositories/recipe_repository.dart';
+import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
+import 'package:frigo_zen/models/meal_plan.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final Map<String, dynamic>? recipeData;
@@ -192,6 +194,94 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     }
   }
 
+  void _addToMealPlanner() async {
+    final l10n = AppLocalizations.of(context)!;
+    final title = _fullRecipe?.title ?? widget.recipeData?['title'] ?? l10n.recipeDetailUntitled;
+    
+    // Get ingredients
+    List<String> ingredients = [];
+    if (_fullRecipe != null) {
+      ingredients = _fullRecipe!.ingredients.map((e) => e['name']!).toList();
+    } else {
+      final usedItems = widget.recipeData?['usedItems'] ?? [];
+      final missingItems = widget.recipeData?['missingItems'] ?? [];
+      
+      for (var item in usedItems) {
+        if (item is Map) ingredients.add(item['name']);
+      }
+      for (var item in missingItems) {
+        if (item is Map) ingredients.add(item['name']);
+      }
+    }
+
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (pickedDate == null || !mounted) return;
+
+    // Ask for Meal Type (Lunch/Dinner)
+    final MealType? pickedType = await showDialog<MealType>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text("Quel repas ?"),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, MealType.lunch),
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Déjeuner ☀️", style: TextStyle(fontSize: 16)),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, MealType.dinner),
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text("Dîner 🌙", style: TextStyle(fontSize: 16)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (pickedType == null || !mounted) return;
+
+    try {
+      await context.read<MealPlannerViewModel>().addMeal(
+        pickedDate,
+        pickedType,
+        title,
+        ingredients: ingredients,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Recette ajoutée au planning !"),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: "Voir",
+              textColor: Colors.white,
+              onPressed: () {
+                context.read<NavigationController>().setIndex(3); // Planning tab
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur : $e")),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -224,6 +314,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             floating: false,
             pinned: true,
             actions: [
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.calendar_today, color: Colors.black87),
+                  onPressed: _addToMealPlanner,
+                ),
+              ),
               Container(
                 margin: const EdgeInsets.only(right: 16),
                 decoration: BoxDecoration(

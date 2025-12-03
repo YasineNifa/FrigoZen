@@ -5,6 +5,7 @@ import 'package:frigo_zen/screens/recipes/favorites_screen.dart';
 import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
 
 import 'package:frigo_zen/models/recipe.dart';
+import 'package:frigo_zen/components/skeleton.dart';
 
 class RecipesScreen extends StatefulWidget {
   const RecipesScreen({super.key});
@@ -139,7 +140,28 @@ class _RecipesScreenState extends State<RecipesScreen> {
         // Content
         Expanded(
           child: viewModel.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.75,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: 6,
+                  itemBuilder: (context, index) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Expanded(
+                        child: Skeleton(width: double.infinity, borderRadius: 16),
+                      ),
+                      const SizedBox(height: 12),
+                      const Skeleton(width: 100, height: 14),
+                      const SizedBox(height: 8),
+                      const Skeleton(width: 60, height: 12),
+                    ],
+                  ),
+                )
               : viewModel.errorMessage != null
                   ? Center(child: Text(viewModel.errorMessage!))
                   : _buildRecipeGrid(context, viewModel.recipes),

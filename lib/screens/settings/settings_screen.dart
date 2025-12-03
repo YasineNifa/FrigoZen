@@ -11,12 +11,24 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _user = FirebaseAuth.instance.currentUser;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     final isPro = context.watch<RevenueProvider>().isPro;
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
@@ -38,15 +50,13 @@ class SettingsScreen extends StatelessWidget {
         children: [
           // --- SECTION: ACCOUNT ---
           _buildSectionHeader(context, l10n.settingsAccountInfo),
-          if (user != null)
+          if (_user != null)
             _buildSettingsTile(
               context,
               icon: Icons.person_outline,
-              title: user.displayName ?? 'Utilisateur',
-              subtitle: user.email ?? l10n.settingsNoEmail,
-              onTap: () {
-                // TODO: Edit profile
-              },
+              title: _user!.displayName ?? 'Utilisateur',
+              subtitle: _user!.email ?? l10n.settingsNoEmail,
+              onTap: _showEditProfileDialog,
             ),
           
           const SizedBox(height: 24),
@@ -294,6 +304,57 @@ class SettingsScreen extends StatelessWidget {
           ),
           
           const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+
+
+  void _showEditProfileDialog() {
+    final nameController = TextEditingController(text: _user?.displayName);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Modifier le profil"),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: "Nom d'affichage",
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Annuler"),
+          ),
+          FilledButton(
+            onPressed: () async {
+              try {
+                await _user?.updateDisplayName(nameController.text.trim());
+                await _user?.reload();
+                final updatedUser = FirebaseAuth.instance.currentUser;
+                
+                if (mounted) {
+                  setState(() {
+                    _user = updatedUser;
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Profil mis à jour !")),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Erreur : $e")),
+                  );
+                }
+              }
+            },
+            child: const Text("Enregistrer"),
+          ),
         ],
       ),
     );

@@ -7,7 +7,7 @@ class RecipesViewModel extends ChangeNotifier {
 
   List<Recipe> _recipes = [];
   List<String> _categories = [];
-  bool _isLoading = false;
+  bool _isLoading = true;
   String? _errorMessage;
   String _selectedCategory = 'Beef'; // Default category
 

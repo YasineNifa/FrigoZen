@@ -4,6 +4,7 @@ import 'package:frigo_zen/models/shopping_item.dart';
 import 'package:frigo_zen/components/shopping_list_tile.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:frigo_zen/components/skeleton.dart';
 
 
 class ShoppingListView extends StatelessWidget {
@@ -14,7 +15,29 @@ class ShoppingListView extends StatelessWidget {
     return Consumer<ShoppingViewModel>(
       builder: (context, vm, child) {
         if (vm.isLoading && vm.items.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: 5,
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  const Skeleton(width: 24, height: 24, borderRadius: 4),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Skeleton(width: 150, height: 16),
+                        const SizedBox(height: 8),
+                        const Skeleton(width: 100, height: 12),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         }
 
         if (vm.items.isEmpty) {
