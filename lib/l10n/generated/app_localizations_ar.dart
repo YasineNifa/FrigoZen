@@ -518,7 +518,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mealPlannerGenerateList => 'إنشاء قائمة التسوق';
 
   @override
+  String get mealPlannerBreakfast => 'Breakfast ☕';
+
+  @override
   String get mealPlannerLunch => 'الغداء ☀️';
+
+  @override
+  String get mealPlannerSnack => 'Snack 🍎';
 
   @override
   String get mealPlannerDinner => 'العشاء 🌙';
@@ -842,10 +848,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recipeMealTypeTitle => 'Which meal?';
 
   @override
-  String get recipeMealTypeLunch => 'Lunch ☀️';
+  String get recipeMealTypeBreakfast => 'فطور ☕';
 
   @override
-  String get recipeMealTypeDinner => 'Dinner 🌙';
+  String get recipeMealTypeLunch => 'غداء ☀️';
+
+  @override
+  String get recipeMealTypeSnack => 'وجبة خفيفة 🍎';
+
+  @override
+  String get recipeMealTypeDinner => 'عشاء 🌙';
 
   @override
   String get recipeAddedToPlanning => 'Recipe added to planner!';
@@ -927,4 +939,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String recipeMissingIngredientsCount(int count) {
     return 'Missing: $count';
   }
+
+  @override
+  String get mealPlannerIngredientsAddedMessage =>
+      'Ingredients have been added to your shopping list.';
+
+  @override
+  String get mealPlannerNoIngredientsAddedTitle => 'No ingredients added';
+
+  @override
+  String get mealPlannerNoIngredientsAddedMessage =>
+      'All necessary ingredients are already in your list or inventory.';
+
+  @override
+  String get ok => 'OK';
 }

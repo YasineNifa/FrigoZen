@@ -170,7 +170,9 @@
   "@_MEAL_PLANNER_SCREEN": {},
   "mealPlannerTitle": "Mon Semainier",
   "mealPlannerGenerateList": "Générer la liste de courses",
+  "mealPlannerBreakfast": "Petit-déjeuner ☕",
   "mealPlannerLunch": "Déjeuner ☀️",
+  "mealPlannerSnack": "Encas 🍎",
   "mealPlannerDinner": "Dîner 🌙",
   "mealPlannerAddMeal": "Ajouter un repas",
   "mealPlannerEditMeal": "Modifier le repas",
@@ -323,7 +325,9 @@
     }
   },
   "recipeMealTypeTitle": "Quel repas ?",
+  "recipeMealTypeBreakfast": "Petit-déjeuner ☕",
   "recipeMealTypeLunch": "Déjeuner ☀️",
+  "recipeMealTypeSnack": "Encas 🍎",
   "recipeMealTypeDinner": "Dîner 🌙",
   "recipeAddedToPlanning": "Recette ajoutée au planning !",
   "recipeViewPlanning": "Voir",
@@ -364,5 +368,9 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "mealPlannerIngredientsAddedMessage": "Les ingrédients ont été ajoutés à votre liste de courses.",
+  "mealPlannerNoIngredientsAddedTitle": "Aucun ingrédient ajouté",
+  "mealPlannerNoIngredientsAddedMessage": "Tous les ingrédients nécessaires sont déjà dans votre liste ou votre inventaire.",
+  "ok": "OK"
 }

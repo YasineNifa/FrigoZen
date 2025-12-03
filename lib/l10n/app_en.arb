@@ -251,7 +251,9 @@
   "@_MEAL_PLANNER_SCREEN": {},
   "mealPlannerTitle": "My Meal Planner",
   "mealPlannerGenerateList": "Generate shopping list",
+  "mealPlannerBreakfast": "Breakfast ☕",
   "mealPlannerLunch": "Lunch ☀️",
+  "mealPlannerSnack": "Snack 🍎",
   "mealPlannerDinner": "Dinner 🌙",
   "mealPlannerAddMeal": "Add a meal",
   "mealPlannerEditMeal": "Edit meal",
@@ -404,7 +406,9 @@
     }
   },
   "recipeMealTypeTitle": "Which meal?",
+  "recipeMealTypeBreakfast": "Breakfast ☕",
   "recipeMealTypeLunch": "Lunch ☀️",
+  "recipeMealTypeSnack": "Snack 🍎",
   "recipeMealTypeDinner": "Dinner 🌙",
   "recipeAddedToPlanning": "Recipe added to planner!",
   "recipeViewPlanning": "View",
@@ -445,5 +449,9 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  }
+  },
+  "mealPlannerIngredientsAddedMessage": "Ingredients have been added to your shopping list.",
+  "mealPlannerNoIngredientsAddedTitle": "No ingredients added",
+  "mealPlannerNoIngredientsAddedMessage": "All necessary ingredients are already in your list or inventory.",
+  "ok": "OK"
 }

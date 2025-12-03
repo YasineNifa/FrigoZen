@@ -230,10 +230,24 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         title: Text(l10n.recipeMealTypeTitle),
         children: [
           SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, MealType.breakfast),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(l10n.recipeMealTypeBreakfast, style: const TextStyle(fontSize: 16)),
+            ),
+          ),
+          SimpleDialogOption(
             onPressed: () => Navigator.pop(context, MealType.lunch),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(l10n.recipeMealTypeLunch, style: const TextStyle(fontSize: 16)),
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, MealType.snack),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(l10n.recipeMealTypeSnack, style: const TextStyle(fontSize: 16)),
             ),
           ),
           SimpleDialogOption(

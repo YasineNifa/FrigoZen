@@ -323,8 +323,10 @@
     }
   },
   "recipeMealTypeTitle": "Which meal?",
-  "recipeMealTypeLunch": "Lunch ☀️",
-  "recipeMealTypeDinner": "Dinner 🌙",
+  "recipeMealTypeBreakfast": "فطور ☕",
+  "recipeMealTypeLunch": "غداء ☀️",
+  "recipeMealTypeSnack": "وجبة خفيفة 🍎",
+  "recipeMealTypeDinner": "عشاء 🌙",
   "recipeAddedToPlanning": "Recipe added to planner!",
   "recipeViewPlanning": "View",
   "recipeError": "Error: {error}",

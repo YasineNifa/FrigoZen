@@ -1040,11 +1040,23 @@ abstract class AppLocalizations {
   /// **'Generate shopping list'**
   String get mealPlannerGenerateList;
 
+  /// No description provided for @mealPlannerBreakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast ☕'**
+  String get mealPlannerBreakfast;
+
   /// No description provided for @mealPlannerLunch.
   ///
   /// In en, this message translates to:
   /// **'Lunch ☀️'**
   String get mealPlannerLunch;
+
+  /// No description provided for @mealPlannerSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Snack 🍎'**
+  String get mealPlannerSnack;
 
   /// No description provided for @mealPlannerDinner.
   ///
@@ -1640,11 +1652,23 @@ abstract class AppLocalizations {
   /// **'Which meal?'**
   String get recipeMealTypeTitle;
 
+  /// No description provided for @recipeMealTypeBreakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast ☕'**
+  String get recipeMealTypeBreakfast;
+
   /// No description provided for @recipeMealTypeLunch.
   ///
   /// In en, this message translates to:
   /// **'Lunch ☀️'**
   String get recipeMealTypeLunch;
+
+  /// No description provided for @recipeMealTypeSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Snack 🍎'**
+  String get recipeMealTypeSnack;
 
   /// No description provided for @recipeMealTypeDinner.
   ///
@@ -1801,6 +1825,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Missing: {count}'**
   String recipeMissingIngredientsCount(int count);
+
+  /// No description provided for @mealPlannerIngredientsAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients have been added to your shopping list.'**
+  String get mealPlannerIngredientsAddedMessage;
+
+  /// No description provided for @mealPlannerNoIngredientsAddedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No ingredients added'**
+  String get mealPlannerNoIngredientsAddedTitle;
+
+  /// No description provided for @mealPlannerNoIngredientsAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'All necessary ingredients are already in your list or inventory.'**
+  String get mealPlannerNoIngredientsAddedMessage;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 }
 
 class _AppLocalizationsDelegate

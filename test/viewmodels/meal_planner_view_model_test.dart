@@ -9,91 +9,52 @@ import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/shopping_item.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/repositories/shopping_repository.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frigo_zen/repositories/meal_planner_repository.dart';
 
 // Mocks
-// Mocks
-class MockDocumentReference implements DocumentReference<Map<String, dynamic>> {
-  final String path;
-  Map<String, Object?>? lastUpdateData;
 
-  MockDocumentReference(this.path);
-
+class MockMealPlannerRepository extends MealPlannerRepository {
+  final List<MealPlan> _meals = [];
+  
   @override
-  Future<void> update(Map<Object, Object?> data) async {
-    lastUpdateData = data.cast<String, Object?>();
+  Stream<List<MealPlan>> getMealPlansStream(String householdId) {
+    return Stream.value(_meals);
   }
 
   @override
-  CollectionReference<Map<String, dynamic>> collection(String collectionPath) {
-    return MockCollectionReference('$path/$collectionPath');
+  Future<void> addMealPlan(String householdId, MealPlan meal) async {
+    _meals.add(meal);
   }
 
+  @override
+  Future<void> updateMealPlan(String householdId, String mealId, Map<String, dynamic> data) async {
+    final index = _meals.indexWhere((m) => m.id == mealId);
+    if (index != -1) {
+      final oldMeal = _meals[index];
+      _meals[index] = oldMeal.copyWith(
+        recipeName: data['recipeName'] as String?,
+        ingredients: (data['ingredients'] as List<dynamic>?)?.cast<String>(),
+      );
+    }
+  }
+
+  @override
+  Future<void> deleteMealPlan(String householdId, String mealId) async {
+    _meals.removeWhere((m) => m.id == mealId);
+  }
+
+  void setMeals(List<MealPlan> meals) {
+    _meals.clear();
+    _meals.addAll(meals);
+  }
+}
+
+class MockInventoryRepository extends InventoryRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class MockQuerySnapshot implements QuerySnapshot<Map<String, dynamic>> {
-  final List<QueryDocumentSnapshot<Map<String, dynamic>>> _docs;
-  MockQuerySnapshot(this._docs);
-
-  @override
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> get docs => _docs;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class MockQuery implements Query<Map<String, dynamic>> {
-  @override
-  Stream<QuerySnapshot<Map<String, dynamic>>> snapshots({
-    bool includeMetadataChanges = false,
-    ListenSource source = ListenSource.cache,
-  }) {
-    // Return a stream that doesn't emit immediately to avoid overwriting test data set by setMealsForTesting
-    return StreamController<QuerySnapshot<Map<String, dynamic>>>().stream;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class MockCollectionReference implements CollectionReference<Map<String, dynamic>> {
-  final String path;
-
-  MockCollectionReference(this.path);
-
-  @override
-  DocumentReference<Map<String, dynamic>> doc([String? path]) {
-    return MockDocumentReference('$path/${path ?? ""}');
-  }
-
-  @override
-  Query<Map<String, dynamic>> orderBy(Object field, {bool descending = false}) {
-    return MockQuery();
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class MockFirebaseFirestore implements FirebaseFirestore {
-  @override
-  CollectionReference<Map<String, dynamic>> collection(String collectionPath) {
-    return MockCollectionReference(collectionPath);
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class MockInventoryRepository implements InventoryRepository {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class MockShoppingRepository implements ShoppingRepository {
+class MockShoppingRepository extends ShoppingRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -178,12 +139,10 @@ void main() {
 
     // Setup Shopping
     final shopping = MockShoppingViewModel();
-    // Mock resolveItemName
-    // We can't easily mock resolveItemName on the instance unless we override it in the Mock class.
-    // Let's update MockShoppingViewModel to handle resolveItemName.
     
     // Setup MealPlanner
-    final mealPlanner = MealPlannerViewModel(firestore: MockFirebaseFirestore());
+    final mockRepository = MockMealPlannerRepository();
+    final mealPlanner = MealPlannerViewModel(repository: mockRepository);
     final meal = MealPlan(
       id: '1',
       date: DateTime.now(),
@@ -199,11 +158,6 @@ void main() {
     final count = await mealPlanner.generateShoppingList(inventory, shopping, isPro: true);
 
     // Verify
-    // 'Pâtes' matches raw name 'Pâtes' in inventory -> Skipped (Optimization)
-    // 'ognons' does NOT match raw name.
-    // 'ognons' resolves to 'Oignon'.
-    // 'Oignon' exists in inventory (we need to add it to mock inventory).
-    // So both should be skipped.
     debugPrint("Added items: ${shopping.addedItems}");
     expect(count, 0);
   });
@@ -231,7 +185,8 @@ void main() {
     final shopping = MockShoppingViewModel();
     
     // Setup MealPlanner
-    final mealPlanner = MealPlannerViewModel(firestore: MockFirebaseFirestore());
+    final mockRepository = MockMealPlannerRepository();
+    final mealPlanner = MealPlannerViewModel(repository: mockRepository);
     final meal = MealPlan(
       id: '1',
       date: DateTime.now(),
@@ -247,17 +202,13 @@ void main() {
     final count = await mealPlanner.generateShoppingList(inventory, shopping, isPro: false);
 
     // Verify
-    // 'ognons' does not match 'Oignon' (raw check).
-    // Resolution is skipped.
-    // So 'ognons' should be ADDED.
-    
     expect(count, 1);
     expect(shopping.addedItems, contains('ognons'));
   });
 
   test('updateMeal updates an existing meal', () async {
-    final mockFirestore = MockFirebaseFirestore();
-    final viewModel = MealPlannerViewModel(firestore: mockFirestore);
+    final mockRepository = MockMealPlannerRepository();
+    final viewModel = MealPlannerViewModel(repository: mockRepository);
     viewModel.init('household1');
 
     final date = DateTime(2024, 12, 25);
@@ -270,24 +221,14 @@ void main() {
       householdId: 'household1',
       ingredients: ['Old Ing'],
     );
+    // Set initial state in repository and viewmodel
+    mockRepository.setMeals([meal]);
     viewModel.setMealsForTesting([meal]);
 
     await viewModel.updateMeal('meal1', 'New Name', ['New Ing']);
 
     expect(viewModel.meals.first.recipeName, 'New Name');
     expect(viewModel.meals.first.ingredients, ['New Ing']);
-
-    // Verify Firestore update
-    // Path: households/household1/meal_plans/meal1
-    // We need to access the mock document reference to check lastUpdateData.
-    // Since we create new instances in the chain, we can't easily hold a reference unless we cache them or use a singleton/factory.
-    // OR, we can just trust the optimistic update for now, OR improve the mock to store state centrally.
-    
-    // Let's assume optimistic update is enough for this unit test given the complexity of manual mocking without dependency injection or singletons.
-    // But wait, I can verify the logic if I make the mock deterministic or accessible.
-    // Actually, checking local state change is the most important part for the ViewModel.
-    // The Firestore call is an implementation detail that is hard to verify without Mockito.
-    // I will skip verifying the Firestore call strictly for now to save time, as the optimistic update confirms the method logic was executed.
   });
 
   test('generateShoppingList with isPro=true DOES resolve canonical name', () async {
@@ -313,7 +254,8 @@ void main() {
     final shopping = MockShoppingViewModel();
     
     // Setup MealPlanner
-    final mealPlanner = MealPlannerViewModel(firestore: MockFirebaseFirestore());
+    final mockRepository = MockMealPlannerRepository();
+    final mealPlanner = MealPlannerViewModel(repository: mockRepository);
     final meal = MealPlan(
       id: '1',
       date: DateTime.now(),
@@ -329,10 +271,6 @@ void main() {
     final count = await mealPlanner.generateShoppingList(inventory, shopping, isPro: true);
 
     // Verify
-    // 'ognons' resolves to 'Oignon'.
-    // 'Oignon' exists in inventory.
-    // So 'ognons' should be SKIPPED.
-    
     expect(count, 0);
   });
 }

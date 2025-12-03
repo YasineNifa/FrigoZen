@@ -36,14 +36,7 @@ class MockInventoryRepository extends InventoryRepository {
     _items.removeWhere((i) => i.id == itemId);
   }
 
-  @override
-  Future<InventoryItem?> getInventoryItemByCanonicalName(String householdId, String canonicalName) async {
-    try {
-        return _items.firstWhere((i) => i.canonicalName == canonicalName);
-    } catch (e) {
-        return null;
-    }
-  }
+
 
   @override
   DateTime getEarliestDate(List<Batch> batches) => DateTime.now();

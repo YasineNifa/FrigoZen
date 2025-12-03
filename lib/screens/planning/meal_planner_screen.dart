@@ -12,6 +12,7 @@ import 'package:frigo_zen/screens/core/navigation_controller.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
+import 'dart:ui';
 
 class MealPlannerScreen extends StatefulWidget {
   const MealPlannerScreen({super.key});
@@ -82,9 +83,14 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
+                      _buildMealSection(l10n.mealPlannerBreakfast, MealType.breakfast, mealsForDay),
+                      const SizedBox(height: 16),
                       _buildMealSection(l10n.mealPlannerLunch, MealType.lunch, mealsForDay),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+                      _buildMealSection(l10n.mealPlannerSnack, MealType.snack, mealsForDay),
+                      const SizedBox(height: 16),
                       _buildMealSection(l10n.mealPlannerDinner, MealType.dinner, mealsForDay),
+                      const SizedBox(height: 80), // Bottom padding for FAB or scroll
                     ],
                   ),
           ),
@@ -99,9 +105,19 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
     
     return Container(
-      height: 100,
-      color: Colors.white,
+      height: 110,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         scrollDirection: Axis.horizontal,
         itemCount: 14, // 2 weeks
         itemBuilder: (context, index) {
@@ -111,33 +127,41 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
 
           return GestureDetector(
             onTap: () => setState(() => _selectedDate = date),
-            child: Container(
-              width: 60,
-              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 64,
+              margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF6B9C5F) : Colors.transparent,
-                borderRadius: BorderRadius.circular(12),
+                color: isSelected ? const Color(0xFF6B9C5F) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
                 border: isToday && !isSelected 
                     ? Border.all(color: const Color(0xFF6B9C5F), width: 2) 
-                    : null,
+                    : Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                boxShadow: isSelected ? [
+                  BoxShadow(
+                    color: const Color(0xFF6B9C5F).withValues(alpha: 0.4),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  )
+                ] : null,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    DateFormat.E('fr').format(date).toUpperCase(), // Mon, Tue...
+                    DateFormat.E(Localizations.localeOf(context).languageCode).format(date).toUpperCase(),
                     style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey,
+                      color: isSelected ? Colors.white.withValues(alpha: 0.9) : Colors.grey[500],
                       fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     date.day.toString(),
                     style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black,
-                      fontSize: 18,
+                      color: isSelected ? Colors.white : Colors.black87,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -178,49 +202,93 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        InkWell(
-          onTap: () => _showAddMealDialog(type, existingMeal: hasMeal ? meal : null),
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: hasMeal ? const Color(0xFF6B9C5F).withValues(alpha: 0.1) : Colors.grey[100],
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: hasMeal ? const Color(0xFF6B9C5F).withValues(alpha: 0.3) : Colors.grey[300]!,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: InkWell(
+              onTap: () => _showAddMealDialog(type, existingMeal: hasMeal ? meal : null),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: hasMeal 
+                      ? const Color(0xFF6B9C5F).withValues(alpha: 0.15) 
+                      : Colors.white.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: hasMeal 
+                        ? const Color(0xFF6B9C5F).withValues(alpha: 0.3) 
+                        : Colors.white.withValues(alpha: 0.5),
+                    width: 1.5,
                   ),
-                  child: Icon(
-                    hasMeal ? Icons.restaurant : Icons.add,
-                    color: hasMeal ? const Color(0xFF6B9C5F) : Colors.grey,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    hasMeal ? meal.recipeName : l10n.mealPlannerAddMeal,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: hasMeal ? FontWeight.w600 : FontWeight.normal,
-                      color: hasMeal ? Colors.black87 : Colors.grey[600],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
+                  ],
                 ),
-                if (hasMeal)
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.red),
-                    onPressed: () => context.read<MealPlannerViewModel>().deleteMeal(meal.id),
-                  ),
-              ],
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: hasMeal ? Colors.white : Colors.grey[100],
+                        shape: BoxShape.circle,
+                        boxShadow: hasMeal ? [
+                          BoxShadow(
+                            color: const Color(0xFF6B9C5F).withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          )
+                        ] : null,
+                      ),
+                      child: Icon(
+                        hasMeal ? Icons.restaurant_menu : Icons.add,
+                        color: hasMeal ? const Color(0xFF6B9C5F) : Colors.grey[400],
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            hasMeal ? meal.recipeName : l10n.mealPlannerAddMeal,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: hasMeal ? FontWeight.w600 : FontWeight.w500,
+                              color: hasMeal ? Colors.black87 : Colors.grey[600],
+                            ),
+                          ),
+                          if (hasMeal && meal.ingredients.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              "${meal.ingredients.length} ingrédients",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (hasMeal)
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red.withValues(alpha: 0.7), size: 20),
+                        onPressed: () => context.read<MealPlannerViewModel>().deleteMeal(meal.id),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        splashRadius: 20,
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -351,7 +419,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Les ingrédients ont été ajoutés à votre liste de courses."),
+                  Text(l10n.mealPlannerIngredientsAddedMessage),
                   if (!isPro) ...[
                     const SizedBox(height: 16),
                     Container(
@@ -395,7 +463,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("OK"),
+                  child: Text(l10n.ok),
                 ),
                 FilledButton(
                   onPressed: () {
@@ -415,12 +483,12 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
            showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text("Aucun ingrédient ajouté"),
-              content: const Text("Tous les ingrédients nécessaires sont déjà dans votre liste ou votre inventaire."),
+              title: Text(l10n.mealPlannerNoIngredientsAddedTitle),
+              content: Text(l10n.mealPlannerNoIngredientsAddedMessage),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("OK"),
+                  child: Text(l10n.ok),
                 ),
               ],
             ),
@@ -432,7 +500,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
         Navigator.of(context).pop();
         
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur : $e")),
+          SnackBar(content: Text(l10n.errorGeneric(e.toString()))),
         );
       }
     }

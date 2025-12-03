@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum MealType { lunch, dinner }
+enum MealType { breakfast, lunch, snack, dinner }
 
 class MealPlan {
   final String id;

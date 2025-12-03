@@ -323,8 +323,10 @@
     }
   },
   "recipeMealTypeTitle": "Which meal?",
-  "recipeMealTypeLunch": "Lunch ☀️",
-  "recipeMealTypeDinner": "Dinner 🌙",
+  "recipeMealTypeBreakfast": "Desayuno ☕",
+  "recipeMealTypeLunch": "Almuerzo ☀️",
+  "recipeMealTypeSnack": "Merienda 🍎",
+  "recipeMealTypeDinner": "Cena 🌙",
   "recipeAddedToPlanning": "Recipe added to planner!",
   "recipeViewPlanning": "View",
   "recipeError": "Error: {error}",

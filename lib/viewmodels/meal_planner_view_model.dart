@@ -1,22 +1,28 @@
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:frigo_zen/models/meal_plan.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+import 'package:frigo_zen/repositories/meal_planner_repository.dart';
+import 'dart:async'; // Required for StreamSubscription
 
 class MealPlannerViewModel extends ChangeNotifier {
-  final FirebaseFirestore _firestore;
+  final MealPlannerRepository _repository;
   
-  MealPlannerViewModel({FirebaseFirestore? firestore}) 
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  // State
   List<MealPlan> _meals = [];
   bool _isLoading = false;
   String? _householdId;
+  StreamSubscription<List<MealPlan>>? _mealsSubscription;
 
   List<MealPlan> get meals => _meals;
   bool get isLoading => _isLoading;
 
+  MealPlannerViewModel({MealPlannerRepository? repository})
+      : _repository = repository ?? MealPlannerRepository();
+
   void init(String householdId) {
+    if (_householdId == householdId) return; // Avoid re-initializing if already set
     _householdId = householdId;
     _fetchMeals();
   }
@@ -27,20 +33,20 @@ class MealPlannerViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    _firestore
-        .collection('households')
-        .doc(_householdId)
-        .collection('meal_plans')
-        .orderBy('date')
-        .snapshots()
-        .listen((snapshot) {
-      _meals = snapshot.docs.map((doc) => MealPlan.fromSnapshot(doc)).toList();
-      _isLoading = false;
-      notifyListeners();
-    });
+    _mealsSubscription?.cancel(); // Cancel previous subscription if any
+    _mealsSubscription = _repository.getMealPlansStream(_householdId!).listen(
+      (meals) {
+        _meals = meals;
+        _isLoading = false;
+        notifyListeners();
+      },
+      onError: (error) {
+        debugPrint("Error fetching meal plans: $error");
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
   }
-
-
 
   Future<void> addMeal(DateTime date, MealType type, String name, {List<String> ingredients = const []}) async {
     if (_householdId == null) return;
@@ -55,22 +61,13 @@ class MealPlannerViewModel extends ChangeNotifier {
       ingredients: ingredients,
     );
 
-    await _firestore
-        .collection('households')
-        .doc(_householdId)
-        .collection('meal_plans')
-        .add(newMeal.toMap());
+    await _repository.addMealPlan(_householdId!, newMeal);
   }
 
   Future<void> deleteMeal(String mealId) async {
     if (_householdId == null) return;
 
-    await _firestore
-        .collection('households')
-        .doc(_householdId)
-        .collection('meal_plans')
-        .doc(mealId)
-        .delete();
+    await _repository.deleteMealPlan(_householdId!, mealId);
   }
 
   Future<void> updateMeal(String mealId, String newName, List<String> newIngredients) async {
@@ -88,12 +85,7 @@ class MealPlannerViewModel extends ChangeNotifier {
       notifyListeners();
 
       try {
-        await _firestore
-            .collection('households')
-            .doc(_householdId)
-            .collection('meal_plans')
-            .doc(mealId)
-            .update({
+        await _repository.updateMealPlan(_householdId!, mealId, {
           'recipeName': newName,
           'ingredients': newIngredients,
         });

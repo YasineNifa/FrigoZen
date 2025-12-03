@@ -18,6 +18,7 @@ class MockShoppingRepository implements ShoppingRepository {
   }
 
   // Removed @override
+  @override
   Future<void> addShoppingItem(String householdId, ShoppingItem item) async {
     if (shouldThrow) throw Exception("Error adding item");
     _items.add(item);
@@ -82,8 +83,7 @@ class MockInventoryRepository implements InventoryRepository {
   @override
   Future<void> updateInventoryItem(String householdId, InventoryItem item) async {}
 
-  @override
-  Future<InventoryItem?> getInventoryItemByCanonicalName(String householdId, String canonicalName) async => null;
+
 
   @override
   DateTime getEarliestDate(List<Batch> batches) => DateTime.now();
@@ -176,7 +176,7 @@ void main() {
       await Future.delayed(Duration.zero);
       
       final addedItem = viewModel.items.first;
-      await viewModel.deleteItem(addedItem.id!);
+      await viewModel.deleteItem(addedItem.id);
       await Future.delayed(Duration.zero);
 
       expect(viewModel.items, isEmpty);
