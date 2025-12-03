@@ -764,4 +764,129 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get proBadge => 'PRO';
+
+  @override
+  String get shoppingItemAlreadyInStockTitle => 'Item already in stock';
+
+  @override
+  String shoppingItemAlreadyInStockMessage(String itemName) {
+    return 'You already have \'$itemName\' in your inventory. Do you want to add it to the shopping list anyway?';
+  }
+
+  @override
+  String get shoppingDialogNo => 'No';
+
+  @override
+  String get shoppingDialogYesAdd => 'Yes, add';
+
+  @override
+  String get shoppingFinishedTitle => 'Shopping finished! 🎉';
+
+  @override
+  String get shoppingDialogStay => 'Stay here';
+
+  @override
+  String get shoppingDialogViewInventory => 'View Inventory';
+
+  @override
+  String get shoppingUncheckAllTooltip => 'Uncheck all';
+
+  @override
+  String get shoppingCheckAllTooltip => 'Check all';
+
+  @override
+  String get shoppingDeleteAllTooltip => 'Delete all';
+
+  @override
+  String get shoppingDeleteAllTitle => 'Delete all?';
+
+  @override
+  String get shoppingDeleteAllMessage =>
+      'Do you really want to clear your shopping list? This action is irreversible.';
+
+  @override
+  String get shoppingDialogCancel => 'Cancel';
+
+  @override
+  String get shoppingDialogDelete => 'Delete';
+
+  @override
+  String get shoppingCategoryOther => 'Other';
+
+  @override
+  String get recipeTitle => 'Recipes';
+
+  @override
+  String get recipeTabDiscover => 'Discover';
+
+  @override
+  String get recipeTabFavorites => 'Favorites';
+
+  @override
+  String get recipeSearchHint => 'Search for a recipe...';
+
+  @override
+  String get recipeNoResults => 'No recipes found.';
+
+  @override
+  String get recipeIngredientsAddedTitle => 'Ingredients added!';
+
+  @override
+  String get recipeIngredientsAddedMessage =>
+      'Ingredients have been added to your shopping list. Do you want to see it now?';
+
+  @override
+  String get recipeDialogStay => 'Stay here';
+
+  @override
+  String get recipeDialogViewList => 'View list';
+
+  @override
+  String recipeAddError(String error) {
+    return 'Error adding items: $error';
+  }
+
+  @override
+  String get recipeMealTypeTitle => 'Which meal?';
+
+  @override
+  String get recipeMealTypeLunch => 'Lunch ☀️';
+
+  @override
+  String get recipeMealTypeDinner => 'Dinner 🌙';
+
+  @override
+  String get recipeAddedToPlanning => 'Recipe added to planner!';
+
+  @override
+  String get recipeViewPlanning => 'View';
+
+  @override
+  String recipeError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get recipeIngredientsTitle => 'Ingredients';
+
+  @override
+  String get recipeAddIngredientsBtn => 'Add to shopping list';
+
+  @override
+  String get recipeFilterTitle => 'Chef Preferences';
+
+  @override
+  String get recipeFilterMealType => 'Meal Type';
+
+  @override
+  String get recipeFilterDiet => 'Diet';
+
+  @override
+  String get recipeFilterDifficulty => 'Difficulty';
+
+  @override
+  String get recipeFilterGenerate => 'Generate';
+
+  @override
+  String get recipeFilterCancel => 'Cancel';
 }

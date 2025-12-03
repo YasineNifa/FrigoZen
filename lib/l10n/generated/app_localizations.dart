@@ -1483,6 +1483,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PRO'**
   String get proBadge;
+
+  /// No description provided for @shoppingItemAlreadyInStockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Item already in stock'**
+  String get shoppingItemAlreadyInStockTitle;
+
+  /// No description provided for @shoppingItemAlreadyInStockMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have \'{itemName}\' in your inventory. Do you want to add it to the shopping list anyway?'**
+  String shoppingItemAlreadyInStockMessage(String itemName);
+
+  /// No description provided for @shoppingDialogNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get shoppingDialogNo;
+
+  /// No description provided for @shoppingDialogYesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, add'**
+  String get shoppingDialogYesAdd;
+
+  /// No description provided for @shoppingFinishedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping finished! 🎉'**
+  String get shoppingFinishedTitle;
+
+  /// No description provided for @shoppingDialogStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay here'**
+  String get shoppingDialogStay;
+
+  /// No description provided for @shoppingDialogViewInventory.
+  ///
+  /// In en, this message translates to:
+  /// **'View Inventory'**
+  String get shoppingDialogViewInventory;
+
+  /// No description provided for @shoppingUncheckAllTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncheck all'**
+  String get shoppingUncheckAllTooltip;
+
+  /// No description provided for @shoppingCheckAllTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Check all'**
+  String get shoppingCheckAllTooltip;
+
+  /// No description provided for @shoppingDeleteAllTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all'**
+  String get shoppingDeleteAllTooltip;
+
+  /// No description provided for @shoppingDeleteAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all?'**
+  String get shoppingDeleteAllTitle;
+
+  /// No description provided for @shoppingDeleteAllMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you really want to clear your shopping list? This action is irreversible.'**
+  String get shoppingDeleteAllMessage;
+
+  /// No description provided for @shoppingDialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get shoppingDialogCancel;
+
+  /// No description provided for @shoppingDialogDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get shoppingDialogDelete;
+
+  /// No description provided for @shoppingCategoryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get shoppingCategoryOther;
+
+  /// No description provided for @recipeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipes'**
+  String get recipeTitle;
+
+  /// No description provided for @recipeTabDiscover.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get recipeTabDiscover;
+
+  /// No description provided for @recipeTabFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get recipeTabFavorites;
+
+  /// No description provided for @recipeSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a recipe...'**
+  String get recipeSearchHint;
+
+  /// No description provided for @recipeNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipes found.'**
+  String get recipeNoResults;
+
+  /// No description provided for @recipeIngredientsAddedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients added!'**
+  String get recipeIngredientsAddedTitle;
+
+  /// No description provided for @recipeIngredientsAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients have been added to your shopping list. Do you want to see it now?'**
+  String get recipeIngredientsAddedMessage;
+
+  /// No description provided for @recipeDialogStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay here'**
+  String get recipeDialogStay;
+
+  /// No description provided for @recipeDialogViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'View list'**
+  String get recipeDialogViewList;
+
+  /// No description provided for @recipeAddError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error adding items: {error}'**
+  String recipeAddError(String error);
+
+  /// No description provided for @recipeMealTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which meal?'**
+  String get recipeMealTypeTitle;
+
+  /// No description provided for @recipeMealTypeLunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch ☀️'**
+  String get recipeMealTypeLunch;
+
+  /// No description provided for @recipeMealTypeDinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner 🌙'**
+  String get recipeMealTypeDinner;
+
+  /// No description provided for @recipeAddedToPlanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe added to planner!'**
+  String get recipeAddedToPlanning;
+
+  /// No description provided for @recipeViewPlanning.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get recipeViewPlanning;
+
+  /// No description provided for @recipeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String recipeError(String error);
+
+  /// No description provided for @recipeIngredientsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get recipeIngredientsTitle;
+
+  /// No description provided for @recipeAddIngredientsBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to shopping list'**
+  String get recipeAddIngredientsBtn;
+
+  /// No description provided for @recipeFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chef Preferences'**
+  String get recipeFilterTitle;
+
+  /// No description provided for @recipeFilterMealType.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Type'**
+  String get recipeFilterMealType;
+
+  /// No description provided for @recipeFilterDiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet'**
+  String get recipeFilterDiet;
+
+  /// No description provided for @recipeFilterDifficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get recipeFilterDifficulty;
+
+  /// No description provided for @recipeFilterGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate'**
+  String get recipeFilterGenerate;
+
+  /// No description provided for @recipeFilterCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get recipeFilterCancel;
 }
 
 class _AppLocalizationsDelegate

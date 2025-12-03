@@ -74,24 +74,7 @@ class InventorySummaryCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: onRecipePressed,
-                  icon: const Icon(Icons.restaurant_menu, size: 18),
-                  label: Text(AppLocalizations.of(context)!.cookWithFridgeBtn),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange[100],
-                    foregroundColor: Colors.orange[900],
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
+
             ],
           ),
         );

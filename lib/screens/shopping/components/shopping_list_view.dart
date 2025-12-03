@@ -5,6 +5,7 @@ import 'package:frigo_zen/components/shopping_list_tile.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/components/skeleton.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 
 class ShoppingListView extends StatelessWidget {
@@ -70,7 +71,7 @@ class ShoppingListView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                   child: Text(
-                    category.toUpperCase(),
+                    category == 'Autres' ? AppLocalizations.of(context)!.shoppingCategoryOther.toUpperCase() : category.toUpperCase(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

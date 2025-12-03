@@ -285,5 +285,60 @@
       "code": { "type": "Object" }
     }
   },
-  "proBadge": "PRO"
+  "proBadge": "PRO",
+  "shoppingItemAlreadyInStockTitle": "Item already in stock",
+  "shoppingItemAlreadyInStockMessage": "You already have '{itemName}' in your inventory. Do you want to add it to the shopping list anyway?",
+  "@shoppingItemAlreadyInStockMessage": {
+    "placeholders": {
+      "itemName": { "type": "String" }
+    }
+  },
+  "shoppingDialogNo": "No",
+  "shoppingDialogYesAdd": "Yes, add",
+  "shoppingFinishedTitle": "Shopping finished! 🎉",
+  "shoppingDialogStay": "Stay here",
+  "shoppingDialogViewInventory": "View Inventory",
+  "shoppingUncheckAllTooltip": "Uncheck all",
+  "shoppingCheckAllTooltip": "Check all",
+  "shoppingDeleteAllTooltip": "Delete all",
+  "shoppingDeleteAllTitle": "Delete all?",
+  "shoppingDeleteAllMessage": "Do you really want to clear your shopping list? This action is irreversible.",
+  "shoppingDialogCancel": "Cancel",
+  "shoppingDialogDelete": "Delete",
+  "shoppingCategoryOther": "Other",
+  "@_RECIPES_SCREEN": {},
+  "recipeTitle": "Recipes",
+  "recipeTabDiscover": "Discover",
+  "recipeTabFavorites": "Favorites",
+  "recipeSearchHint": "Search for a recipe...",
+  "recipeNoResults": "No recipes found.",
+  "recipeIngredientsAddedTitle": "Ingredients added!",
+  "recipeIngredientsAddedMessage": "Ingredients have been added to your shopping list. Do you want to see it now?",
+  "recipeDialogStay": "Stay here",
+  "recipeDialogViewList": "View list",
+  "recipeAddError": "Error adding items: {error}",
+  "@recipeAddError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "recipeMealTypeTitle": "Which meal?",
+  "recipeMealTypeLunch": "Lunch ☀️",
+  "recipeMealTypeDinner": "Dinner 🌙",
+  "recipeAddedToPlanning": "Recipe added to planner!",
+  "recipeViewPlanning": "View",
+  "recipeError": "Error: {error}",
+  "@recipeError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "recipeIngredientsTitle": "Ingredients",
+  "recipeAddIngredientsBtn": "Add to shopping list",
+  "recipeFilterTitle": "Chef Preferences",
+  "recipeFilterMealType": "Meal Type",
+  "recipeFilterDiet": "Diet",
+  "recipeFilterDifficulty": "Difficulty",
+  "recipeFilterGenerate": "Generate",
+  "recipeFilterCancel": "Cancel"
 }

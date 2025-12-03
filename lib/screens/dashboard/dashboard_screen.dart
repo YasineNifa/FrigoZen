@@ -11,7 +11,7 @@ import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/screens/dashboard/components/premium_stats_wrapper.dart';
-import 'package:frigo_zen/screens/planning/meal_planner_screen.dart';
+import 'package:frigo_zen/screens/dashboard/components/premium_stats_wrapper.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
@@ -91,72 +91,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Meal Planner Card (New)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MealPlannerScreen()),
-                ),
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [const Color(0xFF6B9C5F), const Color(0xFF8BC34A)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF6B9C5F).withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.calendar_month, color: Colors.white, size: 28),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                AppLocalizations.of(context)!.mealPlannerCardTitle,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                                AppLocalizations.of(context)!.mealPlannerCardSubtitle,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
-                    ],
-                  ),
-                ),
               ),
             ),
             const SizedBox(height: 24),

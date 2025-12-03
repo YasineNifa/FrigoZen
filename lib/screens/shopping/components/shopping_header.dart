@@ -21,24 +21,23 @@ class ShoppingHeader extends StatelessWidget implements PreferredSizeWidget {
               allChecked ? Icons.deselect_outlined : Icons.select_all,
               color: Colors.black87,
             ),
-            tooltip: allChecked ? "Tout décocher" : "Tout cocher",
+            tooltip: allChecked ? l10n.shoppingUncheckAllTooltip : l10n.shoppingCheckAllTooltip,
             onPressed: () => vm.toggleSelectAll(),
           ),
         if (vm.items.isNotEmpty)
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.red),
-            tooltip: "Tout supprimer",
+            tooltip: l10n.shoppingDeleteAllTooltip,
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text("Tout supprimer ?"),
-                  content: const Text(
-                      "Voulez-vous vraiment vider votre liste de courses ? Cette action est irréversible."),
+                  title: Text(l10n.shoppingDeleteAllTitle),
+                  content: Text(l10n.shoppingDeleteAllMessage),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text("Annuler"),
+                      child: Text(l10n.shoppingDialogCancel),
                     ),
                     FilledButton(
                       style: FilledButton.styleFrom(
@@ -48,7 +47,7 @@ class ShoppingHeader extends StatelessWidget implements PreferredSizeWidget {
                         Navigator.pop(context);
                         vm.clearList();
                       },
-                      child: const Text("Supprimer"),
+                      child: Text(l10n.shoppingDialogDelete),
                     ),
                   ],
                 ),

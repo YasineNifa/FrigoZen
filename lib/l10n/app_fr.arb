@@ -285,5 +285,60 @@
       "code": { "type": "Object" }
     }
   },
-  "proBadge": "PRO"
+  "proBadge": "PRO",
+  "shoppingItemAlreadyInStockTitle": "Produit déjà en stock",
+  "shoppingItemAlreadyInStockMessage": "Vous avez déjà '{itemName}' dans votre inventaire. Voulez-vous l'ajouter quand même à la liste de courses ?",
+  "@shoppingItemAlreadyInStockMessage": {
+    "placeholders": {
+      "itemName": { "type": "String" }
+    }
+  },
+  "shoppingDialogNo": "Non",
+  "shoppingDialogYesAdd": "Oui, ajouter",
+  "shoppingFinishedTitle": "Courses terminées ! 🎉",
+  "shoppingDialogStay": "Rester ici",
+  "shoppingDialogViewInventory": "Voir l'inventaire",
+  "shoppingUncheckAllTooltip": "Tout décocher",
+  "shoppingCheckAllTooltip": "Tout cocher",
+  "shoppingDeleteAllTooltip": "Tout supprimer",
+  "shoppingDeleteAllTitle": "Tout supprimer ?",
+  "shoppingDeleteAllMessage": "Voulez-vous vraiment vider votre liste de courses ? Cette action est irréversible.",
+  "shoppingDialogCancel": "Annuler",
+  "shoppingDialogDelete": "Supprimer",
+  "shoppingCategoryOther": "Autres",
+  "@_RECIPES_SCREEN": {},
+  "recipeTitle": "Recettes",
+  "recipeTabDiscover": "Découvrir",
+  "recipeTabFavorites": "Favoris",
+  "recipeSearchHint": "Rechercher une recette...",
+  "recipeNoResults": "Aucune recette trouvée.",
+  "recipeIngredientsAddedTitle": "Ingrédients ajoutés !",
+  "recipeIngredientsAddedMessage": "Les ingrédients ont été ajoutés à votre liste de courses. Voulez-vous la voir maintenant ?",
+  "recipeDialogStay": "Rester ici",
+  "recipeDialogViewList": "Voir la liste",
+  "recipeAddError": "Erreur lors de l'ajout : {error}",
+  "@recipeAddError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "recipeMealTypeTitle": "Quel repas ?",
+  "recipeMealTypeLunch": "Déjeuner ☀️",
+  "recipeMealTypeDinner": "Dîner 🌙",
+  "recipeAddedToPlanning": "Recette ajoutée au planning !",
+  "recipeViewPlanning": "Voir",
+  "recipeError": "Erreur : {error}",
+  "@recipeError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "recipeIngredientsTitle": "Ingrédients",
+  "recipeAddIngredientsBtn": "Ajouter à la liste de courses",
+  "recipeFilterTitle": "Préférences du Chef",
+  "recipeFilterMealType": "Type de plat",
+  "recipeFilterDiet": "Régime",
+  "recipeFilterDifficulty": "Difficulté",
+  "recipeFilterGenerate": "Générer",
+  "recipeFilterCancel": "Annuler"
 }

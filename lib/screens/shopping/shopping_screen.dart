@@ -117,16 +117,16 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
           final shouldAdd = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text("Produit déjà en stock"),
-              content: Text("Vous avez déjà '$nameToCheck' dans votre inventaire. Voulez-vous l'ajouter quand même à la liste de courses ?"),
+              title: Text(l10n.shoppingItemAlreadyInStockTitle),
+              content: Text(l10n.shoppingItemAlreadyInStockMessage(nameToCheck)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text("Non"),
+                  child: Text(l10n.shoppingDialogNo),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text("Oui, ajouter"),
+                  child: Text(l10n.shoppingDialogYesAdd),
                 ),
               ],
             ),
@@ -267,7 +267,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "Courses terminées ! 🎉",
+                                    l10n.shoppingFinishedTitle,
                                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black87,
@@ -288,7 +288,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text("Rester ici"),
+                            child: Text(l10n.shoppingDialogStay),
                           ),
                           FilledButton(
                             onPressed: () {
@@ -296,7 +296,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                               // Navigate to Inventory (index 1)
                               context.read<NavigationController>().setIndex(1);
                             },
-                            child: const Text("Voir l'inventaire"),
+                            child: Text(l10n.shoppingDialogViewInventory),
                           ),
                         ],
                       ),

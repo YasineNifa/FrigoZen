@@ -6,6 +6,7 @@ import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
 
 import 'package:frigo_zen/models/recipe.dart';
 import 'package:frigo_zen/components/skeleton.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class RecipesScreen extends StatefulWidget {
   const RecipesScreen({super.key});
@@ -37,20 +38,20 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final l10n = AppLocalizations.of(context)!; // Not used yet
+    final l10n = AppLocalizations.of(context)!;
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Recettes"), // TODO: Localize
+          title: Text(l10n.recipeTitle),
           bottom: TabBar(
             indicatorColor: Theme.of(context).primaryColor,
             labelColor: Theme.of(context).primaryColor,
             unselectedLabelColor: Colors.grey,
-            tabs: const [
-              Tab(text: "Découvrir"), // TODO: Localize
-              Tab(text: "Favoris"), // TODO: Localize
+            tabs: [
+              Tab(text: l10n.recipeTabDiscover),
+              Tab(text: l10n.recipeTabFavorites),
             ],
           ),
         ),
@@ -66,6 +67,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildDiscoverTab(BuildContext context) {
     final viewModel = context.watch<RecipesViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
@@ -75,7 +77,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: "Rechercher une recette...", // TODO: Localize
+              hintText: l10n.recipeSearchHint,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.clear),
@@ -172,7 +174,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildRecipeGrid(BuildContext context, List<Recipe> recipes) {
     if (recipes.isEmpty) {
-      return const Center(child: Text("Aucune recette trouvée.")); // TODO: Localize
+      return Center(child: Text(AppLocalizations.of(context)!.recipeNoResults));
     }
 
     return GridView.builder(

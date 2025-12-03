@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 
 class RecipeFiltersDialog extends StatefulWidget {
@@ -19,24 +20,25 @@ class _RecipeFiltersDialogState extends State<RecipeFiltersDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text("Préférences du Chef"), // TODO: l10n
+      title: Text(l10n.recipeFilterTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle("Type de plat"),
+            _buildSectionTitle(l10n.recipeFilterMealType),
             _buildChipGroup(_mealTypes, _selectedMealType, (val) {
               setState(() => _selectedMealType = val);
             }),
             const SizedBox(height: 16),
-            _buildSectionTitle("Régime"),
+            _buildSectionTitle(l10n.recipeFilterDiet),
             _buildChipGroup(_diets, _selectedDiet, (val) {
               setState(() => _selectedDiet = val);
             }),
             const SizedBox(height: 16),
-            _buildSectionTitle("Difficulté"),
+            _buildSectionTitle(l10n.recipeFilterDifficulty),
             _buildChipGroup(_difficulties, _selectedDifficulty, (val) {
               setState(() => _selectedDifficulty = val);
             }),
@@ -46,7 +48,7 @@ class _RecipeFiltersDialogState extends State<RecipeFiltersDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Annuler"), // TODO: l10n
+          child: Text(l10n.recipeFilterCancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -60,7 +62,7 @@ class _RecipeFiltersDialogState extends State<RecipeFiltersDialog> {
             backgroundColor: AppTheme.primaryColor,
             foregroundColor: Colors.white,
           ),
-          child: const Text("Générer"), // TODO: l10n
+          child: Text(l10n.recipeFilterGenerate),
         ),
       ],
     );

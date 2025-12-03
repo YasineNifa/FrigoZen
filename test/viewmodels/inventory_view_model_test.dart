@@ -47,6 +47,26 @@ class MockInventoryRepository implements InventoryRepository {
 
   @override
   DateTime getEarliestDate(List<Batch> batches) => DateTime.now();
+
+  @override
+  Future<InventoryItem?> findExistingItem(String householdId, String canonicalName, String name) async {
+    try {
+      return _items.firstWhere((i) => i.canonicalName == canonicalName || i.name == name);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> upsertInventoryItem(String householdId, InventoryItem item) async {
+    if (shouldThrow) throw Exception("Error upserting item");
+    final index = _items.indexWhere((i) => i.id == item.id);
+    if (index != -1) {
+      _items[index] = item;
+    } else {
+      _items.add(item);
+    }
+  }
 }
 
 void main() {

@@ -157,16 +157,16 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         // Close loading dialog
         Navigator.of(context).pop();
         
-        // Show success dialog
+                        // Show success dialog
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Ingrédients ajoutés !"),
-            content: const Text("Les ingrédients ont été ajoutés à votre liste de courses. Voulez-vous la voir maintenant ?"),
+            title: Text(AppLocalizations.of(context)!.recipeIngredientsAddedTitle),
+            content: Text(AppLocalizations.of(context)!.recipeIngredientsAddedMessage),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("Rester ici"),
+                child: Text(AppLocalizations.of(context)!.recipeDialogStay),
               ),
               FilledButton(
                 onPressed: () {
@@ -176,7 +176,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   // Pop back to the main shell (remove recipe detail from stack)
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
-                child: const Text("Voir la liste"),
+                child: Text(AppLocalizations.of(context)!.recipeDialogViewList),
               ),
             ],
           ),
@@ -188,7 +188,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         Navigator.of(context).pop();
         
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur lors de l'ajout : $e")),
+          SnackBar(content: Text(AppLocalizations.of(context)!.recipeAddError(e.toString()))),
         );
       }
     }
@@ -227,20 +227,20 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     final MealType? pickedType = await showDialog<MealType>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text("Quel repas ?"),
+        title: Text(l10n.recipeMealTypeTitle),
         children: [
           SimpleDialogOption(
             onPressed: () => Navigator.pop(context, MealType.lunch),
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("Déjeuner ☀️", style: TextStyle(fontSize: 16)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(l10n.recipeMealTypeLunch, style: const TextStyle(fontSize: 16)),
             ),
           ),
           SimpleDialogOption(
             onPressed: () => Navigator.pop(context, MealType.dinner),
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("Dîner 🌙", style: TextStyle(fontSize: 16)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(l10n.recipeMealTypeDinner, style: const TextStyle(fontSize: 16)),
             ),
           ),
         ],
@@ -260,10 +260,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Recette ajoutée au planning !"),
+            content: Text(l10n.recipeAddedToPlanning),
             backgroundColor: Colors.green,
             action: SnackBarAction(
-              label: "Voir",
+              label: l10n.recipeViewPlanning,
               textColor: Colors.white,
               onPressed: () {
                 context.read<NavigationController>().setIndex(3); // Planning tab
@@ -276,7 +276,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur : $e")),
+          SnackBar(content: Text(l10n.recipeError(e.toString()))),
         );
       }
     }
@@ -390,7 +390,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       if (_fullRecipe != null) ...[
                         // API Recipe View (Single List)
                         Text(
-                          "Ingrédients",
+                          l10n.recipeIngredientsTitle,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -419,7 +419,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                _addMissingItemsToShoppingList(names);
                             },
                             icon: const Icon(Icons.add_shopping_cart),
-                            label: const Text("Ajouter à la liste de courses"),
+                            label: Text(l10n.recipeAddIngredientsBtn),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Theme.of(context).primaryColor,
                               side: BorderSide(color: Theme.of(context).primaryColor),
@@ -455,7 +455,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             child: OutlinedButton.icon(
                               onPressed: () => _addMissingItemsToShoppingList(missingItems),
                               icon: const Icon(Icons.add_shopping_cart),
-                              label: const Text("Ajouter à la liste de courses"),
+                              label: Text(l10n.recipeAddIngredientsBtn),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Theme.of(context).primaryColor,
                                 side: BorderSide(color: Theme.of(context).primaryColor),

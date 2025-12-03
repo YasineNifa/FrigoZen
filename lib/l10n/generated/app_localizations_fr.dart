@@ -765,4 +765,129 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get proBadge => 'PRO';
+
+  @override
+  String get shoppingItemAlreadyInStockTitle => 'Produit déjà en stock';
+
+  @override
+  String shoppingItemAlreadyInStockMessage(String itemName) {
+    return 'Vous avez déjà \'$itemName\' dans votre inventaire. Voulez-vous l\'ajouter quand même à la liste de courses ?';
+  }
+
+  @override
+  String get shoppingDialogNo => 'Non';
+
+  @override
+  String get shoppingDialogYesAdd => 'Oui, ajouter';
+
+  @override
+  String get shoppingFinishedTitle => 'Courses terminées ! 🎉';
+
+  @override
+  String get shoppingDialogStay => 'Rester ici';
+
+  @override
+  String get shoppingDialogViewInventory => 'Voir l\'inventaire';
+
+  @override
+  String get shoppingUncheckAllTooltip => 'Tout décocher';
+
+  @override
+  String get shoppingCheckAllTooltip => 'Tout cocher';
+
+  @override
+  String get shoppingDeleteAllTooltip => 'Tout supprimer';
+
+  @override
+  String get shoppingDeleteAllTitle => 'Tout supprimer ?';
+
+  @override
+  String get shoppingDeleteAllMessage =>
+      'Voulez-vous vraiment vider votre liste de courses ? Cette action est irréversible.';
+
+  @override
+  String get shoppingDialogCancel => 'Annuler';
+
+  @override
+  String get shoppingDialogDelete => 'Supprimer';
+
+  @override
+  String get shoppingCategoryOther => 'Autres';
+
+  @override
+  String get recipeTitle => 'Recettes';
+
+  @override
+  String get recipeTabDiscover => 'Découvrir';
+
+  @override
+  String get recipeTabFavorites => 'Favoris';
+
+  @override
+  String get recipeSearchHint => 'Rechercher une recette...';
+
+  @override
+  String get recipeNoResults => 'Aucune recette trouvée.';
+
+  @override
+  String get recipeIngredientsAddedTitle => 'Ingrédients ajoutés !';
+
+  @override
+  String get recipeIngredientsAddedMessage =>
+      'Les ingrédients ont été ajoutés à votre liste de courses. Voulez-vous la voir maintenant ?';
+
+  @override
+  String get recipeDialogStay => 'Rester ici';
+
+  @override
+  String get recipeDialogViewList => 'Voir la liste';
+
+  @override
+  String recipeAddError(String error) {
+    return 'Erreur lors de l\'ajout : $error';
+  }
+
+  @override
+  String get recipeMealTypeTitle => 'Quel repas ?';
+
+  @override
+  String get recipeMealTypeLunch => 'Déjeuner ☀️';
+
+  @override
+  String get recipeMealTypeDinner => 'Dîner 🌙';
+
+  @override
+  String get recipeAddedToPlanning => 'Recette ajoutée au planning !';
+
+  @override
+  String get recipeViewPlanning => 'Voir';
+
+  @override
+  String recipeError(String error) {
+    return 'Erreur : $error';
+  }
+
+  @override
+  String get recipeIngredientsTitle => 'Ingrédients';
+
+  @override
+  String get recipeAddIngredientsBtn => 'Ajouter à la liste de courses';
+
+  @override
+  String get recipeFilterTitle => 'Préférences du Chef';
+
+  @override
+  String get recipeFilterMealType => 'Type de plat';
+
+  @override
+  String get recipeFilterDiet => 'Régime';
+
+  @override
+  String get recipeFilterDifficulty => 'Difficulté';
+
+  @override
+  String get recipeFilterGenerate => 'Générer';
+
+  @override
+  String get recipeFilterCancel => 'Annuler';
 }

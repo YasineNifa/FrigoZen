@@ -16,8 +16,8 @@ import 'package:frigo_zen/repositories/household_repository.dart';
 
 import 'package:frigo_zen/screens/inventory/components/scan_options_sheet.dart';
 import 'package:frigo_zen/screens/recipes/components/recipe_filters_dialog.dart';
-import 'package:frigo_zen/screens/inventory/components/inventory_summary_card.dart';
 import 'package:frigo_zen/screens/core/premium_guard.dart';
+import 'package:frigo_zen/screens/planning/meal_planner_screen.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -177,8 +177,38 @@ class _InventoryScreenState extends State<InventoryScreen> {
       ),
       body: Column(
         children: [
-          InventorySummaryCard(
-            onRecipePressed: () => _triggerRecipeGeneration(context),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildHeaderButton(
+                    context,
+                    icon: Icons.restaurant_menu,
+                    label: l10n.cookWithFridgeBtn,
+                    color: Theme.of(context).primaryColor,
+                    onTap: () => _triggerRecipeGeneration(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildHeaderButton(
+                    context,
+                    icon: Icons.calendar_month,
+                    label: l10n.mealPlannerCardTitle,
+                    color: Colors.orange,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MealPlannerScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           const LocationFilterPills(),
           Padding(
@@ -213,6 +243,45 @@ class _InventoryScreenState extends State<InventoryScreen> {
     );      },
         backgroundColor: Theme.of(context).primaryColor,
         child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+  Widget _buildHeaderButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        // Removed fixed height to avoid overflow
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 28, color: color),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -37,6 +37,35 @@ class MockShoppingRepository implements ShoppingRepository {
     if (shouldThrow) throw Exception("Error deleting item");
     _items.removeWhere((i) => i.id == itemId);
   }
+
+  @override
+  Future<void> addShoppingItems(String householdId, List<ShoppingItem> items) async {
+    if (shouldThrow) throw Exception("Error adding items");
+    _items.addAll(items);
+  }
+
+  @override
+  Future<void> clearShoppingList(String householdId) async {
+    if (shouldThrow) throw Exception("Error clearing list");
+    _items.clear();
+  }
+
+  @override
+  Future<void> deleteShoppingItems(String householdId, List<String> itemIds) async {
+    if (shouldThrow) throw Exception("Error deleting items");
+    _items.removeWhere((i) => itemIds.contains(i.id));
+  }
+
+  @override
+  Future<void> updateShoppingItems(String householdId, List<ShoppingItem> items) async {
+    if (shouldThrow) throw Exception("Error updating items");
+    for (var item in items) {
+      final index = _items.indexWhere((i) => i.id == item.id);
+      if (index != -1) {
+        _items[index] = item;
+      }
+    }
+  }
 }
 
 // Mock Inventory Repository
@@ -58,6 +87,12 @@ class MockInventoryRepository implements InventoryRepository {
 
   @override
   DateTime getEarliestDate(List<Batch> batches) => DateTime.now();
+
+  @override
+  Future<InventoryItem?> findExistingItem(String householdId, String canonicalName, String name) async => null;
+
+  @override
+  Future<void> upsertInventoryItem(String householdId, InventoryItem item) async {}
 }
 
 void main() {
