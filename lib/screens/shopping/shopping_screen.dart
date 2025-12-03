@@ -181,23 +181,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         children: [
           Column(
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: CustomizedInputField(
-                  textController: _textController,
-                  isAdding: vm.isLoading || _isLocalLoading, // Use VM loading state or local state
-                  onAdd: _addItem,
-                ),
+              CustomizedInputField(
+                textController: _textController,
+                isAdding: vm.isLoading || _isLocalLoading,
+                onAdd: _addItem,
               ),
               const Expanded(
                 child: ShoppingListView(),
