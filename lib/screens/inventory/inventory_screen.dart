@@ -81,14 +81,14 @@ class _InventoryScreenState extends State<InventoryScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => const Dialog(
+      builder: (ctx) => Dialog(
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(20.0),
           child: Row(
             children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 20),
-              Text("Finding recipes..."),
+              const CircularProgressIndicator(),
+              const SizedBox(width: 20),
+              Text(AppLocalizations.of(context)!.recipeFinding),
             ],
           ),
         ),
@@ -103,7 +103,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       if (inventoryItems.isEmpty) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Votre inventaire est vide !')),
+           SnackBar(content: Text(AppLocalizations.of(context)!.inventoryEmpty)),
         );
         return;
       }
@@ -139,7 +139,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
           if (mounted) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('No recipes found.')));
+            ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.recipesNotFound)));
           }
         } else {
           if (mounted) {
@@ -161,7 +161,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Error: $error"),
+          content: Text(AppLocalizations.of(context)!.errorGeneric(error.toString())),
           backgroundColor: Colors.red[700],
         ),
       );

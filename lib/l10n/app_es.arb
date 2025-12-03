@@ -193,5 +193,97 @@
   "paywallBenefitSmartListDesc": "Generación automática e inteligente.",
   "mealPlannerSmartListUpsell": "¡Pásate a Pro para la generación inteligente con IA!",
   "mealPlannerGoPremium": "Hazte Premium",
-  "paywallTermsButton": "Términos y Condiciones"
+  "paywallTermsButton": "Términos y Condiciones",
+  "@_DASHBOARD_SCREEN": {},
+  "dashboardTitle": "Panel",
+  "quickActionsTitle": "Acciones rápidas",
+  "scanActionLabel": "Escanear",
+  "addActionLabel": "Añadir",
+  "mealPlannerCardTitle": "Mi planificador",
+  "mealPlannerCardSubtitle": "Planifica tus comidas de la semana",
+  "expiringSoonTitle": "¡Comer pronto!",
+  "cookWithFridgeBtn": "Cocinar con mi nevera",
+  "summaryTotal": "Total",
+  "summaryToEat": "Para comer",
+  "summaryShopping": "Compras",
+  "expiredLabel": "Caducado",
+  "todayLabel": "Hoy",
+  "daysLeftLabel": "D-{days}",
+  "@daysLeftLabel": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statsTopCategories": "Categorías Principales",
+  "statsNutriScore": "Calidad Nutricional",
+  "statsScoreLabel": "Puntuación {score}",
+  "@statsScoreLabel": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "statsPremiumLabel": "Estadísticas Premium",
+  "statsUnlockBtn": "Desbloquear",
+  "statsStorageDistribution": "Distribución por Almacenamiento",
+  "statsFavoriteStores": "Tus Tiendas Favoritas",
+  "@_INVENTORY_SCREEN": {},
+  "recipeFinding": "Buscando recetas...",
+  "inventoryEmpty": "¡Tu inventario está vacío!",
+  "recipesNotFound": "No se encontraron recetas.",
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "renameProductTitle": "Renombrar producto",
+  "newNameLabel": "Nuevo nombre",
+  "cancelBtn": "Cancelar",
+  "saveBtn": "Guardar",
+  "renameTooltip": "Renombrar",
+  "addedOnDate": "Añadido el {date}",
+  "@addedOnDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "editBatchTitle": "Editar lote",
+  "specificNameLabel": "Nombre específico",
+  "specificNameHint": "ej. Huevos Ecológicos",
+  "brandLabel": "Marca",
+  "brandHint": "ej. Bio Village",
+  "storeLabel": "Tienda",
+  "storeHint": "ej. Mercadona",
+  "nutriScoreLabel": "Nutri-Score",
+  "nutriScoreUndefined": "Indefinido",
+  "expirationDateLabel": "Fecha de caducidad",
+  "quantityLabel": "Cantidad",
+  "searchNoResults": "No se encontraron resultados",
+  "searchTryDifferent": "Prueba con otro término de búsqueda.",
+  "statusExpired": "Caducado",
+  "statusExpiresToday": "Caduca hoy",
+  "statusExpiresSoon": "Caduca pronto",
+  "statusExpiresInDays": "Caduca en {days} días",
+  "@statusExpiresInDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statusFresh": "Fresco",
+  "scanBarcodeTitle": "Escanear código de barras",
+  "productUnknown": "Producto desconocido",
+  "productAdded": "¡{name} añadido!",
+  "@productAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "productNotFoundOFF": "Producto no encontrado en Open Food Facts.",
+  "serverErrorOFF": "Error del servidor OFF ({code})",
+  "@serverErrorOFF": {
+    "placeholders": {
+      "code": { "type": "Object" }
+    }
+  },
+  "proBadge": "PRO"
 }

@@ -3,6 +3,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class StoreStatsCard extends StatelessWidget {
   const StoreStatsCard({super.key});
@@ -40,7 +41,7 @@ class StoreStatsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Vos Magasins Préférés",
+                AppLocalizations.of(context)!.statsFavoriteStores,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

@@ -13,6 +13,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/screens/dashboard/components/premium_stats_wrapper.dart';
 import 'package:frigo_zen/screens/planning/meal_planner_screen.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -52,7 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Dashboard"),
+        title: Text(AppLocalizations.of(context)!.dashboardTitle),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -62,7 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                "Actions Rapides",
+                AppLocalizations.of(context)!.quickActionsTitle,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -74,7 +75,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: _buildActionButton(
                       context,
                       icon: Icons.qr_code_scanner,
-                      label: "Scanner",
+                      label: AppLocalizations.of(context)!.scanActionLabel,
                       color: Theme.of(context).primaryColor,
                       onTap: () => _showImageSourceDialog(context),
                     ),
@@ -84,7 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: _buildActionButton(
                       context,
                       icon: Icons.add,
-                      label: "Ajouter",
+                      label: AppLocalizations.of(context)!.addActionLabel,
                       color: Theme.of(context).primaryColor,
                       onTap: () => _showAddDialog(context),
                     ),
@@ -130,21 +131,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: const Icon(Icons.calendar_month, color: Colors.white, size: 28),
                       ),
                       const SizedBox(width: 16),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Mon Semainier",
-                              style: TextStyle(
+                                AppLocalizations.of(context)!.mealPlannerCardTitle,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              "Planifiez vos repas de la semaine",
-                              style: TextStyle(
+                                AppLocalizations.of(context)!.mealPlannerCardSubtitle,
+                              style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 14,
                               ),

@@ -17,6 +17,11 @@ samples, guidance on mobile development, and a full API reference.
 
 
 
+je vois qu'on a les mêmes informations affichées en haut de la page entre le Dashboard et l'inventaire. penses-tu que c'est vraiment utile d'avoir les memes informations dans deux pages differentes
+Peut-etre ça sera mieux d'afficher les aggregations dans le dashboard, et afficher "Cuisiner avec mon frigo" et "Mon Semaisier" dans la page d'inventaire en haut de page et enlver les aggregations de la page d'inventaire.
+
+J'aimerais bien savoir ce que tu penses(en se basant sur les modèles des applications existantes) avant de commencer à developper
+
 
 
 Based on the current state of the app and the "Premium" features we've hinted at, here are my recommendations for the next steps:

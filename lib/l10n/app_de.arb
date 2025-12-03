@@ -193,5 +193,97 @@
   "paywallBenefitSmartListDesc": "Automatische und intelligente Erstellung.",
   "mealPlannerSmartListUpsell": "Wechseln Sie zu Pro für intelligente KI-Generierung!",
   "mealPlannerGoPremium": "Premium werden",
-  "paywallTermsButton": "AGB"
+  "paywallTermsButton": "AGB",
+  "@_DASHBOARD_SCREEN": {},
+  "dashboardTitle": "Dashboard",
+  "quickActionsTitle": "Schnellaktionen",
+  "scanActionLabel": "Scannen",
+  "addActionLabel": "Hinzufügen",
+  "mealPlannerCardTitle": "Mein Wochenplan",
+  "mealPlannerCardSubtitle": "Planen Sie Ihre Wochenmahlzeiten",
+  "expiringSoonTitle": "Bald essen!",
+  "cookWithFridgeBtn": "Kochen mit meinem Kühlschrank",
+  "summaryTotal": "Gesamt",
+  "summaryToEat": "Zu essen",
+  "summaryShopping": "Einkaufen",
+  "expiredLabel": "Abgelaufen",
+  "todayLabel": "Heute",
+  "daysLeftLabel": "T-{days}",
+  "@daysLeftLabel": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statsTopCategories": "Top Kategorien",
+  "statsNutriScore": "Ernährungsqualität",
+  "statsScoreLabel": "Note {score}",
+  "@statsScoreLabel": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "statsPremiumLabel": "Premium-Statistiken",
+  "statsUnlockBtn": "Freischalten",
+  "statsStorageDistribution": "Verteilung nach Lagerort",
+  "statsFavoriteStores": "Ihre Lieblingsgeschäfte",
+  "@_INVENTORY_SCREEN": {},
+  "recipeFinding": "Rezepte werden gesucht...",
+  "inventoryEmpty": "Ihr Inventar ist leer!",
+  "recipesNotFound": "Keine Rezepte gefunden.",
+  "errorGeneric": "Fehler: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "renameProductTitle": "Produkt umbenennen",
+  "newNameLabel": "Neuer Name",
+  "cancelBtn": "Abbrechen",
+  "saveBtn": "Speichern",
+  "renameTooltip": "Umbenennen",
+  "addedOnDate": "Hinzugefügt am {date}",
+  "@addedOnDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "editBatchTitle": "Charge bearbeiten",
+  "specificNameLabel": "Spezifischer Name",
+  "specificNameHint": "z.B. Bio-Eier",
+  "brandLabel": "Marke",
+  "brandHint": "z.B. Bio Village",
+  "storeLabel": "Geschäft",
+  "storeHint": "z.B. Aldi",
+  "nutriScoreLabel": "Nutri-Score",
+  "nutriScoreUndefined": "Nicht definiert",
+  "expirationDateLabel": "Ablaufdatum",
+  "quantityLabel": "Menge",
+  "searchNoResults": "Keine Ergebnisse gefunden",
+  "searchTryDifferent": "Versuchen Sie einen anderen Suchbegriff.",
+  "statusExpired": "Abgelaufen",
+  "statusExpiresToday": "Läuft heute ab",
+  "statusExpiresSoon": "Läuft bald ab",
+  "statusExpiresInDays": "Läuft in {days} Tagen ab",
+  "@statusExpiresInDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statusFresh": "Frisch",
+  "scanBarcodeTitle": "Barcode scannen",
+  "productUnknown": "Unbekanntes Produkt",
+  "productAdded": "{name} hinzugefügt!",
+  "@productAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "productNotFoundOFF": "Produkt nicht in Open Food Facts gefunden.",
+  "serverErrorOFF": "OFF Serverfehler ({code})",
+  "@serverErrorOFF": {
+    "placeholders": {
+      "code": { "type": "Object" }
+    }
+  },
+  "proBadge": "PRO"
 }

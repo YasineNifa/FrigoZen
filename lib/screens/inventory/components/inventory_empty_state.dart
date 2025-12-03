@@ -37,11 +37,11 @@ class InventoryEmptyState extends StatelessWidget {
     }
 
     String title = isSearch
-        ? "No results found" // TODO: Traduire
+        ? l10n.searchNoResults
         : l10n.inventoryEmptyTitle;
 
     String subtitle = isSearch
-        ? "Try a different search term."
+        ? l10n.searchTryDifferent
         : l10n.inventoryEmptySubtitle;
 
     return Center(

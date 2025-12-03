@@ -3,6 +3,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class StorageStatsCard extends StatelessWidget {
   const StorageStatsCard({super.key});
@@ -40,7 +41,7 @@ class StorageStatsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Répartition par Lieu",
+                AppLocalizations.of(context)!.statsStorageDistribution,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

@@ -193,5 +193,97 @@
   "paywallBenefitSmartListDesc": "إنشاء تلقائي وذكي.",
   "mealPlannerSmartListUpsell": "انتقل إلى Pro لإنشاء قائمة ذكية بالذكاء الاصطناعي!",
   "mealPlannerGoPremium": "كن Premium",
-  "paywallTermsButton": "الشروط والأحكام"
+  "paywallTermsButton": "الشروط والأحكام",
+  "@_DASHBOARD_SCREEN": {},
+  "dashboardTitle": "لوحة القيادة",
+  "quickActionsTitle": "إجراءات سريعة",
+  "scanActionLabel": "مسح",
+  "addActionLabel": "إضافة",
+  "mealPlannerCardTitle": "مخطط وجباتي",
+  "mealPlannerCardSubtitle": "خطط لوجباتك الأسبوعية",
+  "expiringSoonTitle": "تأكل قريبا!",
+  "cookWithFridgeBtn": "اطبخ مع ثلاجتي",
+  "summaryTotal": "المجموع",
+  "summaryToEat": "للأكل",
+  "summaryShopping": "التسوق",
+  "expiredLabel": "منتهية الصلاحية",
+  "todayLabel": "اليوم",
+  "daysLeftLabel": "ي-{days}",
+  "@daysLeftLabel": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statsTopCategories": "أهم الفئات",
+  "statsNutriScore": "الجودة الغذائية",
+  "statsScoreLabel": "النتيجة {score}",
+  "@statsScoreLabel": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "statsPremiumLabel": "إحصائيات مميزة",
+  "statsUnlockBtn": "فتح",
+  "statsStorageDistribution": "توزيع التخزين",
+  "statsFavoriteStores": "متاجرك المفضلة",
+  "@_INVENTORY_SCREEN": {},
+  "recipeFinding": "جاري البحث عن وصفات...",
+  "inventoryEmpty": "مخزونك فارغ!",
+  "recipesNotFound": "لم يتم العثور على وصفات.",
+  "errorGeneric": "خطأ: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "renameProductTitle": "إعادة تسمية المنتج",
+  "newNameLabel": "اسم جديد",
+  "cancelBtn": "إلغاء",
+  "saveBtn": "حفظ",
+  "renameTooltip": "إعادة تسمية",
+  "addedOnDate": "أضيف في {date}",
+  "@addedOnDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "editBatchTitle": "تعديل الدفعة",
+  "specificNameLabel": "اسم محدد",
+  "specificNameHint": "مثال: بيض عضوي",
+  "brandLabel": "العلامة التجارية",
+  "brandHint": "مثال: Bio Village",
+  "storeLabel": "المتجر",
+  "storeHint": "مثال: كارفور",
+  "nutriScoreLabel": "Nutri-Score",
+  "nutriScoreUndefined": "غير محدد",
+  "expirationDateLabel": "تاريخ انتهاء الصلاحية",
+  "quantityLabel": "الكمية",
+  "searchNoResults": "لم يتم العثور على نتائج",
+  "searchTryDifferent": "جرب مصطلح بحث مختلف.",
+  "statusExpired": "منتهية الصلاحية",
+  "statusExpiresToday": "تنتهي الصلاحية اليوم",
+  "statusExpiresSoon": "تنتهي الصلاحية قريبا",
+  "statusExpiresInDays": "تنتهي الصلاحية في {days} أيام",
+  "@statusExpiresInDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statusFresh": "طازج",
+  "scanBarcodeTitle": "مسح الرمز الشريطي",
+  "productUnknown": "منتج غير معروف",
+  "productAdded": "تمت إضافة {name}!",
+  "@productAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "productNotFoundOFF": "المنتج غير موجود في Open Food Facts.",
+  "serverErrorOFF": "خطأ في خادم OFF ({code})",
+  "@serverErrorOFF": {
+    "placeholders": {
+      "code": { "type": "Object" }
+    }
+  },
+  "proBadge": "PRO"
 }

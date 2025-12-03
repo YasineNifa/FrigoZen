@@ -586,4 +586,183 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get paywallTermsButton => 'Conditions Générales';
+
+  @override
+  String get dashboardTitle => 'Dashboard';
+
+  @override
+  String get quickActionsTitle => 'Actions Rapides';
+
+  @override
+  String get scanActionLabel => 'Scanner';
+
+  @override
+  String get addActionLabel => 'Ajouter';
+
+  @override
+  String get mealPlannerCardTitle => 'Mon Semainier';
+
+  @override
+  String get mealPlannerCardSubtitle => 'Planifiez vos repas de la semaine';
+
+  @override
+  String get expiringSoonTitle => 'À Manger Vite !';
+
+  @override
+  String get cookWithFridgeBtn => 'Cuisiner avec mon frigo';
+
+  @override
+  String get summaryTotal => 'Total';
+
+  @override
+  String get summaryToEat => 'À manger';
+
+  @override
+  String get summaryShopping => 'Courses';
+
+  @override
+  String get expiredLabel => 'Périmé';
+
+  @override
+  String get todayLabel => 'Aujourd\'hui';
+
+  @override
+  String daysLeftLabel(int days) {
+    return 'J-$days';
+  }
+
+  @override
+  String get statsTopCategories => 'Top Catégories';
+
+  @override
+  String get statsNutriScore => 'Qualité Nutritionnelle';
+
+  @override
+  String statsScoreLabel(String score) {
+    return 'Score $score';
+  }
+
+  @override
+  String get statsPremiumLabel => 'Statistiques Premium';
+
+  @override
+  String get statsUnlockBtn => 'Débloquer';
+
+  @override
+  String get statsStorageDistribution => 'Répartition par Lieu';
+
+  @override
+  String get statsFavoriteStores => 'Vos Magasins Préférés';
+
+  @override
+  String get recipeFinding => 'Recherche de recettes...';
+
+  @override
+  String get inventoryEmpty => 'Votre inventaire est vide !';
+
+  @override
+  String get recipesNotFound => 'Aucune recette trouvée.';
+
+  @override
+  String errorGeneric(String error) {
+    return 'Erreur : $error';
+  }
+
+  @override
+  String get renameProductTitle => 'Renommer le produit';
+
+  @override
+  String get newNameLabel => 'Nouveau nom';
+
+  @override
+  String get cancelBtn => 'Annuler';
+
+  @override
+  String get saveBtn => 'Enregistrer';
+
+  @override
+  String get renameTooltip => 'Renommer';
+
+  @override
+  String addedOnDate(String date) {
+    return 'Ajouté le $date';
+  }
+
+  @override
+  String get editBatchTitle => 'Modifier le lot';
+
+  @override
+  String get specificNameLabel => 'Nom spécifique';
+
+  @override
+  String get specificNameHint => 'ex: Oeufs Bio';
+
+  @override
+  String get brandLabel => 'Marque';
+
+  @override
+  String get brandHint => 'ex: Bio Village';
+
+  @override
+  String get storeLabel => 'Magasin';
+
+  @override
+  String get storeHint => 'ex: Leclerc';
+
+  @override
+  String get nutriScoreLabel => 'Nutri-Score';
+
+  @override
+  String get nutriScoreUndefined => 'Non défini';
+
+  @override
+  String get expirationDateLabel => 'Date d\'expiration';
+
+  @override
+  String get quantityLabel => 'Quantité';
+
+  @override
+  String get searchNoResults => 'Aucun résultat trouvé';
+
+  @override
+  String get searchTryDifferent => 'Essayez un autre terme de recherche.';
+
+  @override
+  String get statusExpired => 'Périmé';
+
+  @override
+  String get statusExpiresToday => 'Périme aujourd\'hui';
+
+  @override
+  String get statusExpiresSoon => 'Périme bientôt';
+
+  @override
+  String statusExpiresInDays(int days) {
+    return 'Périme dans $days jours';
+  }
+
+  @override
+  String get statusFresh => 'Frais';
+
+  @override
+  String get scanBarcodeTitle => 'Scanner un code-barres';
+
+  @override
+  String get productUnknown => 'Produit inconnu';
+
+  @override
+  String productAdded(String name) {
+    return '$name ajouté !';
+  }
+
+  @override
+  String get productNotFoundOFF => 'Produit non trouvé dans Open Food Facts.';
+
+  @override
+  String serverErrorOFF(Object code) {
+    return 'Erreur serveur OFF ($code)';
+  }
+
+  @override
+  String get proBadge => 'PRO';
 }

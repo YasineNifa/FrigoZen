@@ -193,5 +193,97 @@
   "paywallBenefitSmartListDesc": "Génération automatique et intelligente.",
   "mealPlannerSmartListUpsell": "Passez Pro pour la génération intelligente par IA !",
   "mealPlannerGoPremium": "Devenir Premium",
-  "paywallTermsButton": "Conditions Générales"
+  "paywallTermsButton": "Conditions Générales",
+  "@_DASHBOARD_SCREEN": {},
+  "dashboardTitle": "Dashboard",
+  "quickActionsTitle": "Actions Rapides",
+  "scanActionLabel": "Scanner",
+  "addActionLabel": "Ajouter",
+  "mealPlannerCardTitle": "Mon Semainier",
+  "mealPlannerCardSubtitle": "Planifiez vos repas de la semaine",
+  "expiringSoonTitle": "À Manger Vite !",
+  "cookWithFridgeBtn": "Cuisiner avec mon frigo",
+  "summaryTotal": "Total",
+  "summaryToEat": "À manger",
+  "summaryShopping": "Courses",
+  "expiredLabel": "Périmé",
+  "todayLabel": "Aujourd'hui",
+  "daysLeftLabel": "J-{days}",
+  "@daysLeftLabel": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statsTopCategories": "Top Catégories",
+  "statsNutriScore": "Qualité Nutritionnelle",
+  "statsScoreLabel": "Score {score}",
+  "@statsScoreLabel": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "statsPremiumLabel": "Statistiques Premium",
+  "statsUnlockBtn": "Débloquer",
+  "statsStorageDistribution": "Répartition par Lieu",
+  "statsFavoriteStores": "Vos Magasins Préférés",
+  "@_INVENTORY_SCREEN": {},
+  "recipeFinding": "Recherche de recettes...",
+  "inventoryEmpty": "Votre inventaire est vide !",
+  "recipesNotFound": "Aucune recette trouvée.",
+  "errorGeneric": "Erreur : {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "renameProductTitle": "Renommer le produit",
+  "newNameLabel": "Nouveau nom",
+  "cancelBtn": "Annuler",
+  "saveBtn": "Enregistrer",
+  "renameTooltip": "Renommer",
+  "addedOnDate": "Ajouté le {date}",
+  "@addedOnDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "editBatchTitle": "Modifier le lot",
+  "specificNameLabel": "Nom spécifique",
+  "specificNameHint": "ex: Oeufs Bio",
+  "brandLabel": "Marque",
+  "brandHint": "ex: Bio Village",
+  "storeLabel": "Magasin",
+  "storeHint": "ex: Leclerc",
+  "nutriScoreLabel": "Nutri-Score",
+  "nutriScoreUndefined": "Non défini",
+  "expirationDateLabel": "Date d'expiration",
+  "quantityLabel": "Quantité",
+  "searchNoResults": "Aucun résultat trouvé",
+  "searchTryDifferent": "Essayez un autre terme de recherche.",
+  "statusExpired": "Périmé",
+  "statusExpiresToday": "Périme aujourd'hui",
+  "statusExpiresSoon": "Périme bientôt",
+  "statusExpiresInDays": "Périme dans {days} jours",
+  "@statusExpiresInDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statusFresh": "Frais",
+  "scanBarcodeTitle": "Scanner un code-barres",
+  "productUnknown": "Produit inconnu",
+  "productAdded": "{name} ajouté !",
+  "@productAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "productNotFoundOFF": "Produit non trouvé dans Open Food Facts.",
+  "serverErrorOFF": "Erreur serveur OFF ({code})",
+  "@serverErrorOFF": {
+    "placeholders": {
+      "code": { "type": "Object" }
+    }
+  },
+  "proBadge": "PRO"
 }

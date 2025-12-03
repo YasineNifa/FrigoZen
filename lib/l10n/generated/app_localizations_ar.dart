@@ -577,4 +577,183 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get paywallTermsButton => 'الشروط والأحكام';
+
+  @override
+  String get dashboardTitle => 'لوحة القيادة';
+
+  @override
+  String get quickActionsTitle => 'إجراءات سريعة';
+
+  @override
+  String get scanActionLabel => 'مسح';
+
+  @override
+  String get addActionLabel => 'إضافة';
+
+  @override
+  String get mealPlannerCardTitle => 'مخطط وجباتي';
+
+  @override
+  String get mealPlannerCardSubtitle => 'خطط لوجباتك الأسبوعية';
+
+  @override
+  String get expiringSoonTitle => 'تأكل قريبا!';
+
+  @override
+  String get cookWithFridgeBtn => 'اطبخ مع ثلاجتي';
+
+  @override
+  String get summaryTotal => 'المجموع';
+
+  @override
+  String get summaryToEat => 'للأكل';
+
+  @override
+  String get summaryShopping => 'التسوق';
+
+  @override
+  String get expiredLabel => 'منتهية الصلاحية';
+
+  @override
+  String get todayLabel => 'اليوم';
+
+  @override
+  String daysLeftLabel(int days) {
+    return 'ي-$days';
+  }
+
+  @override
+  String get statsTopCategories => 'أهم الفئات';
+
+  @override
+  String get statsNutriScore => 'الجودة الغذائية';
+
+  @override
+  String statsScoreLabel(String score) {
+    return 'النتيجة $score';
+  }
+
+  @override
+  String get statsPremiumLabel => 'إحصائيات مميزة';
+
+  @override
+  String get statsUnlockBtn => 'فتح';
+
+  @override
+  String get statsStorageDistribution => 'توزيع التخزين';
+
+  @override
+  String get statsFavoriteStores => 'متاجرك المفضلة';
+
+  @override
+  String get recipeFinding => 'جاري البحث عن وصفات...';
+
+  @override
+  String get inventoryEmpty => 'مخزونك فارغ!';
+
+  @override
+  String get recipesNotFound => 'لم يتم العثور على وصفات.';
+
+  @override
+  String errorGeneric(String error) {
+    return 'خطأ: $error';
+  }
+
+  @override
+  String get renameProductTitle => 'إعادة تسمية المنتج';
+
+  @override
+  String get newNameLabel => 'اسم جديد';
+
+  @override
+  String get cancelBtn => 'إلغاء';
+
+  @override
+  String get saveBtn => 'حفظ';
+
+  @override
+  String get renameTooltip => 'إعادة تسمية';
+
+  @override
+  String addedOnDate(String date) {
+    return 'أضيف في $date';
+  }
+
+  @override
+  String get editBatchTitle => 'تعديل الدفعة';
+
+  @override
+  String get specificNameLabel => 'اسم محدد';
+
+  @override
+  String get specificNameHint => 'مثال: بيض عضوي';
+
+  @override
+  String get brandLabel => 'العلامة التجارية';
+
+  @override
+  String get brandHint => 'مثال: Bio Village';
+
+  @override
+  String get storeLabel => 'المتجر';
+
+  @override
+  String get storeHint => 'مثال: كارفور';
+
+  @override
+  String get nutriScoreLabel => 'Nutri-Score';
+
+  @override
+  String get nutriScoreUndefined => 'غير محدد';
+
+  @override
+  String get expirationDateLabel => 'تاريخ انتهاء الصلاحية';
+
+  @override
+  String get quantityLabel => 'الكمية';
+
+  @override
+  String get searchNoResults => 'لم يتم العثور على نتائج';
+
+  @override
+  String get searchTryDifferent => 'جرب مصطلح بحث مختلف.';
+
+  @override
+  String get statusExpired => 'منتهية الصلاحية';
+
+  @override
+  String get statusExpiresToday => 'تنتهي الصلاحية اليوم';
+
+  @override
+  String get statusExpiresSoon => 'تنتهي الصلاحية قريبا';
+
+  @override
+  String statusExpiresInDays(int days) {
+    return 'تنتهي الصلاحية في $days أيام';
+  }
+
+  @override
+  String get statusFresh => 'طازج';
+
+  @override
+  String get scanBarcodeTitle => 'مسح الرمز الشريطي';
+
+  @override
+  String get productUnknown => 'منتج غير معروف';
+
+  @override
+  String productAdded(String name) {
+    return 'تمت إضافة $name!';
+  }
+
+  @override
+  String get productNotFoundOFF => 'المنتج غير موجود في Open Food Facts.';
+
+  @override
+  String serverErrorOFF(Object code) {
+    return 'خطأ في خادم OFF ($code)';
+  }
+
+  @override
+  String get proBadge => 'PRO';
 }

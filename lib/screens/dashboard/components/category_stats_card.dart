@@ -3,6 +3,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class CategoryStatsCard extends StatelessWidget {
   const CategoryStatsCard({super.key});
@@ -40,7 +41,7 @@ class CategoryStatsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Top Catégories",
+                AppLocalizations.of(context)!.statsTopCategories,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

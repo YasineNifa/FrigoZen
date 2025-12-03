@@ -274,5 +274,97 @@
   "paywallBenefitSmartListDesc": "Automatic and smart generation.",
   "mealPlannerSmartListUpsell": "Upgrade to Pro for AI-powered smart list generation!",
   "mealPlannerGoPremium": "Go Premium",
-  "paywallTermsButton": "Terms & Conditions"
+  "paywallTermsButton": "Terms & Conditions",
+  "@_DASHBOARD_SCREEN": {},
+  "dashboardTitle": "Dashboard",
+  "quickActionsTitle": "Quick Actions",
+  "scanActionLabel": "Scan",
+  "addActionLabel": "Add",
+  "mealPlannerCardTitle": "My Meal Planner",
+  "mealPlannerCardSubtitle": "Plan your weekly meals",
+  "expiringSoonTitle": "Eat Soon!",
+  "cookWithFridgeBtn": "Cook with my fridge",
+  "summaryTotal": "Total",
+  "summaryToEat": "To eat",
+  "summaryShopping": "Shopping",
+  "expiredLabel": "Expired",
+  "todayLabel": "Today",
+  "daysLeftLabel": "D-{days}",
+  "@daysLeftLabel": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statsTopCategories": "Top Categories",
+  "statsNutriScore": "Nutritional Quality",
+  "statsScoreLabel": "Score {score}",
+  "@statsScoreLabel": {
+    "placeholders": {
+      "score": { "type": "String" }
+    }
+  },
+  "statsPremiumLabel": "Premium Statistics",
+  "statsUnlockBtn": "Unlock",
+  "statsStorageDistribution": "Storage Distribution",
+  "statsFavoriteStores": "Your Favorite Stores",
+  "@_INVENTORY_SCREEN": {},
+  "recipeFinding": "Finding recipes...",
+  "inventoryEmpty": "Your inventory is empty!",
+  "recipesNotFound": "No recipes found.",
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "renameProductTitle": "Rename product",
+  "newNameLabel": "New name",
+  "cancelBtn": "Cancel",
+  "saveBtn": "Save",
+  "renameTooltip": "Rename",
+  "addedOnDate": "Added on {date}",
+  "@addedOnDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "editBatchTitle": "Edit batch",
+  "specificNameLabel": "Specific name",
+  "specificNameHint": "e.g. Organic Eggs",
+  "brandLabel": "Brand",
+  "brandHint": "e.g. Bio Village",
+  "storeLabel": "Store",
+  "storeHint": "e.g. Whole Foods",
+  "nutriScoreLabel": "Nutri-Score",
+  "nutriScoreUndefined": "Undefined",
+  "expirationDateLabel": "Expiration date",
+  "quantityLabel": "Quantity",
+  "searchNoResults": "No results found",
+  "searchTryDifferent": "Try a different search term.",
+  "statusExpired": "Expired",
+  "statusExpiresToday": "Expires today",
+  "statusExpiresSoon": "Expires soon",
+  "statusExpiresInDays": "Expires in {days} days",
+  "@statusExpiresInDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "statusFresh": "Fresh",
+  "scanBarcodeTitle": "Scan a barcode",
+  "productUnknown": "Unknown product",
+  "productAdded": "{name} added!",
+  "@productAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "productNotFoundOFF": "Product not found in Open Food Facts.",
+  "serverErrorOFF": "OFF Server Error ({code})",
+  "@serverErrorOFF": {
+    "placeholders": {
+      "code": { "type": "Object" }
+    }
+  },
+  "proBadge": "PRO"
 }

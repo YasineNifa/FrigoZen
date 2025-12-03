@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class InventorySummaryCard extends StatelessWidget {
   final VoidCallback? onRecipePressed;
@@ -41,7 +42,7 @@ class InventorySummaryCard extends StatelessWidget {
                 children: [
                   _buildCompactStat(
                     context,
-                    label: "Total",
+                    label: AppLocalizations.of(context)!.summaryTotal,
                     value: "$totalCount",
                     icon: Icons.inventory_2_outlined,
                     color: Colors.blue,
@@ -53,7 +54,7 @@ class InventorySummaryCard extends StatelessWidget {
                   ),
                   _buildCompactStat(
                     context,
-                    label: "À manger",
+                    label: AppLocalizations.of(context)!.summaryToEat,
                     value: "$expiringCount",
                     icon: Icons.timer_outlined,
                     color: expiringCount > 0 ? Colors.orange : Colors.green,
@@ -66,7 +67,7 @@ class InventorySummaryCard extends StatelessWidget {
                   ),
                   _buildCompactStat(
                     context,
-                    label: "Courses",
+                    label: AppLocalizations.of(context)!.summaryShopping,
                     value: "$toBuyCount",
                     icon: Icons.shopping_cart_outlined,
                     color: Colors.purple,
@@ -79,7 +80,7 @@ class InventorySummaryCard extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: onRecipePressed,
                   icon: const Icon(Icons.restaurant_menu, size: 18),
-                  label: const Text("Cuisiner avec mon frigo"),
+                  label: Text(AppLocalizations.of(context)!.cookWithFridgeBtn),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange[100],
                     foregroundColor: Colors.orange[900],

@@ -3,6 +3,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class HealthStatsCard extends StatelessWidget {
   const HealthStatsCard({super.key});
@@ -38,7 +39,7 @@ class HealthStatsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Qualité Nutritionnelle",
+                AppLocalizations.of(context)!.statsNutriScore,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -86,7 +87,7 @@ class HealthStatsCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          "Score $score (${distribution[score]})",
+                          "${AppLocalizations.of(context)!.statsScoreLabel(score)} (${distribution[score]})",
                           style: const TextStyle(fontSize: 10),
                         ),
                       ],

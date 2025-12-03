@@ -22,16 +22,17 @@ class EditBatchesSheet extends StatelessWidget {
 
 
   void _showRenameDialog(BuildContext context, InventoryViewModel vm) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: item.name);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Renommer le produit"), // TODO: Add to l10n
+        title: Text(l10n.renameProductTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: "Nouveau nom", // TODO: Add to l10n
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: l10n.newNameLabel,
+            border: const OutlineInputBorder(),
           ),
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
@@ -39,7 +40,7 @@ class EditBatchesSheet extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Annuler"), // TODO: Add to l10n
+            child: Text(l10n.cancelBtn),
           ),
           TextButton(
             onPressed: () async {
@@ -49,7 +50,7 @@ class EditBatchesSheet extends StatelessWidget {
                 if (ctx.mounted) Navigator.pop(ctx);
               }
             },
-            child: const Text("Enregistrer"), // TODO: Add to l10n
+            child: Text(l10n.saveBtn),
           ),
         ],
       ),
@@ -129,7 +130,7 @@ class EditBatchesSheet extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.edit, size: 20),
                 onPressed: () => _showRenameDialog(context, vm),
-                tooltip: "Renommer", // TODO: Add to l10n
+                tooltip: l10n.renameTooltip,
               ),
             ],
           ),
@@ -464,7 +465,7 @@ class EditBatchesSheet extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(top: 2),
                                       child: Text(
-                                        "Ajouté le $addedDateStr", // TODO: Traduire "Ajouté le"
+                                        l10n.addedOnDate(addedDateStr),
                                         style: TextStyle(
                                           fontSize: 10,
                                           color: Colors.grey[400],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/screens/core/premium_guard.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class PremiumStatsWrapper extends StatelessWidget {
   final Widget child;
@@ -11,7 +12,7 @@ class PremiumStatsWrapper extends StatelessWidget {
   const PremiumStatsWrapper({
     super.key,
     required this.child,
-    this.label = "Statistiques Premium",
+    this.label = "Statistiques Premium", // TODO: This default value might need to be removed or localized differently if used
   });
 
   @override
@@ -73,9 +74,9 @@ class PremiumStatsWrapper extends StatelessWidget {
                         vertical: 8,
                       ),
                     ),
-                    child: const Text(
-                      "Débloquer",
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    child: Text(
+                      AppLocalizations.of(context)!.statsUnlockBtn,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],

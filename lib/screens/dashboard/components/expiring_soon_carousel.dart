@@ -3,6 +3,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/components/initials_avatar.dart';
 import 'package:frigo_zen/components/skeleton.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class ExpiringSoonCarousel extends StatelessWidget {
   const ExpiringSoonCarousel({super.key});
@@ -67,7 +68,7 @@ class ExpiringSoonCarousel extends StatelessWidget {
                 vertical: 8.0,
               ),
               child: Text(
-                "À Manger Vite !",
+                AppLocalizations.of(context)!.expiringSoonTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.red[700],
@@ -143,10 +144,10 @@ class ExpiringSoonCarousel extends StatelessWidget {
                               const SizedBox(height: 2),
                               Text(
                                 daysLeft < 0
-                                    ? "Périmé"
+                                    ? AppLocalizations.of(context)!.expiredLabel
                                     : (daysLeft == 0
-                                          ? "Aujourd'hui"
-                                          : "J-$daysLeft"),
+                                          ? AppLocalizations.of(context)!.todayLabel
+                                          : AppLocalizations.of(context)!.daysLeftLabel(daysLeft)),
                                 style: TextStyle(
                                   color: statusColor,
                                   fontSize: 10,

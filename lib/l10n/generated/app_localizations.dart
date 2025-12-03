@@ -1153,6 +1153,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Terms & Conditions'**
   String get paywallTermsButton;
+
+  /// No description provided for @dashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboardTitle;
+
+  /// No description provided for @quickActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActionsTitle;
+
+  /// No description provided for @scanActionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get scanActionLabel;
+
+  /// No description provided for @addActionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addActionLabel;
+
+  /// No description provided for @mealPlannerCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Meal Planner'**
+  String get mealPlannerCardTitle;
+
+  /// No description provided for @mealPlannerCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan your weekly meals'**
+  String get mealPlannerCardSubtitle;
+
+  /// No description provided for @expiringSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Eat Soon!'**
+  String get expiringSoonTitle;
+
+  /// No description provided for @cookWithFridgeBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cook with my fridge'**
+  String get cookWithFridgeBtn;
+
+  /// No description provided for @summaryTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get summaryTotal;
+
+  /// No description provided for @summaryToEat.
+  ///
+  /// In en, this message translates to:
+  /// **'To eat'**
+  String get summaryToEat;
+
+  /// No description provided for @summaryShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get summaryShopping;
+
+  /// No description provided for @expiredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get expiredLabel;
+
+  /// No description provided for @todayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayLabel;
+
+  /// No description provided for @daysLeftLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'D-{days}'**
+  String daysLeftLabel(int days);
+
+  /// No description provided for @statsTopCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Categories'**
+  String get statsTopCategories;
+
+  /// No description provided for @statsNutriScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutritional Quality'**
+  String get statsNutriScore;
+
+  /// No description provided for @statsScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Score {score}'**
+  String statsScoreLabel(String score);
+
+  /// No description provided for @statsPremiumLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Statistics'**
+  String get statsPremiumLabel;
+
+  /// No description provided for @statsUnlockBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get statsUnlockBtn;
+
+  /// No description provided for @statsStorageDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage Distribution'**
+  String get statsStorageDistribution;
+
+  /// No description provided for @statsFavoriteStores.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Favorite Stores'**
+  String get statsFavoriteStores;
+
+  /// No description provided for @recipeFinding.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding recipes...'**
+  String get recipeFinding;
+
+  /// No description provided for @inventoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your inventory is empty!'**
+  String get inventoryEmpty;
+
+  /// No description provided for @recipesNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipes found.'**
+  String get recipesNotFound;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorGeneric(String error);
+
+  /// No description provided for @renameProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename product'**
+  String get renameProductTitle;
+
+  /// No description provided for @newNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New name'**
+  String get newNameLabel;
+
+  /// No description provided for @cancelBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelBtn;
+
+  /// No description provided for @saveBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveBtn;
+
+  /// No description provided for @renameTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get renameTooltip;
+
+  /// No description provided for @addedOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Added on {date}'**
+  String addedOnDate(String date);
+
+  /// No description provided for @editBatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit batch'**
+  String get editBatchTitle;
+
+  /// No description provided for @specificNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Specific name'**
+  String get specificNameLabel;
+
+  /// No description provided for @specificNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Organic Eggs'**
+  String get specificNameHint;
+
+  /// No description provided for @brandLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand'**
+  String get brandLabel;
+
+  /// No description provided for @brandHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Bio Village'**
+  String get brandHint;
+
+  /// No description provided for @storeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get storeLabel;
+
+  /// No description provided for @storeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Whole Foods'**
+  String get storeHint;
+
+  /// No description provided for @nutriScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutri-Score'**
+  String get nutriScoreLabel;
+
+  /// No description provided for @nutriScoreUndefined.
+  ///
+  /// In en, this message translates to:
+  /// **'Undefined'**
+  String get nutriScoreUndefined;
+
+  /// No description provided for @expirationDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiration date'**
+  String get expirationDateLabel;
+
+  /// No description provided for @quantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantityLabel;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get searchNoResults;
+
+  /// No description provided for @searchTryDifferent.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search term.'**
+  String get searchTryDifferent;
+
+  /// No description provided for @statusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get statusExpired;
+
+  /// No description provided for @statusExpiresToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires today'**
+  String get statusExpiresToday;
+
+  /// No description provided for @statusExpiresSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires soon'**
+  String get statusExpiresSoon;
+
+  /// No description provided for @statusExpiresInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in {days} days'**
+  String statusExpiresInDays(int days);
+
+  /// No description provided for @statusFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh'**
+  String get statusFresh;
+
+  /// No description provided for @scanBarcodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode'**
+  String get scanBarcodeTitle;
+
+  /// No description provided for @productUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown product'**
+  String get productUnknown;
+
+  /// No description provided for @productAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added!'**
+  String productAdded(String name);
+
+  /// No description provided for @productNotFoundOFF.
+  ///
+  /// In en, this message translates to:
+  /// **'Product not found in Open Food Facts.'**
+  String get productNotFoundOFF;
+
+  /// No description provided for @serverErrorOFF.
+  ///
+  /// In en, this message translates to:
+  /// **'OFF Server Error ({code})'**
+  String serverErrorOFF(Object code);
+
+  /// No description provided for @proBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO'**
+  String get proBadge;
 }
 
 class _AppLocalizationsDelegate

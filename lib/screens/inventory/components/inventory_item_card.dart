@@ -7,31 +7,33 @@ import 'package:frigo_zen/components/initials_avatar.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class InventoryItemCard extends StatelessWidget {
   final InventoryItem item;
 
   const InventoryItemCard({super.key, required this.item});
 
-  Map<String, dynamic> _getExpirationStatus(DateTime expirationDate) {
+  Map<String, dynamic> _getExpirationStatus(BuildContext context, DateTime expirationDate) {
+    final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final difference = expirationDate
         .difference(DateTime(now.year, now.month, now.day))
         .inDays;
 
     if (difference < 0) {
-      return {'text': 'Expired', 'color': AppTheme.statusExpired};
+      return {'text': l10n.statusExpired, 'color': AppTheme.statusExpired};
     } else if (difference == 0) {
-      return {'text': 'Expires today', 'color': AppTheme.statusExpired};
+      return {'text': l10n.statusExpiresToday, 'color': AppTheme.statusExpired};
     } else if (difference <= 3) {
-      return {'text': 'Expires soon', 'color': AppTheme.statusWarning};
+      return {'text': l10n.statusExpiresSoon, 'color': AppTheme.statusWarning};
     } else if (difference <= 7) {
       return {
-        'text': 'Expires in $difference days',
+        'text': l10n.statusExpiresInDays(difference),
         'color': AppTheme.statusSafe,
       };
     } else {
-      return {'text': 'Fresh', 'color': AppTheme.statusNeutral};
+      return {'text': l10n.statusFresh, 'color': AppTheme.statusNeutral};
     }
   }
 
@@ -50,7 +52,7 @@ class InventoryItemCard extends StatelessWidget {
     // Image logic: Item image > First batch image > null
     final String? imageUrl = item.displayImageUrl;
 
-    final status = _getExpirationStatus(item.earliestExpirationDate);
+    final status = _getExpirationStatus(context, item.earliestExpirationDate);
     final statusText = status['text'] as String;
     final statusColor = status['color'] as Color;
 

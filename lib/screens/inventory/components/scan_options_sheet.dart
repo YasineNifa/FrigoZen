@@ -31,11 +31,11 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
 
     var barcode = await SimpleBarcodeScanner.scanBarcode(
       context,
-      barcodeAppBar: const BarcodeAppBar(
-        appBarTitle: 'Scanner un code-barres',
+      barcodeAppBar: BarcodeAppBar(
+        appBarTitle: AppLocalizations.of(context)!.scanBarcodeTitle,
         centerTitle: false,
         enableBackButton: true,
-        backButtonIcon: Icon(Icons.arrow_back_ios),
+        backButtonIcon: const Icon(Icons.arrow_back_ios),
       ),
       isShowFlashIcon: true,
       delayMillis: 2000,
@@ -67,7 +67,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
 
         if (jsonResponse['status'] == 1) {
           final product = jsonResponse['product'];
-          final productName = product['product_name'] ?? 'Produit inconnu';
+          final productName = product['product_name'] ?? AppLocalizations.of(context)!.productUnknown;
           final brands = product['brands'] ?? '';
           final nutriscore = product['nutriscore_grade'] ?? '';
           final imageUrl = product['image_front_url'] ?? product['image_url'];
@@ -136,7 +136,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("$fullName ajouté !"),
+                content: Text(AppLocalizations.of(context)!.productAdded(fullName)),
                 backgroundColor: Colors.green,
               ),
             );
@@ -144,20 +144,20 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
         } else {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Produit non trouvé dans Open Food Facts."),
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.productNotFoundOFF),
                 backgroundColor: Colors.orange,
               ),
             );
           }
         }
       } else {
-        throw Exception("Erreur serveur OFF (${response.statusCode})");
+        throw Exception(AppLocalizations.of(context)!.serverErrorOFF(response.statusCode));
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur : $e"), backgroundColor: Colors.red),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorGeneric(e.toString())), backgroundColor: Colors.red),
         );
       }
     }
@@ -177,9 +177,9 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
           color: Colors.red[400],
           borderRadius: BorderRadius.circular(4),
         ),
-        child: const Text(
-          "PRO",
-          style: TextStyle(
+        child: Text(
+          l10n.proBadge,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 10,
             fontWeight: FontWeight.bold,
@@ -227,7 +227,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
             ),
             title: Row(
               children: [
-                const Text('Scanner un code-barres'),
+                Text(l10n.scanBarcodeTitle),
                 if (!context.read<RevenueProvider>().isPro) buildProBadge(),
               ],
             ),

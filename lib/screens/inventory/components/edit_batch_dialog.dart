@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class EditBatchDialog extends StatefulWidget {
   final Batch batch;
@@ -86,8 +87,9 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text("Modifier le lot"),
+      title: Text(l10n.editBatchTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -96,11 +98,11 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
             // Nom
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: "Nom spécifique",
-                hintText: "ex: Oeufs Bio",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.label_outline),
+              decoration: InputDecoration(
+                labelText: l10n.specificNameLabel,
+                hintText: l10n.specificNameHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.label_outline),
               ),
               textCapitalization: TextCapitalization.sentences,
             ),
@@ -109,11 +111,11 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
             // Marque
             TextField(
               controller: _brandController,
-              decoration: const InputDecoration(
-                labelText: "Marque",
-                hintText: "ex: Bio Village",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.branding_watermark_outlined),
+              decoration: InputDecoration(
+                labelText: l10n.brandLabel,
+                hintText: l10n.brandHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.branding_watermark_outlined),
               ),
               textCapitalization: TextCapitalization.words,
             ),
@@ -122,11 +124,11 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
             // Magasin
             TextField(
               controller: _storeController,
-              decoration: const InputDecoration(
-                labelText: "Magasin",
-                hintText: "ex: Leclerc",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.store_outlined),
+              decoration: InputDecoration(
+                labelText: l10n.storeLabel,
+                hintText: l10n.storeHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.store_outlined),
               ),
               textCapitalization: TextCapitalization.words,
             ),
@@ -134,20 +136,20 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
 
             // Nutri-Score
             InputDecorator(
-              decoration: const InputDecoration(
-                labelText: "Nutri-Score",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.health_and_safety_outlined),
+              decoration: InputDecoration(
+                labelText: l10n.nutriScoreLabel,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.health_and_safety_outlined),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: _nutriscoreOptions.contains(_nutriscore) ? _nutriscore : null,
                   isDense: true,
                   items: [
-                    const DropdownMenuItem(value: null, child: Text("Non défini")),
+                    DropdownMenuItem(value: null, child: Text(l10n.nutriScoreUndefined)),
                     ..._nutriscoreOptions.map((score) => DropdownMenuItem(
                           value: score,
-                          child: Text("Nutri-Score $score"),
+                          child: Text("${l10n.nutriScoreLabel} $score"),
                         )),
                   ],
                   onChanged: (value) => setState(() => _nutriscore = value),
@@ -175,7 +177,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Date d'expiration",
+                            l10n.expirationDateLabel,
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey[700],
@@ -198,9 +200,9 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Quantité",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.quantityLabel,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -237,11 +239,11 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Annuler"),
+          child: Text(l10n.cancelBtn),
         ),
         FilledButton(
           onPressed: _save,
-          child: const Text("Enregistrer"),
+          child: Text(l10n.saveBtn),
         ),
       ],
     );
