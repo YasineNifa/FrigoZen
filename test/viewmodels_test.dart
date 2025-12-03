@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+
+import 'package:frigo_zen/repositories/inventory_repository.dart';
+import 'package:frigo_zen/repositories/shopping_repository.dart';
 
 void main() {
   test('ViewModels should be instantiable', () {
@@ -12,17 +14,20 @@ void main() {
     // as we rely on the type system.
     
     try {
-      final inventoryVM = InventoryViewModel();
+      final inventoryVM = InventoryViewModel(inventoryRepository: InventoryRepository());
       expect(inventoryVM, isNotNull);
       expect(inventoryVM.items, isEmpty);
       expect(inventoryVM.isLoading, isFalse);
-      expect(inventoryVM.selectedLocation, "Tout");
+      expect(inventoryVM.selectedFilter, LocationFilter.all);
     } catch (e) {
       // Expected to fail if Firebase not initialized in Repository constructor
     }
 
     try {
-      final shoppingVM = ShoppingViewModel();
+      final shoppingVM = ShoppingViewModel(
+        shoppingRepository: ShoppingRepository(),
+        inventoryRepository: InventoryRepository(),
+      );
       expect(shoppingVM, isNotNull);
       expect(shoppingVM.items, isEmpty);
       expect(shoppingVM.isLoading, isFalse);

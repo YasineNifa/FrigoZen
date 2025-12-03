@@ -43,7 +43,7 @@ class ShoppingViewModel extends ChangeNotifier {
         notifyListeners();
       },
       onError: (error) {
-        print("Error fetching shopping list: $error");
+        debugPrint("Error fetching shopping list: $error");
         _isLoading = false;
         notifyListeners();
       },
@@ -107,7 +107,7 @@ class ShoppingViewModel extends ChangeNotifier {
         createdAt: DateTime.now(),
       );
     } catch (e) {
-      print("Error resolving smart item: $e");
+      debugPrint("Error resolving smart item: $e");
       // Fallback to basic item if resolution fails
       return ShoppingItem(
         id: '',
@@ -135,7 +135,7 @@ class ShoppingViewModel extends ChangeNotifier {
         await addItem(newItem);
       }
     } catch (e) {
-      print("Error adding smart item: $e");
+      debugPrint("Error adding smart item: $e");
       rethrow;
     } finally {
       _isLoading = false;
@@ -183,7 +183,7 @@ class ShoppingViewModel extends ChangeNotifier {
       }
 
     } catch (e) {
-      print("Error adding ingredients from recipe: $e");
+      debugPrint("Error adding ingredients from recipe: $e");
       // We might want to rethrow or show error
     } finally {
       _isLoading = false;
@@ -280,7 +280,7 @@ class ShoppingViewModel extends ChangeNotifier {
         await _shoppingRepository.deleteShoppingItems(_householdId!, itemIdsToDelete);
       }
     } catch (e) {
-      print("Error moving items: $e");
+      debugPrint("Error moving items: $e");
       rethrow;
     } finally {
       _isLoading = false;

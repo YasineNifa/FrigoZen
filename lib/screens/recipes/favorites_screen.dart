@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:frigo_zen/services/recipe_service.dart';
 import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
-import 'package:frigo_zen/screens/paywall/paywall_screen.dart';
+import 'package:frigo_zen/services/recipe_service.dart';
+import 'package:provider/provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
 class FavoritesTab extends StatelessWidget {
@@ -15,7 +14,7 @@ class FavoritesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final recipeService = RecipeService();
     final isPro = context.watch<RevenueProvider>().isPro;
-    final l10n = AppLocalizations.of(context)!;
+    // final l10n = AppLocalizations.of(context)!;
 
     return isPro
         ? _buildFavoritesList(context, recipeService)
@@ -171,7 +170,7 @@ class FavoritesTab extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
         elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.2),
+        shadowColor: Colors.black.withValues(alpha: 0.2),
         child: Row(
           children: [
             SizedBox(

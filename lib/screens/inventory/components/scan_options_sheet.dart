@@ -4,7 +4,6 @@ import 'package:frigo_zen/services/ocr_service.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/screens/core/premium_guard.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
@@ -28,6 +27,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
   Future<void> _scanProductBarcode(BuildContext context) async {
     final hasAccess = await PremiumGuard.checkPremiumStatus(context);
     if (!hasAccess) return;
+    if (!context.mounted) return;
 
     var barcode = await SimpleBarcodeScanner.scanBarcode(
       context,
@@ -44,7 +44,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
 
     if (!context.mounted) return;
 
-    if (barcode == null || barcode == '-1' || barcode is! String) return;
+    if (barcode == '-1') return;
 
     if (!context.mounted) return;
     showDialog(
@@ -60,7 +60,8 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
 
       final response = await http.get(url);
 
-      if (context.mounted) Navigator.pop(context);
+      if (!context.mounted) return;
+      Navigator.pop(context);
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);

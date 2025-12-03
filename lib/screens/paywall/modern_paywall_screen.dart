@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
@@ -19,11 +18,10 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
   bool _isLoading = true;
   bool _isPurchasing = false;
 
-  // Coherent Premium Palette (Matches AppTheme)
+  // Coherent Premium Palette
   final Color _primaryColor = const Color(0xFF6B9C5F); // FrigoZen Green
-  final Color _backgroundColor = const Color(0xFFF9F9F9); // App Background
-  final Color _surfaceColor = Colors.white; // Card Color
-  final Color _accentColor = const Color(0xFFFFD700); // Gold (for Badge only)
+  final Color _surfaceColor = Colors.white;
+  final Color _accentColor = const Color(0xFFFFD700); // Gold
   final Color _textDark = Colors.black87;
   final Color _textGrey = const Color(0xFF757575);
 
@@ -39,56 +37,60 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
 
       if (offerings.current != null &&
           offerings.current!.availablePackages.isNotEmpty) {
-        setState(() {
-          final allPackages = offerings.current!.availablePackages;
-          final cleanPackages = <Package>[];
+        if (mounted) {
+          setState(() {
+            final allPackages = offerings.current!.availablePackages;
+            final cleanPackages = <Package>[];
 
-          // Prioritize Annual then Monthly
-          try {
-            final annual = allPackages.firstWhere(
-              (p) => p.packageType == PackageType.annual,
-            );
-            cleanPackages.add(annual);
-          } catch (_) {}
+            // Prioritize Annual then Monthly
+            try {
+              final annual = allPackages.firstWhere(
+                (p) => p.packageType == PackageType.annual,
+              );
+              cleanPackages.add(annual);
+            } catch (_) {}
 
-          try {
-            final monthly = allPackages.firstWhere(
-              (p) => p.packageType == PackageType.monthly,
-            );
-            cleanPackages.add(monthly);
-          } catch (_) {}
+            try {
+              final monthly = allPackages.firstWhere(
+                (p) => p.packageType == PackageType.monthly,
+              );
+              cleanPackages.add(monthly);
+            } catch (_) {}
 
-          // Fallback
-          if (cleanPackages.isEmpty) {
-            cleanPackages.addAll(allPackages);
-          }
+            // Fallback
+            if (cleanPackages.isEmpty) {
+              cleanPackages.addAll(allPackages);
+            }
 
-          _packages = cleanPackages;
+            _packages = cleanPackages;
 
-          // Select Annual by default if available
-          if (_packages.isNotEmpty) {
-            _selectedPackage = _packages.firstWhere(
-              (p) => p.packageType == PackageType.annual,
-              orElse: () => _packages.first,
-            );
-          }
+            // Select Annual by default if available
+            if (_packages.isNotEmpty) {
+              _selectedPackage = _packages.firstWhere(
+                (p) => p.packageType == PackageType.annual,
+                orElse: () => _packages.first,
+              );
+            }
 
-          _isLoading = false;
-        });
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      debugPrint("Erreur récupération offres: $e");
-      setState(() => _isLoading = false);
+      debugPrint("Error fetching offerings: $e");
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   Future<void> _purchaseSelectedPackage() async {
-    final l10n = AppLocalizations.of(context)!;
     if (_selectedPackage == null) return;
 
     setState(() => _isPurchasing = true);
 
     try {
+      // ignore: deprecated_member_use
       final purchaseResult = await Purchases.purchasePackage(_selectedPackage!);
 
       if (mounted) {
@@ -98,28 +100,20 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.paywallSuccess),
+            content: Text(AppLocalizations.of(context)!.paywallSuccess),
             backgroundColor: _primaryColor,
           ),
         );
       }
-    } on PlatformException catch (e) {
-      final errorCode = PurchasesErrorHelper.getErrorCode(e);
-      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+    } on PurchasesError catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.message ?? "Erreur inconnue"),
+            content: Text(e.message),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
-       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Erreur: $e"),
-            backgroundColor: Colors.red,
-          ),
-        );
     } finally {
       if (mounted) setState(() => _isPurchasing = false);
     }
@@ -135,16 +129,20 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
         if (customerInfo.entitlements.active.isNotEmpty) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Achats restaurés avec succès !")),
+            SnackBar(content: Text(AppLocalizations.of(context)!.settingsRestoreSuccess)),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Aucun abonnement actif trouvé.")),
+            const SnackBar(content: Text("No active subscription found.")),
           );
         }
       }
-    } catch (e) {
-      // Gérer erreur
+    } on PurchasesError catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.settingsRestoreFail(e.message))),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isPurchasing = false);
     }
@@ -154,33 +152,18 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: _backgroundColor,
+      backgroundColor: Colors.white,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: _primaryColor))
           : Stack(
               children: [
-                // Subtle Background Decoration
-                Positioned(
-                  top: -100,
-                  right: -100,
-                  child: Container(
-                    width: 300,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _primaryColor.withOpacity(0.05),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: -50,
-                  left: -50,
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _primaryColor.withOpacity(0.05),
+                // Background Image or Gradient
+                Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/paywall_bg.jpg'),
+                      fit: BoxFit.cover,
+                      opacity: 0.1,
                     ),
                   ),
                 ),
@@ -188,12 +171,12 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                 SafeArea(
                   child: Column(
                     children: [
-                      // --- HEADER & FERMETURE ---
+                      // Close Button
                       Align(
                         alignment: Alignment.topRight,
                         child: IconButton(
-                          icon: Icon(Icons.close, color: _textGrey),
-                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ),
 
@@ -201,96 +184,57 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const SizedBox(height: 10),
-                              // --- ICONE PREMIUM ---
+                              const SizedBox(height: 20),
+                              // Icon / Logo
                               Container(
-                                padding: const EdgeInsets.all(24),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Colors.amber.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: _primaryColor.withOpacity(0.15),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
                                 ),
-                                child: Icon(
-                                  Icons.workspace_premium,
-                                  size: 48,
-                                  color: _primaryColor,
+                                child: const Icon(
+                                  Icons.star_rounded,
+                                  size: 64,
+                                  color: Colors.amber,
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              
-                              // --- TITRE ---
+
+                              // Title
                               Text(
-                                "FRIGOZEN PREMIUM",
+                                l10n.paywallTitle,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                  color: _primaryColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "Devenez un Chef Pro",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: _textDark,
                                   height: 1.2,
                                 ),
                               ),
                               const SizedBox(height: 12),
+
+                              // Subtitle
                               Text(
-                                "Débloquez tout le potentiel de votre cuisine avec nos outils professionnels.",
+                                l10n.paywallSubtitle,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: _textGrey,
-                                  height: 1.4,
+                                  color: Colors.grey[600],
+                                  height: 1.5,
                                 ),
                               ),
 
                               const SizedBox(height: 40),
 
-                              // --- FEATURES ---
-                              _buildFeatureItem(
-                                Icons.camera_alt_outlined,
-                                "Scan Illimité",
-                                "Reconnaissance instantanée de vos tickets.",
-                              ),
-                              _buildFeatureItem(
-                                Icons.auto_awesome,
-                                "Chef IA & Photos HD",
-                                "Recettes sur-mesure et photos générées.",
-                              ),
-                              _buildFeatureItem(
-                                Icons.shopping_cart_checkout,
-                                l10n.paywallBenefitSmartListTitle,
-                                l10n.paywallBenefitSmartListDesc,
-                              ),
-                              _buildFeatureItem(
-                                Icons.insights,
-                                "Statistiques Avancées",
-                                "Analysez votre consommation et votre santé.",
-                              ),
-                              _buildFeatureItem(
-                                Icons.cloud_outlined,
-                                "Alertes Cloud",
-                                "Notifications anti-gaspillage automatiques.",
-                              ),
+                              // Features List
+                              _buildFeatureItem(Icons.qr_code_scanner, l10n.paywallBenefit1Title, l10n.paywallBenefit1Desc),
+                              _buildFeatureItem(Icons.restaurant_menu, l10n.paywallBenefit2Title, l10n.paywallBenefit2Desc),
+                              _buildFeatureItem(Icons.cloud_outlined, l10n.paywallBenefit3Title, l10n.paywallBenefit3Desc),
+                              _buildFeatureItem(Icons.family_restroom, l10n.paywallBenefit5Title, l10n.paywallBenefit5Desc),
 
                               const SizedBox(height: 40),
 
-                              // --- SÉLECTION DU PLAN ---
+                              // Packages
                               if (_packages.isNotEmpty)
                                 ..._packages.map(
                                   (pkg) => _buildPackageOption(pkg, l10n),
@@ -298,30 +242,26 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
 
                               const SizedBox(height: 24),
 
-                              // --- BOUTON D'ACTION ---
+                              // Action Button
                               SizedBox(
                                 width: double.infinity,
                                 height: 56,
                                 child: ElevatedButton(
-                                  onPressed: _isPurchasing
-                                      ? null
-                                      : _purchaseSelectedPackage,
+                                  onPressed: _isPurchasing ? null : _purchaseSelectedPackage,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _primaryColor,
                                     foregroundColor: Colors.white,
                                     elevation: 4,
-                                    shadowColor: _primaryColor.withOpacity(0.4),
+                                    shadowColor: _primaryColor.withValues(alpha: 0.4),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
                                   child: _isPurchasing
-                                      ? const CircularProgressIndicator(
-                                          color: Colors.white,
-                                        )
-                                      : const Text(
-                                          "COMMENCER MAINTENANT",
-                                          style: TextStyle(
+                                      ? const CircularProgressIndicator(color: Colors.white)
+                                      : Text(
+                                          l10n.paywallSubscribeBtn,
+                                          style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 1,
@@ -332,33 +272,38 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
 
                               const SizedBox(height: 16),
 
-                              // --- RESTORE & LEGAL ---
+                              // Restore Button
+                              TextButton(
+                                onPressed: _restorePurchases,
+                                child: Text(
+                                  l10n.paywallRestoreBtn,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // Legal Links
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  TextButton(
-                                    onPressed: _restorePurchases,
-                                    child: Text(
-                                      l10n.paywallRestoreBtn,
-                                      style: TextStyle(
-                                        color: _textGrey,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  Text("•", style: TextStyle(color: _textGrey)),
-                                  TextButton(
-                                    onPressed: () async {
-                                      const url = 'https://frigozen.com/terms';
-                                      if (await canLaunchUrl(Uri.parse(url))) {
-                                        await launchUrl(Uri.parse(url));
-                                      }
-                                    },
-                                    child: Text(
-                                      l10n.paywallTermsButton,
-                                      style: const TextStyle(color: Colors.white70, fontSize: 12),
-                                    ),
-                                  ),
+                                  _buildLegalLink(l10n.paywallTermsButton, () async {
+                                    const url = 'https://frigozen.com/terms';
+                                    if (await canLaunchUrl(Uri.parse(url))) {
+                                      await launchUrl(Uri.parse(url));
+                                    }
+                                  }),
+                                  Text(" • ", style: TextStyle(color: Colors.grey[400])),
+                                  _buildLegalLink(l10n.settingsPrivacyPolicy, () async {
+                                    const url = 'https://frigozen.com/privacy';
+                                    if (await canLaunchUrl(Uri.parse(url))) {
+                                      await launchUrl(Uri.parse(url));
+                                    }
+                                  }),
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -369,6 +314,14 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                     ],
                   ),
                 ),
+
+                if (_isPurchasing)
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  ),
               ],
             ),
     );
@@ -383,7 +336,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: _primaryColor, size: 24),
@@ -418,31 +371,14 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
     final isSelected = _selectedPackage == package;
     final isAnnual = package.packageType == PackageType.annual;
     final priceString = package.storeProduct.priceString;
-    
+
     // Calculate monthly equivalent for annual plan
     String? monthlyEquivalent;
     if (isAnnual) {
       final price = package.storeProduct.price;
       final monthlyPrice = price / 12;
-      
-      // Attempt to extract currency symbol/code from priceString
-      // e.g. "$79.99" -> "$" or "79,99 €" -> "€"
-      // Simple heuristic: remove digits, dots, commas, and spaces
-      String currencySymbol = package.storeProduct.currencyCode; // Default to code (USD, EUR)
-      
-      // Try to find a symbol in the priceString if possible, otherwise fallback to code
-      // This is a basic approximation.
-      final symbolMatch = RegExp(r'[^\d\.,\s]+').firstMatch(priceString);
-      if (symbolMatch != null) {
-        currencySymbol = symbolMatch.group(0) ?? currencySymbol;
-      }
-
-      // Format: "6.66 € / mois" or "$6.66 / mois"
-      // We'll place the symbol at the end for consistency with typical EU formatting if it was EU,
-      // but since we don't know the locale perfectly, we'll try to mimic the priceString position?
-      // Too complex. Let's just append the code/symbol.
-      
-      monthlyEquivalent = "${monthlyPrice.toStringAsFixed(2)} $currencySymbol / mois";
+      final currencySymbol = package.storeProduct.currencyCode;
+      monthlyEquivalent = "${monthlyPrice.toStringAsFixed(2)} $currencySymbol / ${l10n.paywallMonthly.toLowerCase()}";
     }
 
     return GestureDetector(
@@ -458,9 +394,9 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: isSelected 
-                  ? _primaryColor.withOpacity(0.15) 
-                  : Colors.black.withOpacity(0.04),
+              color: isSelected
+                  ? _primaryColor.withValues(alpha: 0.15)
+                  : Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             )
@@ -497,14 +433,14 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                         : null,
                   ),
                   const SizedBox(width: 16),
-                  
+
                   // Details
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isAnnual ? "Annuel" : "Mensuel",
+                          isAnnual ? l10n.paywallAnnual : l10n.paywallMonthly,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -513,7 +449,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                         ),
                         if (isAnnual)
                           Text(
-                            "12 mois d'accès illimité",
+                            "12 ${l10n.paywallMonthly.toLowerCase()}", // Approximation
                             style: TextStyle(
                               color: _textGrey,
                               fontSize: 12,
@@ -549,7 +485,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                 ],
               ),
             ),
-            
+
             // Best Value Badge
             if (isAnnual)
               Positioned(
@@ -564,9 +500,9 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                       bottomLeft: Radius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    "BEST VALUE",
-                    style: TextStyle(
+                  child: Text(
+                    l10n.paywallSaveLabel,
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -575,6 +511,19 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegalLink(String text, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.grey[500],
+          fontSize: 12,
         ),
       ),
     );

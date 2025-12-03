@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 import 'package:frigo_zen/screens/recipes/recipe_suggestion_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:frigo_zen/services/revenue_provider.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/screens/inventory/components/inventory_header.dart';
-import 'package:frigo_zen/screens/inventory/components/inventory_list.dart';
-import 'package:frigo_zen/screens/inventory/components/location_filter_pills.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
+import 'package:frigo_zen/screens/inventory/components/inventory_list.dart';
+import 'package:frigo_zen/screens/inventory/components/location_filter_pills.dart';
 
 import 'package:frigo_zen/screens/inventory/components/scan_options_sheet.dart';
 import 'package:frigo_zen/screens/recipes/components/recipe_filters_dialog.dart';

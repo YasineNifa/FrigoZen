@@ -358,5 +358,11 @@
     }
   },
   "householdNameRequired": "Le nom du foyer est requis",
-  "householdCodeRequired": "Le code d'invitation est requis"
+  "householdCodeRequired": "Le code d'invitation est requis",
+  "recipeMissingIngredientsCount": "Manquant : {count}",
+  "@recipeMissingIngredientsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

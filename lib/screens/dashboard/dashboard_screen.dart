@@ -11,7 +11,6 @@ import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/screens/dashboard/components/premium_stats_wrapper.dart';
-import 'package:frigo_zen/screens/dashboard/components/premium_stats_wrapper.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 

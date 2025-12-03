@@ -30,6 +30,8 @@ class _AuthGateState extends State<AuthGate> {
 
         // 2. Utilisateur CONNECTÉ
         if (snapshot.hasData) {
+          debugPrint("AuthGate: User is logged in: ${snapshot.data?.uid}");
+
           final user = snapshot.data!;
 
           // --- A. Notifications (Une seule fois) ---
@@ -87,7 +89,7 @@ class _AuthGateState extends State<AuthGate> {
         await _saveTokenToFirestore(user.uid, token);
       }
     } catch (e) {
-      print("Notification setup error: $e");
+      debugPrint("Notification setup error: $e");
     }
   }
 

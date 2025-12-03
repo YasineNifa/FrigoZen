@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -125,7 +126,7 @@ class InventoryService {
 
   Future<QueryDocumentSnapshot?> _findExistingItem(String canonicalName, String name) async {
     final inventoryCollection = await _getInventoryCollection();
-    print("DEBUG: _findExistingItem searching for canonicalName: '$canonicalName', name: '$name'");
+    debugPrint("DEBUG: _findExistingItem searching for canonicalName: '$canonicalName', name: '$name'");
     
     // 1. Try exact canonicalName
     var query = await inventoryCollection
@@ -133,35 +134,35 @@ class InventoryService {
         .limit(1)
         .get();
     if (query.docs.isNotEmpty) {
-      print("DEBUG: Found exact canonicalName match: ${query.docs.first.id}");
+      debugPrint("DEBUG: Found exact canonicalName match: ${query.docs.first.id}");
       return query.docs.first;
     }
 
     // 2. Try lowercase canonicalName (if different)
     if (canonicalName != canonicalName.toLowerCase()) {
-       print("DEBUG: Trying lowercase canonicalName: '${canonicalName.toLowerCase()}'");
+       debugPrint("DEBUG: Trying lowercase canonicalName: '${canonicalName.toLowerCase()}'");
        query = await inventoryCollection
           .where('canonicalName', isEqualTo: canonicalName.toLowerCase())
           .limit(1)
           .get();
        if (query.docs.isNotEmpty) {
-         print("DEBUG: Found lowercase canonicalName match: ${query.docs.first.id}");
+         debugPrint("DEBUG: Found lowercase canonicalName match: ${query.docs.first.id}");
          return query.docs.first;
        }
     }
 
     // 3. Try exact name match (fallback)
-    print("DEBUG: Trying exact name match: '$name'");
+    debugPrint("DEBUG: Trying exact name match: '$name'");
     query = await inventoryCollection
         .where('name', isEqualTo: name)
         .limit(1)
         .get();
     if (query.docs.isNotEmpty) {
-      print("DEBUG: Found name match: ${query.docs.first.id}");
+      debugPrint("DEBUG: Found name match: ${query.docs.first.id}");
       return query.docs.first;
     }
 
-    print("DEBUG: No existing item found.");
+    debugPrint("DEBUG: No existing item found.");
     return null;
   }
 

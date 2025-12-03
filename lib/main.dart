@@ -51,9 +51,9 @@ Future<void> main() async {
   await Purchases.configure(
     PurchasesConfiguration("test_khYjXVBlKWQdgHIghJZqvHlaXyV"),
   );
-  
+
   setupLocator();
-  
+
   final revenueProvider = locator<RevenueProvider>();
   await revenueProvider.init();
 
@@ -61,10 +61,16 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => InventoryProvider()),
-        ChangeNotifierProvider(create: (context) => locator<InventoryViewModel>()),
-        ChangeNotifierProvider(create: (context) => locator<ShoppingViewModel>()),
+        ChangeNotifierProvider(
+          create: (context) => locator<InventoryViewModel>(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => locator<ShoppingViewModel>(),
+        ),
         ChangeNotifierProvider(create: (context) => MealPlannerViewModel()),
-        ChangeNotifierProvider(create: (context) => locator<RecipesViewModel>()),
+        ChangeNotifierProvider(
+          create: (context) => locator<RecipesViewModel>(),
+        ),
         ChangeNotifierProvider(create: (context) => NavigationController()),
         ChangeNotifierProvider.value(value: revenueProvider),
       ],
@@ -94,30 +100,29 @@ class FrigoZenApp extends StatelessWidget {
           seedColor: primaryColor,
           primary: primaryColor,
           surface: cardColor,
-          background: backgroundColor,
+          // background: backgroundColor, // Deprecated
         ),
-        textTheme: GoogleFonts.interTextTheme(
-          Theme.of(context).textTheme,
-        ).copyWith(
-          titleLarge: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            fontSize: 20, // Reduced from 22
-            color: Colors.black87,
-          ),
-          titleMedium: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 16, // Reduced from 18
-            color: Colors.black87,
-          ),
-          displayLarge: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-          displayMedium: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
+        textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme)
+            .copyWith(
+              titleLarge: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 20, // Reduced from 22
+                color: Colors.black87,
+              ),
+              titleMedium: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 16, // Reduced from 18
+                color: Colors.black87,
+              ),
+              displayLarge: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              displayMedium: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
         appBarTheme: AppBarTheme(
           backgroundColor: cardColor,
           elevation: 0,
@@ -132,8 +137,11 @@ class FrigoZenApp extends StatelessWidget {
         useMaterial3: true,
         navigationBarTheme: NavigationBarThemeData(
           indicatorColor: Colors.green[100],
-          labelTextStyle: MaterialStateProperty.all(
-             GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600), // Reduced from 14 to 11
+          labelTextStyle: WidgetStateProperty.all(
+            GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ), // Reduced from 14 to 11
           ),
         ),
       ),

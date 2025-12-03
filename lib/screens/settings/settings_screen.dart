@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/services.dart';
 import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 import 'package:frigo_zen/services/household_service.dart';
@@ -91,10 +90,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (isPro) {
                 try {
                   await RevenueCatUI.presentCustomerCenter();
-                } on PurchasesError catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.settingsErrorOpen)),
-                  );
+                } on PurchasesError {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.settingsErrorOpen)),
+                    );
+                  }
                 }
               } else {
                 Navigator.of(context).push(
@@ -112,14 +113,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: () async {
               try {
                 final customerInfo = await Purchases.restorePurchases();
-                context.read<RevenueProvider>().setCustomerInfo(customerInfo);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.settingsRestoreSuccess)),
-                );
+                if (context.mounted) {
+                  context.read<RevenueProvider>().setCustomerInfo(customerInfo);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.settingsRestoreSuccess)),
+                  );
+                }
               } on PurchasesError catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.settingsRestoreFail(e.message))),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.settingsRestoreFail(e.message))),
+                  );
+                }
               }
             },
           ),
@@ -140,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
+                        color: Colors.black.withValues(alpha: 0.02),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -204,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
+                        color: Colors.black.withValues(alpha: 0.02),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -325,7 +330,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     await Purchases.logOut();
                   }
                 } catch (e) {
-                  print("Error logout RevenueCat: $e");
+                  debugPrint("Error logout RevenueCat: $e");
                 }
                 await FirebaseAuth.instance.signOut();
               },
@@ -356,7 +361,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final nameController = TextEditingController(text: _user?.displayName);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.settingsEditProfileTitle),
         content: TextField(
           controller: nameController,
@@ -367,7 +372,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(AppLocalizations.of(context)!.settingsCancelBtn),
           ),
           FilledButton(
@@ -381,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() {
                     _user = updatedUser;
                   });
-                  Navigator.pop(context);
+                  if (dialogContext.mounted) Navigator.pop(dialogContext);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(AppLocalizations.of(context)!.settingsProfileUpdated)),
                   );
@@ -432,7 +437,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -442,7 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: (iconColor ?? Colors.grey[700])!.withOpacity(0.1),
+            color: (iconColor ?? Colors.grey[700])!.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: iconColor ?? Colors.grey[700], size: 20),

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -62,7 +61,7 @@ class _AuthScreenState extends State<AuthScreen> {
               SnackBar(
                 content: Text(l10n.authSuccess),
                 backgroundColor: Colors.green,
-                duration: Duration(seconds: 4),
+                duration: const Duration(seconds: 4),
               ),
             );
           }
@@ -87,12 +86,7 @@ class _AuthScreenState extends State<AuthScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
-            backgroundColor: Colors.red[400],
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -105,156 +99,103 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _toggleMode() {
-    setState(() {
-      _isLoginMode = !_isLoginMode;
-    });
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(30.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // --- LOGO ---
-                Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: _primaryColor.withOpacity(0.1),
-                      shape: BoxShape.circle,
+          padding: const EdgeInsets.all(24),
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _isLoginMode ? l10n.authLoginBtn : l10n.authSignupBtn,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                     ),
-                    child: Icon(
-                      Icons.eco_rounded,
-                      size: 50,
-                      color: _primaryColor,
+                    const SizedBox(height: 24),
+                    _buildTextField(
+                      controller: _emailController,
+                      label: l10n.authEmailLabel,
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-
-                // --- TITRE ANIMÉ ---
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Text(
-                    _isLoginMode ? l10n.authWelcomeBack : l10n.authWelcome,
-                    key: ValueKey<bool>(_isLoginMode),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: _textColor,
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _passwordController,
+                      label: l10n.authPasswordLabel,
+                      icon: Icons.lock_outline,
+                      isPassword: true,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _isLoginMode
-                      ? l10n.authLoginSubtitle
-                      : l10n.authSignupSubtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 40),
-
-                // --- CHAMPS DE TEXTE ---
-                _buildTextField(
-                  controller: _emailController,
-                  label: l10n.authEmailLabel,
-                  icon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(
-                  controller: _passwordController,
-                  label: l10n.authPasswordLabel,
-                  icon: Icons.lock_outline,
-                  isPassword: true,
-                ),
-                const SizedBox(height: 30),
-
-                SizedBox(
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _primaryColor,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.5,
+                    const SizedBox(height: 24),
+                    if (_isLoading)
+                      const CircularProgressIndicator()
+                    else
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _submitForm,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                          )
-                        : AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
                             child: Text(
-                              _isLoginMode
-                                  ? l10n.authLoginBtn
-                                  : l10n.authSignupBtn,
-                              key: ValueKey<bool>(_isLoginMode),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              _isLoginMode ? l10n.authLoginBtn : l10n.authSignupBtn,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isLoginMode = !_isLoginMode;
+                              });
+                            },
+                            child: RichText(
+                              text: TextSpan(
+                                style: TextStyle(color: Colors.grey[600]),
+                                children: [
+                                  TextSpan(
+                                    text: _isLoginMode
+                                        ? l10n.authNoAccount
+                                        : l10n.authHaveAccount,
+                                  ),
+                                  TextSpan(
+                                    text: _isLoginMode
+                                        ? l10n.authCreateAccount
+                                        : l10n.authToLogin,
+                                    style: TextStyle(
+                                      color: _primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                  ),
+                        ],
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-
-                // --- BOUTON TOGGLE (Texte) ---
-                TextButton(
-                  onPressed: _isLoading ? null : _toggleMode,
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(color: Colors.grey[600], fontSize: 15),
-                      children: [
-                        TextSpan(
-                          text: _isLoginMode
-                              ? l10n.authNoAccount
-                              : l10n.authHaveAccount,
-                        ),
-                        TextSpan(
-                          text: _isLoginMode
-                              ? l10n.authCreateAccount
-                              : l10n.authToLogin,
-                          style: TextStyle(
-                            color: _primaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -262,7 +203,6 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  // Widget Helper pour créer des champs de texte stylés
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -304,7 +244,7 @@ class _AuthScreenState extends State<AuthScreen> {
         if (value == null || value.trim().isEmpty) {
           return l10n.authFieldRequired;
         }
-        if (label == 'Email' && !value.contains('@')) {
+        if (label == l10n.authEmailLabel && !value.contains('@')) {
           return l10n.authInvalidEmail;
         }
         if (isPassword && value.length < 6) {

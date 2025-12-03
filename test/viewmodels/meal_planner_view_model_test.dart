@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
@@ -203,7 +204,7 @@ void main() {
     // 'ognons' resolves to 'Oignon'.
     // 'Oignon' exists in inventory (we need to add it to mock inventory).
     // So both should be skipped.
-    print("Added items: ${shopping.addedItems}");
+    debugPrint("Added items: ${shopping.addedItems}");
     expect(count, 0);
   });
 

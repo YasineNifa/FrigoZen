@@ -36,10 +36,10 @@ class _AddItemSheetState extends State<AddItemSheet> {
         final String cleanedName = itemData['cleanedName'] ?? name;
         final String canonicalName = itemData['canonicalName'] ?? name;
         
-        print("DEBUG: AddItemSheet - Cloud Function Result:");
-        print("DEBUG: name: '$name'");
-        print("DEBUG: cleanedName: '$cleanedName'");
-        print("DEBUG: canonicalName: '$canonicalName'");
+        debugPrint("DEBUG: AddItemSheet - Cloud Function Result:");
+        debugPrint("DEBUG: name: '$name'");
+        debugPrint("DEBUG: cleanedName: '$cleanedName'");
+        debugPrint("DEBUG: canonicalName: '$canonicalName'");
 
         final int dvm = itemData['dvm'];
         final String category = itemData['category'] ?? 'Other';

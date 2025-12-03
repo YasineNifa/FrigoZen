@@ -305,67 +305,67 @@ abstract class AppLocalizations {
   /// No description provided for @householdWelcome.
   ///
   /// In en, this message translates to:
-  /// **'Bienvenue chez vous !'**
+  /// **'Welcome home!'**
   String get householdWelcome;
 
   /// No description provided for @householdSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pour commencer, créez votre espace familial ou rejoignez-en un existant.'**
+  /// **'To get started, create your family space or join an existing one.'**
   String get householdSubtitle;
 
   /// No description provided for @householdCreateTitle.
   ///
   /// In en, this message translates to:
-  /// **'Créer un nouvel espace'**
+  /// **'Create a new space'**
   String get householdCreateTitle;
 
   /// No description provided for @householdNameLabel.
   ///
   /// In en, this message translates to:
-  /// **'Nom de la maison (ex: Chez Nous)'**
+  /// **'Household name (e.g. Our Home)'**
   String get householdNameLabel;
 
   /// No description provided for @householdCreateBtn.
   ///
   /// In en, this message translates to:
-  /// **'Créer'**
+  /// **'Create'**
   String get householdCreateBtn;
 
   /// No description provided for @householdOr.
   ///
   /// In en, this message translates to:
-  /// **'OU'**
+  /// **'OR'**
   String get householdOr;
 
   /// No description provided for @householdJoinTitle.
   ///
   /// In en, this message translates to:
-  /// **'Rejoindre un espace'**
+  /// **'Join a space'**
   String get householdJoinTitle;
 
   /// No description provided for @householdCodeLabel.
   ///
   /// In en, this message translates to:
-  /// **'Code d\'invitation (ex: FZ-1234)'**
+  /// **'Invitation code (e.g. FZ-1234)'**
   String get householdCodeLabel;
 
   /// No description provided for @householdJoinBtn.
   ///
   /// In en, this message translates to:
-  /// **'Rejoindre'**
+  /// **'Join'**
   String get householdJoinBtn;
 
   /// No description provided for @householdErrorNameRequired.
   ///
   /// In en, this message translates to:
-  /// **'Le nom est requis'**
+  /// **'Name is required'**
   String get householdErrorNameRequired;
 
   /// No description provided for @householdErrorCodeRequired.
   ///
   /// In en, this message translates to:
-  /// **'Le code est requis'**
+  /// **'Code is required'**
   String get householdErrorCodeRequired;
 
   /// No description provided for @addItemTitle.
@@ -1795,6 +1795,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invitation code is required'**
   String get householdCodeRequired;
+
+  /// No description provided for @recipeMissingIngredientsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing: {count}'**
+  String recipeMissingIngredientsCount(int count);
 }
 
 class _AppLocalizationsDelegate

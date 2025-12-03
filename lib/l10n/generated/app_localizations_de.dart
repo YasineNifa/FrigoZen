@@ -931,4 +931,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get householdCodeRequired => 'Einladungscode ist erforderlich';
+
+  @override
+  String recipeMissingIngredientsCount(int count) {
+    return 'Missing: $count';
+  }
 }

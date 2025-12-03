@@ -33,7 +33,7 @@ class RevenueProvider with ChangeNotifier {
       notifyListeners();
       _syncPremiumStatusToFirestore();
     } catch (e) {
-      print("Error RevenueCat init: $e");
+      debugPrint("Error RevenueCat init: $e");
     }
 
     // 3. Listen to Firebase Auth to sync identity
@@ -76,7 +76,7 @@ class RevenueProvider with ChangeNotifier {
         await Purchases.logOut();
       }
     } catch (e) {
-      print("Error RevenueCat logout: $e");
+      debugPrint("Error RevenueCat logout: $e");
     }
   }
 
@@ -84,13 +84,13 @@ class RevenueProvider with ChangeNotifier {
     if (_currentRevenueCatId == id) return;
 
     try {
-      print("RevenueProvider: Logging in with ID: $id");
+      debugPrint("RevenueProvider: Logging in with ID: $id");
       _currentRevenueCatId = id;
       final result = await Purchases.logIn(id);
       _customerInfo = result.customerInfo;
       notifyListeners();
     } catch (e) {
-      print("Error RevenueCat login: $e");
+      debugPrint("Error RevenueCat login: $e");
       _currentRevenueCatId = null; // Reset on failure to retry later if needed
     }
   }
@@ -113,7 +113,7 @@ class RevenueProvider with ChangeNotifier {
         'lastPremiumSync': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {
-      print("Error syncing premium status: $e");
+      debugPrint("Error syncing premium status: $e");
     }
   }
   

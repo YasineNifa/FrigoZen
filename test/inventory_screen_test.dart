@@ -1,9 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:frigo_zen/screens/inventory/inventory_screen.dart';
-import 'package:frigo_zen/screens/inventory/components/inventory_header.dart';
-import 'package:frigo_zen/screens/inventory/components/inventory_list.dart';
-import 'package:frigo_zen/screens/inventory/components/inventory_item_card.dart';
-import 'package:frigo_zen/screens/inventory/components/inventory_empty_state.dart';
+
 
 void main() {
   testWidgets('InventoryScreen compiles and builds', (WidgetTester tester) async {

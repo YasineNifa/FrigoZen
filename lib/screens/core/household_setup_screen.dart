@@ -72,7 +72,7 @@ class _HouseholdSetupScreenState extends State<HouseholdSetupScreen> {
                     width: 100,
                     height: 100,
                     decoration: BoxDecoration(
-                      color: _primaryColor.withOpacity(0.1),
+                      color: _primaryColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -115,7 +115,7 @@ class _HouseholdSetupScreenState extends State<HouseholdSetupScreen> {
                       border: Border.all(color: Colors.grey[200]!),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -125,10 +125,7 @@ class _HouseholdSetupScreenState extends State<HouseholdSetupScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.add_circle_outline,
-                              color: _primaryColor,
-                            ),
+                            Icon(Icons.add_circle_outline, color: _primaryColor),
                             const SizedBox(width: 10),
                             Text(
                               l10n.householdCreateTitle,
@@ -154,15 +151,15 @@ class _HouseholdSetupScreenState extends State<HouseholdSetupScreen> {
                             onPressed: () => _submit(true),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _primaryColor,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              elevation: 0,
                             ),
                             child: Text(
                               l10n.householdCreateBtn,
-                              style: TextStyle(
-                                color: Colors.white,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -172,27 +169,7 @@ class _HouseholdSetupScreenState extends State<HouseholdSetupScreen> {
                       ],
                     ),
                   ),
-
-                  // --- DIVISEUR ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Row(
-                      children: [
-                        Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            l10n.householdOr,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const Expanded(child: Divider()),
-                      ],
-                    ),
-                  ),
+                  const SizedBox(height: 20),
 
                   // --- OPTION 2 : REJOINDRE ---
                   Container(

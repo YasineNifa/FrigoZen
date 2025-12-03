@@ -8,7 +8,7 @@ import 'package:frigo_zen/models/batch.dart';
 
 // Mock Shopping Repository
 class MockShoppingRepository implements ShoppingRepository {
-  List<ShoppingItem> _items = [];
+  final List<ShoppingItem> _items = [];
   bool shouldThrow = false;
 
   @override
@@ -17,7 +17,7 @@ class MockShoppingRepository implements ShoppingRepository {
     return Stream.value(_items);
   }
 
-  @override
+  // Removed @override
   Future<void> addShoppingItem(String householdId, ShoppingItem item) async {
     if (shouldThrow) throw Exception("Error adding item");
     _items.add(item);

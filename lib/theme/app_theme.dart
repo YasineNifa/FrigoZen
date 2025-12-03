@@ -17,7 +17,7 @@ class AppTheme {
   static final Color statusNeutral = Colors.grey[700]!;
 
   // UI Elements
-  static final Color shadowColor = Colors.black.withOpacity(0.04);
+  static final Color shadowColor = Colors.black.withValues(alpha: 0.04);
   static const Color quantityControlBackground = Color(0xFFF5F7FA);
 
   static ThemeData get lightTheme {
@@ -31,7 +31,8 @@ class AppTheme {
         seedColor: primaryColor,
         primary: primaryColor,
         surface: cardColor,
-        background: backgroundColor,
+        // background is deprecated, surface is used instead or we can omit if same as surface
+        // background: backgroundColor, 
         error: errorColor,
       ),
       appBarTheme: const AppBarTheme(
@@ -48,7 +49,7 @@ class AppTheme {
       useMaterial3: true,
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: Colors.green[100],
-        labelTextStyle: MaterialStateProperty.all(
+        labelTextStyle: WidgetStateProperty.all(
           const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),

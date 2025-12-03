@@ -134,7 +134,7 @@ class MealPlannerViewModel extends ChangeNotifier {
             final canonicalName = resolvedItem.canonicalName;
 
             // 4. Check canonical name in inventory
-            final hasCanonicalInInventory = await inventory.doesItemExist(canonicalName);
+            final hasCanonicalInInventory = inventory.doesItemExist(canonicalName);
             if (hasCanonicalInInventory) continue;
 
             // 5. Check canonical name in shopping list

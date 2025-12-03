@@ -110,38 +110,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'The password must be at least 6 characters long.';
 
   @override
-  String get householdWelcome => 'Bienvenue chez vous !';
+  String get householdWelcome => 'Welcome home!';
 
   @override
   String get householdSubtitle =>
-      'Pour commencer, créez votre espace familial ou rejoignez-en un existant.';
+      'To get started, create your family space or join an existing one.';
 
   @override
-  String get householdCreateTitle => 'Créer un nouvel espace';
+  String get householdCreateTitle => 'Create a new space';
 
   @override
-  String get householdNameLabel => 'Nom de la maison (ex: Chez Nous)';
+  String get householdNameLabel => 'Household name (e.g. Our Home)';
 
   @override
-  String get householdCreateBtn => 'Créer';
+  String get householdCreateBtn => 'Create';
 
   @override
-  String get householdOr => 'OU';
+  String get householdOr => 'OR';
 
   @override
-  String get householdJoinTitle => 'Rejoindre un espace';
+  String get householdJoinTitle => 'Join a space';
 
   @override
-  String get householdCodeLabel => 'Code d\'invitation (ex: FZ-1234)';
+  String get householdCodeLabel => 'Invitation code (e.g. FZ-1234)';
 
   @override
-  String get householdJoinBtn => 'Rejoindre';
+  String get householdJoinBtn => 'Join';
 
   @override
-  String get householdErrorNameRequired => 'Le nom est requis';
+  String get householdErrorNameRequired => 'Name is required';
 
   @override
-  String get householdErrorCodeRequired => 'Le code est requis';
+  String get householdErrorCodeRequired => 'Code is required';
 
   @override
   String get addItemTitle => 'Add New Item';
@@ -924,4 +924,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get householdCodeRequired => 'Invitation code is required';
+
+  @override
+  String recipeMissingIngredientsCount(int count) {
+    return 'Missing: $count';
+  }
 }

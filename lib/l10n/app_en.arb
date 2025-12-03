@@ -34,17 +34,17 @@
   "authInvalidEmail": "Please enter a valid email.",
   "authShortPassword": "The password must be at least 6 characters long.",
   "@_HOUSEHOLD_SCREEN": {},
-  "householdWelcome": "Bienvenue chez vous !",
-  "householdSubtitle": "Pour commencer, créez votre espace familial ou rejoignez-en un existant.",
-  "householdCreateTitle": "Créer un nouvel espace",
-  "householdNameLabel": "Nom de la maison (ex: Chez Nous)",
-  "householdCreateBtn": "Créer",
-  "householdOr": "OU",
-  "householdJoinTitle": "Rejoindre un espace",
-  "householdCodeLabel": "Code d'invitation (ex: FZ-1234)",
-  "householdJoinBtn": "Rejoindre",
-  "householdErrorNameRequired": "Le nom est requis",
-  "householdErrorCodeRequired": "Le code est requis",
+  "householdWelcome": "Welcome home!",
+  "householdSubtitle": "To get started, create your family space or join an existing one.",
+  "householdCreateTitle": "Create a new space",
+  "householdNameLabel": "Household name (e.g. Our Home)",
+  "householdCreateBtn": "Create",
+  "householdOr": "OR",
+  "householdJoinTitle": "Join a space",
+  "householdCodeLabel": "Invitation code (e.g. FZ-1234)",
+  "householdJoinBtn": "Join",
+  "householdErrorNameRequired": "Name is required",
+  "householdErrorCodeRequired": "Code is required",
   "@_NAVIGATION_SHELL_SCREEN": {},
   "@_ADD_ITEM_SHEET": {},
   "addItemTitle": "Add New Item",
@@ -439,5 +439,11 @@
     }
   },
   "householdNameRequired": "Household name is required",
-  "householdCodeRequired": "Invitation code is required"
+  "householdCodeRequired": "Invitation code is required",
+  "recipeMissingIngredientsCount": "Missing: {count}",
+  "@recipeMissingIngredientsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

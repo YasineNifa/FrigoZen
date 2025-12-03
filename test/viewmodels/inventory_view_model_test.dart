@@ -5,8 +5,8 @@ import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 
 // Mock Repository
-class MockInventoryRepository implements InventoryRepository {
-  List<InventoryItem> _items = [];
+class MockInventoryRepository extends InventoryRepository {
+  final List<InventoryItem> _items = [];
   bool shouldThrow = false;
 
   @override

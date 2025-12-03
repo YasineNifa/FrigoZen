@@ -922,4 +922,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get householdCodeRequired => 'رمز الدعوة مطلوب';
+
+  @override
+  String recipeMissingIngredientsCount(int count) {
+    return 'Missing: $count';
+  }
 }
