@@ -925,4 +925,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String settingsErrorGeneric(String error) {
     return 'Erreur : $error';
   }
+
+  @override
+  String get householdNameRequired => 'Le nom du foyer est requis';
+
+  @override
+  String get householdCodeRequired => 'Le code d\'invitation est requis';
 }

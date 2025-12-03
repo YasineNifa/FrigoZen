@@ -437,5 +437,7 @@
     "placeholders": {
       "error": { "type": "String" }
     }
-  }
+  },
+  "householdNameRequired": "Household name is required",
+  "householdCodeRequired": "Invitation code is required"
 }

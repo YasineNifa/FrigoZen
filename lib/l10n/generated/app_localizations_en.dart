@@ -918,4 +918,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String settingsErrorGeneric(String error) {
     return 'Error: $error';
   }
+
+  @override
+  String get householdNameRequired => 'Household name is required';
+
+  @override
+  String get householdCodeRequired => 'Invitation code is required';
 }

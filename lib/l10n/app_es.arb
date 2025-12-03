@@ -356,5 +356,7 @@
     "placeholders": {
       "error": { "type": "String" }
     }
-  }
+  },
+  "householdNameRequired": "El nombre del hogar es obligatorio",
+  "householdCodeRequired": "El código de invitación es obligatorio"
 }

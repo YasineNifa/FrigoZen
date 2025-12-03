@@ -356,5 +356,7 @@
     "placeholders": {
       "error": { "type": "String" }
     }
-  }
+  },
+  "householdNameRequired": "Haushaltsname ist erforderlich",
+  "householdCodeRequired": "Einladungscode ist erforderlich"
 }

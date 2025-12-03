@@ -1783,6 +1783,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error: {error}'**
   String settingsErrorGeneric(String error);
+
+  /// No description provided for @householdNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Household name is required'**
+  String get householdNameRequired;
+
+  /// No description provided for @householdCodeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation code is required'**
+  String get householdCodeRequired;
 }
 
 class _AppLocalizationsDelegate

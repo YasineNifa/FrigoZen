@@ -24,10 +24,10 @@ class _HouseholdSetupScreenState extends State<HouseholdSetupScreen> {
     setState(() => _isLoading = true);
     try {
       if (isCreating) {
-        if (_nameController.text.isEmpty) throw Exception("Name is required");
+        if (_nameController.text.isEmpty) throw Exception(l10n.householdNameRequired);
         await _householdService.createHousehold(_nameController.text.trim());
       } else {
-        if (_codeController.text.isEmpty) throw Exception("Code is required");
+        if (_codeController.text.isEmpty) throw Exception(l10n.householdCodeRequired);
         await _householdService.joinHousehold(_codeController.text.trim());
       }
 

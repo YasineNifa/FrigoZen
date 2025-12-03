@@ -916,4 +916,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String settingsErrorGeneric(String error) {
     return 'خطأ: $error';
   }
+
+  @override
+  String get householdNameRequired => 'اسم المنزل مطلوب';
+
+  @override
+  String get householdCodeRequired => 'رمز الدعوة مطلوب';
 }
