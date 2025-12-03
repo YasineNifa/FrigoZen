@@ -36,7 +36,10 @@ class _NavigationShellState extends State<NavigationShell> {
     final selectedIndex = navigationController.selectedIndex;
 
     return Scaffold(
-      body: _screens[selectedIndex],
+      body: IndexedStack(
+        index: selectedIndex,
+        children: _screens,
+      ),
 
       // Navigation Bar
       bottomNavigationBar: NavigationBar(
@@ -49,28 +52,28 @@ class _NavigationShellState extends State<NavigationShell> {
         },
         destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: "Dashboard",
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
+            label: l10n.dashboardTitle,
           ),
           NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2),
-            label: "Frigo", // Shortened from l10n.inventoryTab
+            icon: const Icon(Icons.inventory_2_outlined),
+            selectedIcon: const Icon(Icons.inventory_2),
+            label: l10n.inventoryTab,
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_cart_outlined),
-            selectedIcon: Icon(Icons.shopping_cart),
-            label: "Courses", // Shortened from l10n.shoppingListTab
+            icon: const Icon(Icons.shopping_cart_outlined),
+            selectedIcon: const Icon(Icons.shopping_cart),
+            label: l10n.shoppingListTab,
           ),
           NavigationDestination(
-            icon: Icon(Icons.restaurant_menu_outlined),
-            selectedIcon: Icon(Icons.restaurant_menu),
-            label: "Recettes", // TODO: Localize
+            icon: const Icon(Icons.restaurant_menu_outlined),
+            selectedIcon: const Icon(Icons.restaurant_menu),
+            label: l10n.recipeTitle,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
             label: l10n.settingsTab,
           ),
         ],
