@@ -10,6 +10,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/components/skeleton.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -130,6 +131,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
           StreamBuilder<DocumentSnapshot?>(
             stream: HouseholdService().getCurrentHouseholdStream(),
             builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Skeleton(width: 40, height: 40, borderRadius: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Skeleton(width: 120, height: 16),
+                                SizedBox(height: 8),
+                                Skeleton(width: 80, height: 12),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      const Skeleton(width: double.infinity, height: 48),
+                    ],
+                  ),
+                );
+              }
+
               if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox();
               }
