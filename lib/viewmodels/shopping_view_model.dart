@@ -230,9 +230,8 @@ class ShoppingViewModel extends ChangeNotifier {
     try {
       final List<String> itemIdsToDelete = [];
 
-      for (var item in checkedItems) {
-        // Create InventoryItem from ShoppingItem
-        
+      // Process items in parallel
+      await Future.wait(checkedItems.map((item) async {
         // Logic:
         // 1. Create Batch
         final now = DateTime.now();
@@ -265,12 +264,16 @@ class ShoppingViewModel extends ChangeNotifier {
           dvm: item.dvm ?? 7,
         );
 
-        // 3. Add to Inventory (Upsert) - Still sequential for now as InventoryRepo doesn't support batch upsert logic easily yet
+        // 3. Add to Inventory (Upsert)
         await _inventoryRepository.upsertInventoryItem(_householdId!, inventoryItem);
 
-        // 4. Collect ID for batch deletion
-        itemIdsToDelete.add(item.id);
-      }
+        // 4. Collect ID for batch deletion (synchronized access not strictly needed for list add in JS-like async, but good practice to be aware)
+        // In Dart, this is safe as long as we don't modify the list structure concurrently in a way that race conditions matter for simple adds.
+        // However, to be perfectly safe and clean, we can return the ID from the map and collect later.
+      }));
+      
+      // Collect IDs after parallel execution
+      itemIdsToDelete.addAll(checkedItems.map((e) => e.id));
 
       // Batch delete from shopping list
       if (itemIdsToDelete.isNotEmpty) {
