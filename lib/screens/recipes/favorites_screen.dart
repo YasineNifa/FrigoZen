@@ -6,6 +6,7 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/services/recipe_service.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/screens/recipes/components/favorites_empty_state.dart';
 
 class FavoritesTab extends StatelessWidget {
   const FavoritesTab({super.key});
@@ -25,7 +26,7 @@ class FavoritesTab extends StatelessWidget {
     BuildContext context,
     RecipeService recipeService,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    // final l10n = AppLocalizations.of(context)!;
     return StreamBuilder<QuerySnapshot>(
       stream: recipeService.getFavoritesStream(),
       builder: (context, snapshot) {
@@ -34,34 +35,7 @@ class FavoritesTab extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/onboarding/lost.png',
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  errorBuilder: (c, e, s) => Icon(
-                    Icons.favorite_border,
-                    size: 80,
-                    color: Colors.grey[300],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.favoritesEmptyTitle,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.favoritesEmptySubtitle,
-                  style: TextStyle(color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
+          return const FavoritesEmptyState();
         }
 
         final docs = snapshot.data!.docs;
