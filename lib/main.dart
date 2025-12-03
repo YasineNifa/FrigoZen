@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/core/auth_gate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frigo_zen/screens/onboarding/onboarding_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -95,22 +96,44 @@ class FrigoZenApp extends StatelessWidget {
           surface: cardColor,
           background: backgroundColor,
         ),
-        appBarTheme: const AppBarTheme(
+        textTheme: GoogleFonts.interTextTheme(
+          Theme.of(context).textTheme,
+        ).copyWith(
+          titleLarge: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 20, // Reduced from 22
+            color: Colors.black87,
+          ),
+          titleMedium: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 16, // Reduced from 18
+            color: Colors.black87,
+          ),
+          displayLarge: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+          displayMedium: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        appBarTheme: AppBarTheme(
           backgroundColor: cardColor,
           elevation: 0,
           centerTitle: true,
-          iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(
+          iconTheme: const IconThemeData(color: Colors.black),
+          titleTextStyle: GoogleFonts.poppins(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 20, // Kept at 20 (consistent with titleLarge)
           ),
         ),
         useMaterial3: true,
         navigationBarTheme: NavigationBarThemeData(
           indicatorColor: Colors.green[100],
           labelTextStyle: MaterialStateProperty.all(
-            const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+             GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600), // Reduced from 14 to 11
           ),
         ),
       ),

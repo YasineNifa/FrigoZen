@@ -56,12 +56,12 @@ class _NavigationShellState extends State<NavigationShell> {
           NavigationDestination(
             icon: Icon(Icons.inventory_2_outlined),
             selectedIcon: Icon(Icons.inventory_2),
-            label: l10n.inventoryTab,
+            label: "Frigo", // Shortened from l10n.inventoryTab
           ),
           NavigationDestination(
             icon: Icon(Icons.shopping_cart_outlined),
             selectedIcon: Icon(Icons.shopping_cart),
-            label: l10n.shoppingListTab,
+            label: "Courses", // Shortened from l10n.shoppingListTab
           ),
           NavigationDestination(
             icon: Icon(Icons.restaurant_menu_outlined),

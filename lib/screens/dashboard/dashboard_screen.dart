@@ -63,7 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 "Actions Rapides",
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
             Padding(
