@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frigo_zen/screens/core/auth_gate.dart';
@@ -30,7 +31,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  // Marque l'onboarding comme vu et navigue vers l'AuthGate
   void _finishOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenOnboarding', true);
@@ -45,9 +45,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Stack(
         children: [
+          // 1. Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/zen.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          
+          // 2. Overlay Gradient
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.black.withValues(alpha: 0.7),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // 3. Content PageView
           PageView(
             controller: _pageController,
             children: [
@@ -63,7 +87,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
 
-              // Page 2: Know What to Eat
               _buildOnboardingPage(
                 context: context,
                 imagePath: 'assets/onboarding/know_what_to_eat.png',
@@ -76,7 +99,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
 
-              // Page 3: Smart Shopping (Dernière page)
               _buildOnboardingPage(
                 context: context,
                 imagePath: 'assets/onboarding/smart_shopping.png',
@@ -88,8 +110,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ],
           ),
 
+          // 4. Indicators
           Positioned(
-            bottom: 190,
+            bottom: 50,
             left: 0,
             right: 0,
             child: Row(
@@ -98,15 +121,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
 
+          // 5. Skip Button
           if (_currentPage < 2)
             Positioned(
               top: 50,
               right: 20,
               child: TextButton(
                 onPressed: _finishOnboarding,
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white.withValues(alpha: 0.8),
+                ),
                 child: Text(
                   l10n.onboardingSkip,
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
@@ -115,7 +142,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // Widget pour construire chaque page d'onboarding
   Widget _buildOnboardingPage({
     required BuildContext context,
     required String imagePath,
@@ -131,77 +157,111 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Spacer(flex: 2),
-          // Illustration
-          Image.asset(
-            imagePath,
-            height: MediaQuery.of(context).size.height * 0.35,
-          ),
-          const Spacer(flex: 1),
-          // Titre
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF333333),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Description
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-              height: 1.5,
-            ),
-          ),
-          const Spacer(flex: 2),
-          // Bouton Principal
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: onButtonPressed,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6B9C5F),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          
+          // Glassmorphism Card
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5), // Darker background
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1), // Subtle border
+                    width: 1,
+                  ),
                 ),
-                elevation: 0,
-              ),
-              child: Text(
-                buttonText,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                child: Column(
+                  children: [
+                    // Illustration
+                    Image.asset(
+                      imagePath,
+                      height: MediaQuery.of(context).size.height * 0.25,
+                    ),
+                    const SizedBox(height: 32),
+                    
+                    // Title
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Description
+                    Text(
+                      description,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white.withValues(alpha: 0.8),
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    
+                    // Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: onButtonPressed,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6B9C5F),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 8,
+                          shadowColor: const Color(0xFF6B9C5F).withValues(alpha: 0.5),
+                        ),
+                        child: Text(
+                          buttonText,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
+          
           const SizedBox(height: 20),
+          
           if (_currentPage == 2)
             TextButton(
               onPressed: _finishOnboarding,
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+              ),
               child: Text(
                 l10n.onboardingHaveAccount,
-                style: TextStyle(
-                  color: Color(0xFF6B9C5F),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.white,
                 ),
               ),
             ),
+            
           const Spacer(flex: 1),
         ],
       ),
     );
   }
 
-  // Widget pour les indicateurs de page (les points)
   Widget _buildDot(int index) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -211,7 +271,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       decoration: BoxDecoration(
         color: _currentPage == index
             ? const Color(0xFF6B9C5F)
-            : Colors.grey[300],
+            : Colors.white.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4),
       ),
     );
