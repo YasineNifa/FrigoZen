@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/components/skeleton.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/services/household_service.dart';
 
@@ -18,6 +19,9 @@ class InventoryHeader extends StatelessWidget implements PreferredSizeWidget {
       title: StreamBuilder<DocumentSnapshot?>(
         stream: HouseholdService().getCurrentHouseholdStream(),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Skeleton(width: 150, height: 24);
+          }
           if (snapshot.hasData &&
               snapshot.data != null &&
               snapshot.data!.exists) {
