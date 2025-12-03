@@ -42,41 +42,79 @@ class _NavigationShellState extends State<NavigationShell> {
       ),
 
       // Navigation Bar
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.grey[150],
-        animationDuration: const Duration(milliseconds: 200),
-        indicatorColor: Colors.green[100],
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
-          context.read<NavigationController>().setIndex(index);
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.dashboard_outlined),
-            selectedIcon: const Icon(Icons.dashboard),
-            label: l10n.dashboardTitle,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: Colors.grey.withValues(alpha: 0.2),
+              width: 0.5,
+            ),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.inventory_2_outlined),
-            selectedIcon: const Icon(Icons.inventory_2),
-            label: l10n.inventoryTab,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: NavigationBarTheme(
+          data: NavigationBarThemeData(
+            labelTextStyle: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) {
+                return const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF6B9C5F), // Primary Green
+                );
+              }
+              return TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              );
+            }),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            selectedIcon: const Icon(Icons.shopping_cart),
-            label: l10n.shoppingListTab,
+          child: NavigationBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            height: 65,
+            animationDuration: const Duration(milliseconds: 300),
+            indicatorColor: const Color(0xFF6B9C5F).withValues(alpha: 0.15),
+            selectedIndex: selectedIndex,
+            onDestinationSelected: (index) {
+              context.read<NavigationController>().setIndex(index);
+            },
+            destinations: [
+              NavigationDestination(
+                icon: Icon(Icons.dashboard_outlined, color: Colors.grey[600]),
+                selectedIcon: const Icon(Icons.dashboard, color: Color(0xFF6B9C5F)),
+                label: l10n.dashboardTitle,
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.inventory_2_outlined, color: Colors.grey[600]),
+                selectedIcon: const Icon(Icons.inventory_2, color: Color(0xFF6B9C5F)),
+                label: l10n.inventoryTab,
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.shopping_cart_outlined, color: Colors.grey[600]),
+                selectedIcon: const Icon(Icons.shopping_cart, color: Color(0xFF6B9C5F)),
+                label: l10n.shoppingListTab,
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.restaurant_menu_outlined, color: Colors.grey[600]),
+                selectedIcon: const Icon(Icons.restaurant_menu, color: Color(0xFF6B9C5F)),
+                label: l10n.recipeTitle,
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.settings_outlined, color: Colors.grey[600]),
+                selectedIcon: const Icon(Icons.settings, color: Color(0xFF6B9C5F)),
+                label: l10n.settingsTab,
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.restaurant_menu_outlined),
-            selectedIcon: const Icon(Icons.restaurant_menu),
-            label: l10n.recipeTitle,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: l10n.settingsTab,
-          ),
-        ],
+        ),
       ),
     );
   }
