@@ -157,7 +157,7 @@ class InventoryViewModel extends ChangeNotifier {
 
   Future<void> addItem(InventoryItem item) async {
     if (_householdId == null) return;
-    await _inventoryRepository.addInventoryItem(_householdId!, item);
+    await _inventoryRepository.upsertInventoryItem(_householdId!, item);
   }
 
   Future<void> updateItem(InventoryItem item) async {
