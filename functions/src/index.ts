@@ -194,6 +194,9 @@ export const getSmartItemData = onCall(
       );
     }
     const productName = request.data.productName;
+    const language = request.data.language || "en"; // Default to
+    // English if not provided
+
     if (!productName) {
       throw new HttpsError(
         "invalid-argument", "Name required."
@@ -207,10 +210,13 @@ export const getSmartItemData = onCall(
         of Milk", "Lait demi-écrémé", "Tomates x3").
         Your job is to extract the CLEAN data.
 
+        TARGET LANGUAGE: ${language}
+
         RULES:
-        1. **Canonical Name:** MUST be the English singular
-        product name (e.g., "Milk", not "4 Milk"). Remove
-        numbers, packaging info, and brands.
+        1. **Canonical Name:** MUST be the singular product
+        name in the TARGET LANGUAGE (${language}).
+        (e.g. if lang=fr, "Milk" -> "Lait").
+        Remove numbers, packaging info, and brands.
         2. **Quantity:** Extract the quantity from the input.
         If not specified, default is 1. (e.g. "3 pommes" -> quantity: 3).
         3. **DVM (Shelf Life):** Estimate in days based on
@@ -221,17 +227,24 @@ export const getSmartItemData = onCall(
           "item": {
             "name": "string",           // same as the user input.
             "cleanedName": "string",    // Clean name in the same language
-            // used by the user without number or quantity or brand
-            "canonicalName": "string",  // CLEAN English name (NO numbers!)
+            // as input
+            "canonicalName": "string",  // Clean name in TARGET
+            // LANGUAGE (${language})
             "quantity": integer,        // Extracted quantity
             "dvm": integer,        // ESTIMATED DAYS (e.g. 3, 7, 21, 365)      
-            "location": "string",
+            "location": "string",  // MUST be one of: loc_fridge, loc_freezer,
+            // loc_pantry
             "category": "string"   // MUST be one of: cat_fruits_vegetables,
             // cat_bakery, cat_dairy_eggs, cat_meat_fish, cat_frozen,
             // cat_pantry_salty, cat_pantry_sweet, cat_beverages, cat_baby,
             // cat_pets, cat_other
           }
         }
+
+        STRICT LOCATION MAPPING:
+        - loc_fridge: Perishable items (Dairy, Meat, Veggies, Leftovers)
+        - loc_freezer: Frozen items, Ice cream
+        - loc_pantry: Dry goods (Pasta, Rice, Cans, Spices, Oil, Sugar)
 
         STRICT CATEGORY MAPPING:
         Map the item to the most appropriate category from this list:
@@ -247,17 +260,17 @@ export const getSmartItemData = onCall(
         - cat_pets (Pet food, litter)
         - cat_other (Anything else)
         
-        Example 1:
+        Example 1 (lang=fr):
         Input: "4 Lait UHT"
         Output: {"item": {"cleanedName": "Lait", "name": "4 Lait UHT",
-        "canonicalName": "Milk", "quantity": 4, "dvm": 7,
-        "location": "Frigo", "category": "cat_dairy_eggs"}}
+        "canonicalName": "Lait", "quantity": 4, "dvm": 7,
+        "location": "loc_fridge", "category": "cat_dairy_eggs"}}
         
-        Example 2:
+        Example 2 (lang=en):
         Input: "Paquet de Pates"
         Output: {"item": { "cleanedName": "Pâtes", "name": "Paquet de Pates",
         "canonicalName": "Pasta", "quantity": 1, "dvm": 365,
-        "location": "Placard", "category": "cat_pantry_salty"}}
+        "location": "loc_pantry", "category": "cat_pantry_salty"}}
         
         Input: "${productName}"
         Output:

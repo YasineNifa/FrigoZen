@@ -83,14 +83,16 @@ class ShoppingViewModel extends ChangeNotifier {
     await _shoppingRepository.updateShoppingItem(_householdId!, updatedItem);
   }
 
-  Future<ShoppingItem?> resolveItemName(String name) async {
+  Future<ShoppingItem?> resolveItemName(String name, String languageCode) async {
     if (name.trim().isEmpty) return null;
 
     try {
-      final functions = FirebaseFunctions.instanceFor(region: "us-central1");
-      final callable = functions.httpsCallable('getSmartItemData');
-      final result = await callable.call({'productName': name});
-      final Map<String, dynamic> itemData = Map<String, dynamic>.from(
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('getSmartItemData')
+          .call({
+        'productName': name,
+        'language': languageCode,
+      });final Map<String, dynamic> itemData = Map<String, dynamic>.from(
         result.data['item'],
       );
 
@@ -123,14 +125,14 @@ class ShoppingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addItemByName(String name) async {
+  Future<void> addItemByName(String name, String languageCode) async {
     if (_householdId == null || name.trim().isEmpty) return;
 
     _isLoading = true;
     notifyListeners();
 
     try {
-      final newItem = await resolveItemName(name);
+      final newItem = await resolveItemName(name, languageCode);
       if (newItem != null) {
         await addItem(newItem);
       }
@@ -143,7 +145,7 @@ class ShoppingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addItemsFromRecipe(List<String> ingredientNames) async {
+  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode) async {
     if (_householdId == null || ingredientNames.isEmpty) return;
 
     _isLoading = true;
@@ -155,7 +157,7 @@ class ShoppingViewModel extends ChangeNotifier {
       // Resolve all items first
       // We can do this in parallel for speed
       final results = await Future.wait(
-        ingredientNames.map((name) => resolveItemName(name)),
+        ingredientNames.map((name) => resolveItemName(name, languageCode)),
       );
 
       for (var i = 0; i < results.length; i++) {

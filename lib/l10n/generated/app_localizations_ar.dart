@@ -953,4 +953,46 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get cat_fruits_vegetables => 'Fruits & Vegetables';
+
+  @override
+  String get cat_bakery => 'Bakery';
+
+  @override
+  String get cat_dairy_eggs => 'Dairy & Eggs';
+
+  @override
+  String get cat_meat_fish => 'Meat & Fish';
+
+  @override
+  String get cat_frozen => 'Frozen';
+
+  @override
+  String get cat_pantry_salty => 'Salty Pantry';
+
+  @override
+  String get cat_pantry_sweet => 'Sweet Pantry';
+
+  @override
+  String get cat_beverages => 'Beverages';
+
+  @override
+  String get cat_baby => 'Baby';
+
+  @override
+  String get cat_pets => 'Pets';
+
+  @override
+  String get cat_other => 'Other';
+
+  @override
+  String get loc_fridge => 'Fridge';
+
+  @override
+  String get loc_freezer => 'Freezer';
+
+  @override
+  String get loc_pantry => 'Pantry';
 }

@@ -1849,6 +1849,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// No description provided for @cat_fruits_vegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Fruits & Vegetables'**
+  String get cat_fruits_vegetables;
+
+  /// No description provided for @cat_bakery.
+  ///
+  /// In en, this message translates to:
+  /// **'Bakery'**
+  String get cat_bakery;
+
+  /// No description provided for @cat_dairy_eggs.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy & Eggs'**
+  String get cat_dairy_eggs;
+
+  /// No description provided for @cat_meat_fish.
+  ///
+  /// In en, this message translates to:
+  /// **'Meat & Fish'**
+  String get cat_meat_fish;
+
+  /// No description provided for @cat_frozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get cat_frozen;
+
+  /// No description provided for @cat_pantry_salty.
+  ///
+  /// In en, this message translates to:
+  /// **'Salty Pantry'**
+  String get cat_pantry_salty;
+
+  /// No description provided for @cat_pantry_sweet.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweet Pantry'**
+  String get cat_pantry_sweet;
+
+  /// No description provided for @cat_beverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Beverages'**
+  String get cat_beverages;
+
+  /// No description provided for @cat_baby.
+  ///
+  /// In en, this message translates to:
+  /// **'Baby'**
+  String get cat_baby;
+
+  /// No description provided for @cat_pets.
+  ///
+  /// In en, this message translates to:
+  /// **'Pets'**
+  String get cat_pets;
+
+  /// No description provided for @cat_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get cat_other;
+
+  /// No description provided for @loc_fridge.
+  ///
+  /// In en, this message translates to:
+  /// **'Fridge'**
+  String get loc_fridge;
+
+  /// No description provided for @loc_freezer.
+  ///
+  /// In en, this message translates to:
+  /// **'Freezer'**
+  String get loc_freezer;
+
+  /// No description provided for @loc_pantry.
+  ///
+  /// In en, this message translates to:
+  /// **'Pantry'**
+  String get loc_pantry;
 }
 
 class _AppLocalizationsDelegate

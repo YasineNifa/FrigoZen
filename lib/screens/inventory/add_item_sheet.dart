@@ -28,7 +28,12 @@ class _AddItemSheetState extends State<AddItemSheet> {
       try {
         final functions = FirebaseFunctions.instanceFor(region: "us-central1");
         final callable = functions.httpsCallable('getSmartItemData');
-        final result = await callable.call({'productName': userTypedName});
+        final locale = Localizations.localeOf(context);
+        final languageCode = locale.languageCode;
+        final result = await callable.call({
+          'productName': userTypedName,
+          'language': languageCode,
+        });
         final Map<String, dynamic> itemData = Map<String, dynamic>.from(
           result.data['item'],
         );

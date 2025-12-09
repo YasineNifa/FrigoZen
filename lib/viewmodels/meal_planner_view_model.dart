@@ -98,7 +98,7 @@ class MealPlannerViewModel extends ChangeNotifier {
     }
   }
 
-  Future<int> generateShoppingList(InventoryViewModel inventory, ShoppingViewModel shopping, {bool isPro = false}) async {
+  Future<int> generateShoppingList(InventoryViewModel inventory, ShoppingViewModel shopping, String languageCode, {bool isPro = false}) async {
     if (_meals.isEmpty) return 0;
 
     final Set<String> itemsToAdd = {};
@@ -121,7 +121,7 @@ class MealPlannerViewModel extends ChangeNotifier {
 
         // 3. Resolve canonical name (Costly operation) - ONLY IF PRO
         if (isPro) {
-          final resolvedItem = await shopping.resolveItemName(ingredient);
+          final resolvedItem = await shopping.resolveItemName(ingredient, languageCode);
           if (resolvedItem != null) {
             final canonicalName = resolvedItem.canonicalName;
 
@@ -142,7 +142,7 @@ class MealPlannerViewModel extends ChangeNotifier {
     }
 
     if (itemsToAdd.isNotEmpty) {
-      await shopping.addItemsFromRecipe(itemsToAdd.toList());
+      await shopping.addItemsFromRecipe(itemsToAdd.toList(), languageCode);
     }
 
     return itemsToAdd.length;

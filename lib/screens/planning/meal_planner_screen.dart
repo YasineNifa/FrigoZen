@@ -419,7 +419,8 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
     );
 
     try {
-      final count = await planner.generateShoppingList(inventory, shopping, isPro: isPro);
+      final languageCode = Localizations.localeOf(context).languageCode;
+      final count = await planner.generateShoppingList(inventory, shopping, languageCode, isPro: isPro);
       
       if (!mounted) return;
       

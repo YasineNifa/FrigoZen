@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/constants/app_locations.dart';
 
 class StorageStatsCard extends StatelessWidget {
   const StorageStatsCard({super.key});
@@ -90,7 +91,7 @@ class StorageStatsCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          "${entry.key} (${entry.value})",
+                          "${AppLocations.getLocalizedName(context, entry.key)} (${entry.value})",
                           style: const TextStyle(fontSize: 10),
                         ),
                       ],
@@ -109,13 +110,16 @@ class StorageStatsCard extends StatelessWidget {
     switch (location.toLowerCase()) {
       case 'frigo':
       case 'fridge':
+      case 'loc_fridge':
         return Colors.blue;
       case 'congélateur':
       case 'congelateur':
       case 'freezer':
+      case 'loc_freezer':
         return Colors.lightBlueAccent;
       case 'placard':
       case 'pantry':
+      case 'loc_pantry':
         return Colors.brown;
       default:
         return Colors.grey;

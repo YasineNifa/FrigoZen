@@ -464,5 +464,8 @@
   "cat_beverages": "Beverages",
   "cat_baby": "Baby",
   "cat_pets": "Pets",
-  "cat_other": "Other"
+  "cat_other": "Other",
+  "loc_fridge": "Fridge",
+  "loc_freezer": "Freezer",
+  "loc_pantry": "Pantry"
 }

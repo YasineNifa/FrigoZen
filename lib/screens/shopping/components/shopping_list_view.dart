@@ -6,7 +6,7 @@ import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/components/skeleton.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
-
+import 'package:frigo_zen/constants/app_categories.dart';
 
 class ShoppingListView extends StatelessWidget {
   const ShoppingListView({super.key});
@@ -48,7 +48,7 @@ class ShoppingListView extends StatelessWidget {
         // Group items by category
         final groupedItems = <String, List<ShoppingItem>>{};
         for (var item in vm.items) {
-          final category = item.category.isNotEmpty ? item.category : 'Autres';
+          final category = item.category.isNotEmpty ? item.category : 'cat_other';
           if (!groupedItems.containsKey(category)) {
             groupedItems[category] = [];
           }
@@ -71,7 +71,7 @@ class ShoppingListView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                   child: Text(
-                    category == 'Autres' ? AppLocalizations.of(context)!.shoppingCategoryOther.toUpperCase() : category.toUpperCase(),
+                    AppCategories.getLocalizedName(context, category).toUpperCase(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

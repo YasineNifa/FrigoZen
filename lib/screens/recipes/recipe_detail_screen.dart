@@ -151,7 +151,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     }
 
     try {
-      await vm.addItemsFromRecipe(names);
+      final languageCode = Localizations.localeOf(context).languageCode;
+      await vm.addItemsFromRecipe(names, languageCode);
       
       if (mounted) {
         // Close loading dialog

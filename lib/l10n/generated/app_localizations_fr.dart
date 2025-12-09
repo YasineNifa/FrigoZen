@@ -962,4 +962,46 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get cat_fruits_vegetables => 'Fruits & Légumes';
+
+  @override
+  String get cat_bakery => 'Boulangerie';
+
+  @override
+  String get cat_dairy_eggs => 'Laiterie & Œufs';
+
+  @override
+  String get cat_meat_fish => 'Viandes & Poissons';
+
+  @override
+  String get cat_frozen => 'Surgelés';
+
+  @override
+  String get cat_pantry_salty => 'Épicerie salée';
+
+  @override
+  String get cat_pantry_sweet => 'Épicerie sucrée';
+
+  @override
+  String get cat_beverages => 'Boissons';
+
+  @override
+  String get cat_baby => 'Bébés';
+
+  @override
+  String get cat_pets => 'Animaux';
+
+  @override
+  String get cat_other => 'Autres';
+
+  @override
+  String get loc_fridge => 'Frigo';
+
+  @override
+  String get loc_freezer => 'Congélateur';
+
+  @override
+  String get loc_pantry => 'Placard';
 }

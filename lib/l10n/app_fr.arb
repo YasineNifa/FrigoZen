@@ -383,5 +383,8 @@
   "cat_beverages": "Boissons",
   "cat_baby": "Bébés",
   "cat_pets": "Animaux",
-  "cat_other": "Autres"
+  "cat_other": "Autres",
+  "loc_fridge": "Frigo",
+  "loc_freezer": "Congélateur",
+  "loc_pantry": "Placard"
 }

@@ -13,7 +13,7 @@ import 'package:frigo_zen/repositories/meal_planner_repository.dart';
 
 // Mocks
 
-class MockMealPlannerRepository extends MealPlannerRepository {
+class MockMealPlannerRepository implements MealPlannerRepository {
   final List<MealPlan> _meals = [];
   
   @override
@@ -49,12 +49,12 @@ class MockMealPlannerRepository extends MealPlannerRepository {
   }
 }
 
-class MockInventoryRepository extends InventoryRepository {
+class MockInventoryRepository implements InventoryRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class MockShoppingRepository extends ShoppingRepository {
+class MockShoppingRepository implements ShoppingRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -81,12 +81,12 @@ class MockShoppingViewModel extends ShoppingViewModel {
       : super(shoppingRepository: MockShoppingRepository(), inventoryRepository: MockInventoryRepository());
 
   @override
-  Future<void> addItemsFromRecipe(List<String> ingredientNames) async {
+  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode) async {
     addedItems.addAll(ingredientNames);
   }
 
   @override
-  Future<ShoppingItem?> resolveItemName(String name) async {
+  Future<ShoppingItem?> resolveItemName(String name, String languageCode) async {
     if (name == 'ognons') {
       return ShoppingItem(
         id: 'mock_id',
@@ -155,7 +155,7 @@ void main() {
     mealPlanner.setMealsForTesting([meal]);
 
     // Execute
-    final count = await mealPlanner.generateShoppingList(inventory, shopping, isPro: true);
+    final count = await mealPlanner.generateShoppingList(inventory, shopping, 'fr', isPro: true);
 
     // Verify
     debugPrint("Added items: ${shopping.addedItems}");
@@ -199,7 +199,7 @@ void main() {
     mealPlanner.setMealsForTesting([meal]);
 
     // Execute with isPro = false
-    final count = await mealPlanner.generateShoppingList(inventory, shopping, isPro: false);
+    final count = await mealPlanner.generateShoppingList(inventory, shopping, 'fr', isPro: false);
 
     // Verify
     expect(count, 1);
@@ -268,7 +268,7 @@ void main() {
     mealPlanner.setMealsForTesting([meal]);
 
     // Execute with isPro = true
-    final count = await mealPlanner.generateShoppingList(inventory, shopping, isPro: true);
+    final count = await mealPlanner.generateShoppingList(inventory, shopping, 'fr', isPro: true);
 
     // Verify
     expect(count, 0);

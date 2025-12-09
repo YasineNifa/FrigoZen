@@ -93,7 +93,8 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
 
     try {
       // 1. Resolve item name
-      final resolvedItem = await vm.resolveItemName(itemName);
+      final languageCode = Localizations.localeOf(context).languageCode;
+      final resolvedItem = await vm.resolveItemName(itemName, languageCode);
       
       if (!mounted) return;
 
@@ -145,7 +146,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         
         await vm.addItem(resolvedItem);
       } else {
-        await vm.addItemByName(itemName);
+        await vm.addItemByName(itemName, languageCode);
       }
 
       _textController.clear();

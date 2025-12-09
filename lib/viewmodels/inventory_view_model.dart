@@ -38,15 +38,15 @@ class InventoryViewModel extends ChangeNotifier {
           break;
         case LocationFilter.fridge:
           final loc = item.location.toLowerCase();
-          matchesLocation = loc == 'frigo' || loc == 'fridge' || loc == 'refrigerator';
+          matchesLocation = loc == 'frigo' || loc == 'fridge' || loc == 'refrigerator' || loc == 'loc_fridge';
           break;
         case LocationFilter.pantry:
           final loc = item.location.toLowerCase();
-          matchesLocation = loc == 'placard' || loc == 'pantry';
+          matchesLocation = loc == 'placard' || loc == 'pantry' || loc == 'loc_pantry';
           break;
         case LocationFilter.freezer:
           final loc = item.location.toLowerCase();
-          matchesLocation = loc == 'congélateur' || loc == 'freezer';
+          matchesLocation = loc == 'congélateur' || loc == 'freezer' || loc == 'loc_freezer';
           break;
       }
 
