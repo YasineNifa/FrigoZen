@@ -286,6 +286,13 @@ class InventoryViewModel extends ChangeNotifier {
     await updateItem(updatedItem);
   }
 
+  Future<void> updateItemCategory(InventoryItem item, String newCategory) async {
+    if (_householdId == null) return;
+
+    final updatedItem = item.copyWith(category: newCategory);
+    await updateItem(updatedItem);
+  }
+
   Future<void> updateBatchDetails(InventoryItem item, Batch oldBatch, Batch newBatch) async {
     if (_householdId == null) return;
 

@@ -372,5 +372,16 @@
   "mealPlannerIngredientsAddedMessage": "Les ingrédients ont été ajoutés à votre liste de courses.",
   "mealPlannerNoIngredientsAddedTitle": "Aucun ingrédient ajouté",
   "mealPlannerNoIngredientsAddedMessage": "Tous les ingrédients nécessaires sont déjà dans votre liste ou votre inventaire.",
-  "ok": "OK"
+  "ok": "OK",
+  "cat_fruits_vegetables": "Fruits & Légumes",
+  "cat_bakery": "Boulangerie",
+  "cat_dairy_eggs": "Laiterie & Œufs",
+  "cat_meat_fish": "Viandes & Poissons",
+  "cat_frozen": "Surgelés",
+  "cat_pantry_salty": "Épicerie salée",
+  "cat_pantry_sweet": "Épicerie sucrée",
+  "cat_beverages": "Boissons",
+  "cat_baby": "Bébés",
+  "cat_pets": "Animaux",
+  "cat_other": "Autres"
 }

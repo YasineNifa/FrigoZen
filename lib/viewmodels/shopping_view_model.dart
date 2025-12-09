@@ -6,7 +6,7 @@ import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
-
+import 'package:frigo_zen/constants/app_categories.dart';
 
 class ShoppingViewModel extends ChangeNotifier {
   final ShoppingRepository _shoppingRepository;
@@ -101,7 +101,7 @@ class ShoppingViewModel extends ChangeNotifier {
         canonicalName: itemData['canonicalName'] ?? name,
         quantity: itemData['quantity'] ?? 1,
         dvm: itemData['dvm'] ?? 7,
-        category: itemData['category'] ?? 'Other',
+        category: AppCategories.normalize(itemData['category']),
         location: itemData['location'] ?? 'Frigo',
         isChecked: false,
         createdAt: DateTime.now(),

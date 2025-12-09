@@ -226,21 +226,38 @@ export const getSmartItemData = onCall(
             "quantity": integer,        // Extracted quantity
             "dvm": integer,        // ESTIMATED DAYS (e.g. 3, 7, 21, 365)      
             "location": "string",
-            "category": "string"
+            "category": "string"   // MUST be one of: cat_fruits_vegetables,
+            // cat_bakery, cat_dairy_eggs, cat_meat_fish, cat_frozen,
+            // cat_pantry_salty, cat_pantry_sweet, cat_beverages, cat_baby,
+            // cat_pets, cat_other
           }
         }
+
+        STRICT CATEGORY MAPPING:
+        Map the item to the most appropriate category from this list:
+        - cat_fruits_vegetables (Fruits, vegetables, herbs)
+        - cat_bakery (Bread, pastries)
+        - cat_dairy_eggs (Milk, cheese, yogurt, eggs)
+        - cat_meat_fish (Meat, poultry, fish, seafood)
+        - cat_frozen (Frozen foods, ice cream)
+        - cat_pantry_salty (Pasta, rice, canned goods, spices, oil)
+        - cat_pantry_sweet (Sugar, chocolate, cookies, honey)
+        - cat_beverages (Water, juice, soda, alcohol)
+        - cat_baby (Baby food, diapers)
+        - cat_pets (Pet food, litter)
+        - cat_other (Anything else)
         
         Example 1:
         Input: "4 Lait UHT"
         Output: {"item": {"cleanedName": "Lait", "name": "4 Lait UHT",
         "canonicalName": "Milk", "quantity": 4, "dvm": 7,
-        "location": "Frigo", "category": "Dairy"}}
+        "location": "Frigo", "category": "cat_dairy_eggs"}}
         
         Example 2:
         Input: "Paquet de Pates"
         Output: {"item": { "cleanedName": "Pâtes", "name": "Paquet de Pates",
         "canonicalName": "Pasta", "quantity": 1, "dvm": 365,
-        "location": "Placard", "category": "Pantry", "name": "Pâtes"}}
+        "location": "Placard", "category": "cat_pantry_salty"}}
         
         Input: "${productName}"
         Output:

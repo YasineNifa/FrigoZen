@@ -9,6 +9,8 @@ import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/components/initials_avatar.dart';
 import 'package:frigo_zen/screens/inventory/components/edit_batch_dialog.dart';
 
+import 'package:frigo_zen/constants/app_categories.dart';
+
 class EditBatchesSheet extends StatelessWidget {
   final InventoryItem item;
 
@@ -19,7 +21,39 @@ class EditBatchesSheet extends StatelessWidget {
     return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
   }
 
-
+  void _showCategoryDialog(BuildContext context, InventoryViewModel vm) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Changer le rayon"),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: AppCategories.values.length,
+            itemBuilder: (context, index) {
+              final categoryKey = AppCategories.values[index];
+              final categoryName = AppCategories.getLocalizedName(context, categoryKey);
+              return ListTile(
+                title: Text(categoryName),
+                selected: categoryKey == item.category,
+                onTap: () async {
+                  await vm.updateItemCategory(item, categoryKey);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Annuler"),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showRenameDialog(BuildContext context, InventoryViewModel vm) {
     final l10n = AppLocalizations.of(context)!;
@@ -120,11 +154,35 @@ class EditBatchesSheet extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  l10n.editBatchesTitle(currentItem.name),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.editBatchesTitle(currentItem.name),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    InkWell(
+                      onTap: () => _showCategoryDialog(context, vm),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.category, size: 14, color: Colors.grey[600]),
+                            const SizedBox(width: 4),
+                            Text(
+                              AppCategories.getLocalizedName(context, currentItem.category),
+                              style: TextStyle(color: Colors.grey[600], fontSize: 14, decoration: TextDecoration.underline),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               IconButton(

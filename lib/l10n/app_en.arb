@@ -453,5 +453,16 @@
   "mealPlannerIngredientsAddedMessage": "Ingredients have been added to your shopping list.",
   "mealPlannerNoIngredientsAddedTitle": "No ingredients added",
   "mealPlannerNoIngredientsAddedMessage": "All necessary ingredients are already in your list or inventory.",
-  "ok": "OK"
+  "ok": "OK",
+  "cat_fruits_vegetables": "Fruits & Vegetables",
+  "cat_bakery": "Bakery",
+  "cat_dairy_eggs": "Dairy & Eggs",
+  "cat_meat_fish": "Meat & Fish",
+  "cat_frozen": "Frozen",
+  "cat_pantry_salty": "Salty Pantry",
+  "cat_pantry_sweet": "Sweet Pantry",
+  "cat_beverages": "Beverages",
+  "cat_baby": "Baby",
+  "cat_pets": "Pets",
+  "cat_other": "Other"
 }
