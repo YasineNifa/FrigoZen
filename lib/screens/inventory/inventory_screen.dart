@@ -16,6 +16,8 @@ import 'package:frigo_zen/screens/recipes/components/recipe_filters_dialog.dart'
 import 'package:frigo_zen/screens/core/premium_guard.dart';
 import 'package:frigo_zen/screens/planning/meal_planner_screen.dart';
 
+import 'package:frigo_zen/screens/inventory/inventory_view_mode.dart';
+
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
 
@@ -26,6 +28,7 @@ class InventoryScreen extends StatefulWidget {
 class _InventoryScreenState extends State<InventoryScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _localRecipeCache = [];
+  InventoryViewMode _viewMode = InventoryViewMode.priority;
 
   @override
   void initState() {
@@ -227,8 +230,47 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ),
           ),
-          const Expanded(
-            child: InventoryList(),
+          
+          // View Mode Selector
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<InventoryViewMode>(
+                segments: const [
+                  ButtonSegment<InventoryViewMode>(
+                    value: InventoryViewMode.priority,
+                    label: Text('Priorité'),
+                    icon: Icon(Icons.traffic),
+                  ),
+                  ButtonSegment<InventoryViewMode>(
+                    value: InventoryViewMode.category,
+                    label: Text('Rayon'),
+                    icon: Icon(Icons.category),
+                  ),
+                  ButtonSegment<InventoryViewMode>(
+                    value: InventoryViewMode.list,
+                    label: Text('Liste'),
+                    icon: Icon(Icons.list),
+                  ),
+                ],
+                selected: <InventoryViewMode>{_viewMode},
+                onSelectionChanged: (Set<InventoryViewMode> newSelection) {
+                  setState(() {
+                    _viewMode = newSelection.first;
+                  });
+                },
+                style: ButtonStyle(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  side: WidgetStateProperty.all(BorderSide(color: Colors.grey.withOpacity(0.2))),
+                ),
+              ),
+            ),
+          ),
+
+          Expanded(
+            child: InventoryList(viewMode: _viewMode),
           ),
         ],
       ),
