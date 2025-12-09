@@ -11,6 +11,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/locator.dart';
@@ -43,6 +44,7 @@ class InventoryProvider with ChangeNotifier {
 Future<void> main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting(null, null);
   // Initialize Firebase with default options
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseMessaging.instance.requestPermission();

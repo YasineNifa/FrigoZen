@@ -84,9 +84,9 @@ class Recipe {
       imageUrl: data['imageUrl'],
       tags: List<String>.from(data['tags'] ?? []),
       youtubeUrl: data['youtubeUrl'],
-      ingredients: List<Map<String, dynamic>>.from(data['ingredients'] ?? [])
-          .map((e) => Map<String, String>.from(e))
-          .toList(),
+      ingredients: (data['ingredients'] as List<dynamic>?)
+          ?.map((e) => Map<String, String>.from(e as Map))
+          .toList() ?? [],
       sourceUrl: data['sourceUrl'],
     );
   }

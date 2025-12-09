@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
 import 'package:frigo_zen/models/meal_plan.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:frigo_zen/locator.dart';
+import 'package:frigo_zen/services/auth_service.dart';
 import 'package:frigo_zen/repositories/household_repository.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
@@ -33,70 +34,91 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
   }
 
   Future<void> _initViewModel() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      final householdId = await HouseholdRepository().getHouseholdIdForUser(userId);
-      if (householdId != null && mounted) {
-        context.read<MealPlannerViewModel>().init(householdId);
+    try {
+      final userId = locator<AuthService>().currentUserId;
+      if (userId != null) {
+        final householdId = await locator<HouseholdRepository>().getHouseholdIdForUser(userId);
+        if (householdId != null && mounted) {
+          context.read<MealPlannerViewModel>().init(householdId);
+        }
+      }
+    } catch (e, stack) {
+      debugPrint('Error initializing MealPlannerViewModel: $e\n$stack');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur d\'initialisation: $e')),
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<MealPlannerViewModel>();
-    final mealsForDay = vm.meals.where((m) => isSameDay(m.date, _selectedDate)).toList();
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    try {
+      final vm = context.watch<MealPlannerViewModel>();
+      final mealsForDay = vm.meals.where((m) => isSameDay(m.date, _selectedDate)).toList();
 
-
-      appBar: AppBar(
-        title: Text(l10n.mealPlannerTitle),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        titleTextStyle: const TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.mealPlannerTitle),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black),
+          titleTextStyle: const TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.shopping_cart_checkout, color: Colors.green),
+              tooltip: l10n.mealPlannerGenerateList,
+              onPressed: () => _generateShoppingList(context),
+            ),
+          ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_checkout, color: Colors.green),
-            tooltip: l10n.mealPlannerGenerateList,
-            onPressed: () => _generateShoppingList(context),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Week Calendar
-          _buildWeekCalendar(),
-          
-          const Divider(),
+        body: Column(
+          children: [
+            // Week Calendar
+            _buildWeekCalendar(),
+            
+            const Divider(),
 
-          // Meals List
-          Expanded(
-            child: vm.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      _buildMealSection(l10n.mealPlannerBreakfast, MealType.breakfast, mealsForDay),
-                      const SizedBox(height: 16),
-                      _buildMealSection(l10n.mealPlannerLunch, MealType.lunch, mealsForDay),
-                      const SizedBox(height: 16),
-                      _buildMealSection(l10n.mealPlannerSnack, MealType.snack, mealsForDay),
-                      const SizedBox(height: 16),
-                      _buildMealSection(l10n.mealPlannerDinner, MealType.dinner, mealsForDay),
-                      const SizedBox(height: 80), // Bottom padding for FAB or scroll
-                    ],
-                  ),
+            // Meals List
+            Expanded(
+              child: vm.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        _buildMealSection(l10n.mealPlannerBreakfast, MealType.breakfast, mealsForDay),
+                        const SizedBox(height: 16),
+                        _buildMealSection(l10n.mealPlannerLunch, MealType.lunch, mealsForDay),
+                        const SizedBox(height: 16),
+                        _buildMealSection(l10n.mealPlannerSnack, MealType.snack, mealsForDay),
+                        const SizedBox(height: 16),
+                        _buildMealSection(l10n.mealPlannerDinner, MealType.dinner, mealsForDay),
+                        const SizedBox(height: 80), // Bottom padding for FAB or scroll
+                      ],
+                    ),
+            ),
+          ],
+        ),
+      );
+    } catch (e, stack) {
+      debugPrint('Error building MealPlannerScreen: $e\n$stack');
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.mealPlannerTitle)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('Une erreur est survenue lors de l\'affichage du semainier.\n\n$e', textAlign: TextAlign.center),
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    }
   }
 
   Widget _buildWeekCalendar() {
@@ -110,7 +132,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -136,10 +158,10 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                 borderRadius: BorderRadius.circular(16),
                 border: isToday && !isSelected 
                     ? Border.all(color: const Color(0xFF6B9C5F), width: 2) 
-                    : Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                    : Border.all(color: Colors.grey.withOpacity(0.2)),
                 boxShadow: isSelected ? [
                   BoxShadow(
-                    color: const Color(0xFF6B9C5F).withValues(alpha: 0.4),
+                    color: const Color(0xFF6B9C5F).withOpacity(0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   )
@@ -151,7 +173,7 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                   Text(
                     DateFormat.E(Localizations.localeOf(context).languageCode).format(date).toUpperCase(),
                     style: TextStyle(
-                      color: isSelected ? Colors.white.withValues(alpha: 0.9) : Colors.grey[500],
+                      color: isSelected ? Colors.white.withOpacity(0.9) : Colors.grey[500],
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -202,93 +224,87 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        ClipRRect(
+        InkWell(
+          onTap: () => _showAddMealDialog(type, existingMeal: hasMeal ? meal : null),
           borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: InkWell(
-              onTap: () => _showAddMealDialog(type, existingMeal: hasMeal ? meal : null),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: hasMeal 
+                  ? const Color(0xFF6B9C5F).withOpacity(0.15) 
+                  : Colors.white.withOpacity(0.6),
               borderRadius: BorderRadius.circular(20),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: hasMeal 
-                      ? const Color(0xFF6B9C5F).withValues(alpha: 0.15) 
-                      : Colors.white.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: hasMeal 
-                        ? const Color(0xFF6B9C5F).withValues(alpha: 0.3) 
-                        : Colors.white.withValues(alpha: 0.5),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: hasMeal ? Colors.white : Colors.grey[100],
-                        shape: BoxShape.circle,
-                        boxShadow: hasMeal ? [
-                          BoxShadow(
-                            color: const Color(0xFF6B9C5F).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          )
-                        ] : null,
-                      ),
-                      child: Icon(
-                        hasMeal ? Icons.restaurant_menu : Icons.add,
-                        color: hasMeal ? const Color(0xFF6B9C5F) : Colors.grey[400],
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            hasMeal ? meal.recipeName : l10n.mealPlannerAddMeal,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: hasMeal ? FontWeight.w600 : FontWeight.w500,
-                              color: hasMeal ? Colors.black87 : Colors.grey[600],
-                            ),
-                          ),
-                          if (hasMeal && meal.ingredients.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              "${meal.ingredients.length} ingrédients",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    if (hasMeal)
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.red.withValues(alpha: 0.7), size: 20),
-                        onPressed: () => context.read<MealPlannerViewModel>().deleteMeal(meal.id),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        splashRadius: 20,
-                      ),
-                  ],
-                ),
+              border: Border.all(
+                color: hasMeal 
+                    ? const Color(0xFF6B9C5F).withOpacity(0.3) 
+                    : Colors.white.withOpacity(0.5),
+                width: 1.5,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: hasMeal ? Colors.white : Colors.grey[100],
+                    shape: BoxShape.circle,
+                    boxShadow: hasMeal ? [
+                      BoxShadow(
+                        color: const Color(0xFF6B9C5F).withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      )
+                    ] : null,
+                  ),
+                  child: Icon(
+                    hasMeal ? Icons.restaurant_menu : Icons.add,
+                    color: hasMeal ? const Color(0xFF6B9C5F) : Colors.grey[400],
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        hasMeal ? meal.recipeName : l10n.mealPlannerAddMeal,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: hasMeal ? FontWeight.w600 : FontWeight.w500,
+                          color: hasMeal ? Colors.black87 : Colors.grey[600],
+                        ),
+                      ),
+                      if (hasMeal && meal.ingredients.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          "${meal.ingredients.length} ingrédients",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (hasMeal)
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.red.withOpacity(0.7), size: 20),
+                    onPressed: () => context.read<MealPlannerViewModel>().deleteMeal(meal.id),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    splashRadius: 20,
+                  ),
+              ],
             ),
           ),
         ),
@@ -425,9 +441,9 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.indigo.withValues(alpha: 0.1),
+                        color: Colors.indigo.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.indigo.withValues(alpha: 0.3)),
+                        border: Border.all(color: Colors.indigo.withOpacity(0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

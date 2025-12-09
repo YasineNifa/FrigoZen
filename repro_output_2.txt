@@ -1,0 +1,12 @@
+00:00 +0: loading /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart                                                                                       00:01 +0: loading /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart                                                                                       00:02 +0: loading /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart                                                                                       00:03 +0: loading /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart                                                                                       test/repro_crash.dart:35:5: Error: Method not found: 'setupFirebaseCoreMocks'.
+    setupFirebaseCoreMocks();
+    ^^^^^^^^^^^^^^^^^^^^^^
+00:04 +0: loading /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart                                                                                       00:04 +0 -1: loading /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart [E]                                                                                
+  Failed to load "/home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart":
+  Compilation failed for testPath=/home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart: test/repro_crash.dart:35:5: Error: Method not found: 'setupFirebaseCoreMocks'.
+      setupFirebaseCoreMocks();
+      ^^^^^^^^^^^^^^^^^^^^^^
+  .
+
+To run this test again: /home/ynifa/snap/flutter/common/flutter/bin/cache/dart-sdk/bin/dart test /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart -p vm --plain-name 'loading /home/ynifa/Documents/personal/projects/learn-flutter/FrigoZen/frigo_zen/test/repro_crash.dart'
+00:04 +0 -1: Some tests failed.                                                                                                                                                                        

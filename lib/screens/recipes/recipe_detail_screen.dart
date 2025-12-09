@@ -280,6 +280,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               label: l10n.recipeViewPlanning,
               textColor: Colors.white,
               onPressed: () {
+                if (!mounted) return;
                 context.read<NavigationController>().setIndex(3); // Planning tab
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
