@@ -106,6 +106,11 @@ class _AuthGateState extends State<AuthGate> {
       // 'platform': Theme.of(context).platform.toString(), // Attention context peut être instable ici
       'platform': 'mobile',
     });
+
+    // Also save to main user doc for simple Cloud Function access
+    await FirebaseFirestore.instance.collection('users').doc(userId).set({
+      'fcmToken': token,
+    }, SetOptions(merge: true));
   }
 
   Future<void> _syncUserData(User user) async {

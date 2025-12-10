@@ -629,7 +629,7 @@ async function runExpirationCheck(targetHouseholdId?: string) {
         .get();
 
       let isPremiumHousehold = false;
-      const tokens: string[] = [];
+      const tokensByLang: {[lang: string]: string[]} = {};
       const recipients: {email: string, language: string}[] = [];
 
       usersSnapshot.docs.forEach((userDoc) => {
@@ -638,7 +638,11 @@ async function runExpirationCheck(targetHouseholdId?: string) {
           isPremiumHousehold = true;
         }
         if (userData.fcmToken) {
-          tokens.push(userData.fcmToken);
+          const lang = userData.language || "en";
+          if (!tokensByLang[lang]) {
+            tokensByLang[lang] = [];
+          }
+          tokensByLang[lang].push(userData.fcmToken);
         }
         // Check for email verification and collect email
         if (userData.email && userData.emailVerified === true) {
@@ -664,26 +668,57 @@ async function runExpirationCheck(targetHouseholdId?: string) {
       const itemsList = items.slice(0, 3).join(", ") +
                           (items.length > 3 ? "..." : "");
 
-      // A. Send Push Notifications
-      if (tokens.length > 0) {
-        const message: MulticastMessage = {
-          tokens: tokens,
-          notification: {
-            title: "⚠️ Gaspillage imminent !",
-            body: `Vite ! ${items.length} produits expirent bientôt : ` +
+      // A. Send Push Notifications (Grouped by Language)
+      for (const [lang, tokens] of Object.entries(tokensByLang)) {
+        if (tokens.length > 0) {
+          const pushTranslations: {[key: string]: any} = {
+            en: {
+              title: "⚠️ Waste Alert!",
+              body: `Quick! ${items.length} items are expiring soon: ` +
                 `${itemsList}`,
-          },
-          data: {
-            type: "expiration_alert",
-            householdId: householdId,
-          },
-        };
+            },
+            fr: {
+              title: "⚠️ Gaspillage imminent !",
+              body: `Vite ! ${items.length} produits expirent bientôt : ` +
+                `${itemsList}`,
+            },
+            de: {
+              title: "⚠️ Verschwendungswarnung!",
+              body: `Schnell! ${items.length} Artikel laufen bald ab: ` +
+                `${itemsList}`,
+            },
+            es: {
+              title: "⚠️ ¡Alerta de Desperdicio!",
+              body: `¡Rápido! ${items.length} artículos caducan pronto: ` +
+                `${itemsList}`,
+            },
+            ar: {
+              title: "⚠️ تنبيه هدر!",
+              body: `بسرعة! ${items.length} عناصر ستنتهي صلاحيتها قريبًا: ` +
+                `${itemsList}`,
+            },
+          };
 
-        const response = await messaging.sendEachForMulticast(message);
-        logger.info(
-          `Sent ${response.successCount} push notifications to ` +
-            `household ${householdId}`
-        );
+          const t = pushTranslations[lang] || pushTranslations["en"];
+
+          const message: MulticastMessage = {
+            tokens: tokens,
+            notification: {
+              title: t.title,
+              body: t.body,
+            },
+            data: {
+              type: "expiration_alert",
+              householdId: householdId,
+            },
+          };
+
+          const response = await messaging.sendEachForMulticast(message);
+          logger.info(
+            `Sent ${response.successCount} push notifications (${lang}) to ` +
+              `household ${householdId}`
+          );
+        }
       }
 
       // B. Send Emails (via Trigger Email Extension)
