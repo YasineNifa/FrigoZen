@@ -831,6 +831,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get recipeTabDiscover => 'Découvrir';
 
   @override
+  String get recipeTabCatalog => 'Catalogue';
+
+  @override
+  String get recipeTabAI => 'Chef IA';
+
+  @override
+  String get recipeAITitle => 'Cuisinez avec votre frigo';
+
+  @override
+  String get recipeAIDesc =>
+      'Laissez notre Chef IA générer des recettes délicieuses basées sur votre inventaire.';
+
+  @override
+  String get recipeAIBtn => 'Générer des recettes';
+
+  @override
   String get recipeTabFavorites => 'Favoris';
 
   @override

@@ -1604,6 +1604,36 @@ abstract class AppLocalizations {
   /// **'Discover'**
   String get recipeTabDiscover;
 
+  /// No description provided for @recipeTabCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get recipeTabCatalog;
+
+  /// No description provided for @recipeTabAI.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Chef'**
+  String get recipeTabAI;
+
+  /// No description provided for @recipeAITitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cook with your fridge'**
+  String get recipeAITitle;
+
+  /// No description provided for @recipeAIDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Let our AI Chef generate delicious recipes based on your inventory.'**
+  String get recipeAIDesc;
+
+  /// No description provided for @recipeAIBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Recipes'**
+  String get recipeAIBtn;
+
   /// No description provided for @recipeTabFavorites.
   ///
   /// In en, this message translates to:

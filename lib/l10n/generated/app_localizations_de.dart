@@ -831,6 +831,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recipeTabDiscover => 'Discover';
 
   @override
+  String get recipeTabCatalog => 'Catalog';
+
+  @override
+  String get recipeTabAI => 'AI Chef';
+
+  @override
+  String get recipeAITitle => 'Cook with your fridge';
+
+  @override
+  String get recipeAIDesc =>
+      'Let our AI Chef generate delicious recipes based on your inventory.';
+
+  @override
+  String get recipeAIBtn => 'Generate Recipes';
+
+  @override
   String get recipeTabFavorites => 'Favorites';
 
   @override
