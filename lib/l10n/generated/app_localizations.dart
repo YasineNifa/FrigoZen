@@ -1969,6 +1969,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pantry'**
   String get loc_pantry;
+
+  /// No description provided for @scanProTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Scan the barcode for more details (Nutri-Score, etc.)!'**
+  String get scanProTip;
 }
 
 class _AppLocalizationsDelegate

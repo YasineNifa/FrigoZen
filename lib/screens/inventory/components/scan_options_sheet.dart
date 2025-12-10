@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/inventory/add_item_sheet.dart';
+import 'package:frigo_zen/components/scan_tip_card.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:provider/provider.dart';
@@ -192,6 +193,10 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
     return SafeArea(
       child: Wrap(
         children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: ScanTipCard(),
+          ),
           ListTile(
             leading: const CircleAvatar(
               backgroundColor: Color.fromARGB(255, 165, 214, 167),

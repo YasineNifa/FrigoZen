@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/components/input_field.dart';
+import 'package:frigo_zen/components/scan_tip_card.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
@@ -186,6 +187,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 textController: _textController,
                 isAdding: vm.isLoading || _isLocalLoading,
                 onAdd: _addItem,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: ScanTipCard(),
               ),
               const Expanded(
                 child: ShoppingListView(),

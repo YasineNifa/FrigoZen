@@ -1024,4 +1024,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get loc_pantry => 'Placard';
+
+  @override
+  String get scanProTip =>
+      'Astuce : Scannez le code-barres pour plus de détails (Nutri-Score, etc.) !';
 }

@@ -473,5 +473,6 @@
   "cat_other": "Other",
   "loc_fridge": "Fridge",
   "loc_freezer": "Freezer",
-  "loc_pantry": "Pantry"
+  "loc_pantry": "Pantry",
+  "scanProTip": "Tip: Scan the barcode for more details (Nutri-Score, etc.)!"
 }

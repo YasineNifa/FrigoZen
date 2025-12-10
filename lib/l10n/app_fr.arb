@@ -392,5 +392,6 @@
   "cat_other": "Autres",
   "loc_fridge": "Frigo",
   "loc_freezer": "Congélateur",
-  "loc_pantry": "Placard"
+  "loc_pantry": "Placard",
+  "scanProTip": "Astuce : Scannez le code-barres pour plus de détails (Nutri-Score, etc.) !"
 }

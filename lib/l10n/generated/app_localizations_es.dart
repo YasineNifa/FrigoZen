@@ -1023,4 +1023,8 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get loc_pantry => 'Pantry';
+
+  @override
+  String get scanProTip =>
+      'Tip: Scan the barcode for more details (Nutri-Score, etc.)!';
 }

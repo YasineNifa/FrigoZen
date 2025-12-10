@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/components/scan_tip_card.dart';
 
 class AddItemSheet extends StatefulWidget {
   const AddItemSheet({super.key});
@@ -108,7 +109,8 @@ class _AddItemSheetState extends State<AddItemSheet> {
               l10n.addItemTitle,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
-            const SizedBox(height: 24),
+            const ScanTipCard(),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(
