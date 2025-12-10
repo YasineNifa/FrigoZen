@@ -543,6 +543,7 @@ export const checkExpiringItems = onSchedule(
 
         let isPremiumHousehold = false;
         const tokens: string[] = [];
+        const emailsToSend: string[] = [];
 
         usersSnapshot.docs.forEach((userDoc) => {
           const userData = userDoc.data();
@@ -551,6 +552,10 @@ export const checkExpiringItems = onSchedule(
           }
           if (userData.fcmToken) {
             tokens.push(userData.fcmToken);
+          }
+          // Check for email verification and collect email
+          if (userData.email && userData.emailVerified === true) {
+             emailsToSend.push(userData.email);
           }
         });
 
@@ -562,27 +567,56 @@ export const checkExpiringItems = onSchedule(
           continue;
         }
 
-        if (tokens.length === 0) continue;
+        const itemsList = items.slice(0, 3).join(", ") +
+                          (items.length > 3 ? "..." : "");
 
-        const message: MulticastMessage = {
-          tokens: tokens,
-          notification: {
-            title: "⚠️ Gaspillage imminent !",
-            body: `Vite ! ${items.length} produits expirent bientôt : ` +
-              `${items.slice(0, 3).join(", ")}` +
-              `${items.length > 3 ? "..." : ""}`,
-          },
-          data: {
-            type: "expiration_alert",
-            householdId: householdId,
-          },
-        };
+        // A. Send Push Notifications
+        if (tokens.length > 0) {
+          const message: MulticastMessage = {
+            tokens: tokens,
+            notification: {
+              title: "⚠️ Gaspillage imminent !",
+              body: `Vite ! ${items.length} produits expirent bientôt : ` +
+                `${itemsList}`,
+            },
+            data: {
+              type: "expiration_alert",
+              householdId: householdId,
+            },
+          };
 
-        const response = await messaging.sendEachForMulticast(message);
-        logger.info(
-          `Sent ${response.successCount} notifications to ` +
-          `household ${householdId}`
-        );
+          const response = await messaging.sendEachForMulticast(message);
+          logger.info(
+            `Sent ${response.successCount} push notifications to ` +
+            `household ${householdId}`
+          );
+        }
+
+        // B. Send Emails (via Trigger Email Extension)
+        if (emailsToSend.length > 0) {
+           const batch = db.batch();
+           for (const email of emailsToSend) {
+             const mailRef = db.collection("mail").doc();
+             batch.set(mailRef, {
+               to: email,
+               message: {
+                 subject: "⚠️ Gaspillage imminent - FrigoZen",
+                 html: `
+                   <h1>Attention au gaspillage !</h1>
+                   <p>Les produits suivants expirent bientôt dans votre frigo :</p>
+                   <ul>
+                     ${items.map((i) => `<li>${i}</li>`).join("")}
+                   </ul>
+                   <p>Cuisinez-les vite !</p>
+                   <p>L'équipe FrigoZen 🌿</p>
+                 `,
+               },
+             });
+           }
+           await batch.commit();
+           logger.info(`Queued ${emailsToSend.length} emails for household ${householdId}`);
+        }
+
       } catch (error) {
         logger.error(
           `Error sending notification to household ${householdId}:`,

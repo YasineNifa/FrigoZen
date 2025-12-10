@@ -12,7 +12,20 @@
           "package_name": "com.example.frigo_zen"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "720908435851-c75euk5518q1dl8uoj7j9qq4f50bgjnv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.frigo_zen",
+            "certificate_hash": "e218a828419e8ee1a47503e94df10992083c4998"
+          }
+        },
+        {
+          "client_id": "720908435851-ibttrpfvta77ibo311jkkbeuvkaiq8lp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAIztgSME0QT_g1UP1WcubAi6MJODWRaeE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "720908435851-ibttrpfvta77ibo311jkkbeuvkaiq8lp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "720908435851-co1ip8304slq34d1c2q4k3hipe6km3kd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.frigoZen"
+              }
+            }
+          ]
         }
       }
     }

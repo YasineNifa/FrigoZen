@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:frigo_zen/firebase_options.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -58,6 +59,57 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _signInWithGoogle() async {
+    final l10n = AppLocalizations.of(context)!;
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = AuthService();
+      final userCredential = await authService.signInWithGoogle();
+      
+      if (userCredential != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.authSuccess),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.authErrorGeneric),
+            backgroundColor: Colors.red[400],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Google Sign-In Error: $e"),
+            backgroundColor: Colors.red[400],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _submitForm() async {
@@ -334,6 +386,32 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                                   ),
                                                 ),
                                               ],
+                                            ),
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 24),
+                                        Row(children: [
+                                          Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                                            child: Text("OR", style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
+                                          ),
+                                          Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                                        ]),
+                                        const SizedBox(height: 24),
+
+                                        // Google Sign In
+                                        OutlinedButton.icon(
+                                          onPressed: _signInWithGoogle,
+                                          icon: Image.asset('assets/images/google_logo.png', height: 24),
+                                          label: const Text("Sign in with Google"),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(16),
                                             ),
                                           ),
                                         ),
