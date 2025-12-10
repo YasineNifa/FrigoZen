@@ -10,6 +10,7 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/components/skeleton.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -313,6 +314,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: l10n.settingsTermsOfService,
             onTap: () {
               // TODO: Open URL
+            },
+          ),
+
+          // --- SECTION: DEBUG ---
+          _buildSectionHeader(context, "Debug"),
+          _buildSettingsTile(
+            context,
+            icon: Icons.notifications_active_outlined,
+            title: "Test Email Notification",
+            subtitle: "Send a test expiration email",
+            onTap: () async {
+              try {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Sending test email...")),
+                );
+                final result = await FirebaseFunctions.instance
+                    .httpsCallable('testExpirationAlerts')
+                    .call();
+                
+                if (context.mounted) {
+                  final data = result.data as Map<String, dynamic>;
+                  final sentCount = data['notificationsSent'] ?? 0;
+                  final message = data['message'] ?? (sentCount > 0 ? "Email queued!" : "No expiring items found.");
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Result: $message")),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Error: $e")),
+                  );
+                }
+              }
             },
           ),
 

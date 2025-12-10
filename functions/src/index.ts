@@ -485,143 +485,307 @@ export const generateRecipes = onCall(
 export const checkExpiringItems = onSchedule(
   "every day 10:00",
   async (event) => {
-    const db = getFirestore();
-    const messaging = getMessaging();
-    const now = new Date();
-    const twoDaysLater = new Date();
-    twoDaysLater.setDate(now.getDate() + 2);
+    await runExpirationCheck();
+  }
+);
 
-    // 1. Query items expiring in the next 2 days
-    // Note: Requires a composite index on
-    // 'inventory' collection if we add more filters
-    // For now we just check the date range.
-    const snapshot = await db.collectionGroup("inventory")
-      .where("earliestExpirationDate", ">=", Timestamp.fromDate(now))
-      .where("earliestExpirationDate", "<=", Timestamp.fromDate(twoDaysLater))
-      .get();
-
-    if (snapshot.empty) {
-      logger.info("No expiring items found.");
-      return;
+export const testExpirationAlerts = onCall(
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Login required.");
     }
 
-    // 2. Group items by household
-    const householdItems: {[key: string]: string[]} = {};
+    // Get the user's householdId
+    const db = getFirestore();
+    const userDoc = await db.collection("users").doc(request.auth.uid).get();
+    const householdId = userDoc.data()?.householdId;
 
-    snapshot.docs.forEach((doc) => {
-      // doc.ref.parent is 'inventory' collection
-      // doc.ref.parent.parent is the household document
-      const householdId = doc.ref.parent.parent?.id;
-      const itemName = doc.data().name;
+    if (!householdId) {
+      throw new HttpsError("failed-precondition", "No household found.");
+    }
 
-      if (householdId && itemName) {
+    // Run check specifically for this household, bypassing premium check
+    // for testing if desired,
+    // or just run standard logic.
+    // For testing, we might want to force it even if not premium?
+    // Let's keep it consistent with production logic for now, but maybe
+    // log more info.
+
+    const result = await runExpirationCheck(householdId);
+    return {success: true, ...result};
+  }
+);
+
+/**
+ * Core logic for checking expirations and sending alerts.
+ * @param {string} targetHouseholdId - Optional. If set, only check this
+ * household.
+ */
+async function runExpirationCheck(targetHouseholdId?: string) {
+  const db = getFirestore();
+  const messaging = getMessaging();
+  const now = new Date();
+  // We start looking from "Yesterday" to handle timezone offsets.
+  // (e.g. User in UTC+1 has "Today 00:00" stored as "Yesterday 23:00 UTC")
+  const startRange = new Date(now);
+  startRange.setDate(now.getDate() - 1);
+  startRange.setHours(0, 0, 0, 0);
+
+  const endRange = new Date(now);
+  endRange.setDate(now.getDate() + 3); // Covers Today, Tomorrow, Day After
+  endRange.setHours(23, 59, 59, 999);
+
+  let snapshot;
+  if (targetHouseholdId) {
+    snapshot = await db.collection("households")
+      .doc(targetHouseholdId)
+      .collection("inventory")
+      .where("earliestExpirationDate", ">=", Timestamp.fromDate(startRange))
+      .where("earliestExpirationDate", "<=", Timestamp.fromDate(endRange))
+      .get();
+  } else {
+    snapshot = await db.collectionGroup("inventory")
+      .where("earliestExpirationDate", ">=", Timestamp.fromDate(startRange))
+      .where("earliestExpirationDate", "<=", Timestamp.fromDate(endRange))
+      .get();
+  }
+
+  if (snapshot.empty) {
+    logger.info("No expiring items found.");
+    return {message: "No expiring items found."};
+  }
+
+  // 2. Group items by household
+  const householdItems: {[key: string]: string[]} = {};
+
+  snapshot.docs.forEach((doc) => {
+    // doc.ref.parent is 'inventory' collection
+    // doc.ref.parent.parent is the household document
+    const householdId = doc.ref.parent.parent?.id;
+    const data = doc.data();
+    const itemName = data.name;
+    const expirationTimestamp = data.earliestExpirationDate;
+
+    if (householdId && itemName && expirationTimestamp) {
+      // Strict Date Comparison (ignoring time)
+      const expDate = expirationTimestamp.toDate();
+      const today = new Date();
+
+      // Normalize to YYYY-MM-DD strings for comparison
+      // We use local time of the server (UTC) which is standard for backend
+      // checks.
+      // Ideally we would use user's timezone, but we don't have it easily here
+      // per item.
+      // Using UTC is safer than server local time if server moves.
+      // But wait, user wants "Today".
+      // If we use simple ISO string split, it works for UTC.
+
+      // Let's use a helper to get "YYYY-MM-DD"
+      const toDateString = (d: Date) => d.toISOString().split("T")[0];
+
+      const expStr = toDateString(expDate);
+      const todayStr = toDateString(today);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const tomorrowStr = toDateString(tomorrow);
+
+      const dayAfter = new Date(today);
+      dayAfter.setDate(today.getDate() + 2);
+      const dayAfterStr = toDateString(dayAfter);
+
+      // Check if expiration is Today, Tomorrow, or Day After
+      // Check if expiration is Today, Tomorrow, or Day After
+      if (expStr === todayStr ||
+          expStr === tomorrowStr ||
+          expStr === dayAfterStr) {
         if (!householdItems[householdId]) {
           householdItems[householdId] = [];
         }
         householdItems[householdId].push(itemName);
       }
-    });
+    }
+  });
 
-    // 3. Send notifications for each household
-    for (const [householdId, items] of Object.entries(householdItems)) {
-      try {
-        // Get household members
-        const householdDoc =
+  let notificationsSent = 0;
+
+  // 3. Send notifications for each household
+  for (const [householdId, items] of Object.entries(householdItems)) {
+    try {
+      // Get household members
+      const householdDoc =
           await db.collection("households").doc(householdId).get();
 
-        if (!householdDoc.exists) continue;
+      if (!householdDoc.exists) continue;
 
-        // Check if ANY member is premium (Shared Premium logic)
-        // Or check the household owner. For simplicity, we check if the
-        // user associated with the household has isPremium=true.
-        // Since we don't have a direct link here easily without querying users,
-        // we will query users who have this householdId.
+      // Check if ANY member is premium (Shared Premium logic)
+      // Or check the household owner. For simplicity, we check if the
+      // user associated with the household has isPremium=true.
+      // Since we don't have a direct link here easily without querying users,
+      // we will query users who have this householdId.
 
-        const usersSnapshot = await db.collection("users")
-          .where("householdId", "==", householdId)
-          .get();
+      const usersSnapshot = await db.collection("users")
+        .where("householdId", "==", householdId)
+        .get();
 
-        let isPremiumHousehold = false;
-        const tokens: string[] = [];
-        const emailsToSend: string[] = [];
+      let isPremiumHousehold = false;
+      const tokens: string[] = [];
+      const recipients: {email: string, language: string}[] = [];
 
-        usersSnapshot.docs.forEach((userDoc) => {
-          const userData = userDoc.data();
-          if (userData.isPremium === true) {
-            isPremiumHousehold = true;
-          }
-          if (userData.fcmToken) {
-            tokens.push(userData.fcmToken);
-          }
-          // Check for email verification and collect email
-          if (userData.email && userData.emailVerified === true) {
-             emailsToSend.push(userData.email);
-          }
-        });
-
-        // GATE: If no one is premium, SKIP notification
-        if (!isPremiumHousehold) {
-          logger.info(
-            `Skipping notification for household ${householdId} (Not Premium)`
-          );
-          continue;
+      usersSnapshot.docs.forEach((userDoc) => {
+        const userData = userDoc.data();
+        if (userData.isPremium === true) {
+          isPremiumHousehold = true;
         }
+        if (userData.fcmToken) {
+          tokens.push(userData.fcmToken);
+        }
+        // Check for email verification and collect email
+        if (userData.email && userData.emailVerified === true) {
+          recipients.push({
+            email: userData.email,
+            language: userData.language || "en",
+          });
+        }
+      });
 
-        const itemsList = items.slice(0, 3).join(", ") +
+      // GATE: If no one is premium, SKIP notification
+      // EXCEPTION: If we are manually testing (targetHouseholdId is set),
+      // we might want to allow it?
+      // Let's enforce premium even for test to be accurate to
+      // "production behavior".
+      if (!isPremiumHousehold) {
+        logger.info(
+          `Skipping notification for household ${householdId} (Not Premium)`
+        );
+        continue;
+      }
+
+      const itemsList = items.slice(0, 3).join(", ") +
                           (items.length > 3 ? "..." : "");
 
-        // A. Send Push Notifications
-        if (tokens.length > 0) {
-          const message: MulticastMessage = {
-            tokens: tokens,
-            notification: {
-              title: "⚠️ Gaspillage imminent !",
-              body: `Vite ! ${items.length} produits expirent bientôt : ` +
+      // A. Send Push Notifications
+      if (tokens.length > 0) {
+        const message: MulticastMessage = {
+          tokens: tokens,
+          notification: {
+            title: "⚠️ Gaspillage imminent !",
+            body: `Vite ! ${items.length} produits expirent bientôt : ` +
                 `${itemsList}`,
+          },
+          data: {
+            type: "expiration_alert",
+            householdId: householdId,
+          },
+        };
+
+        const response = await messaging.sendEachForMulticast(message);
+        logger.info(
+          `Sent ${response.successCount} push notifications to ` +
+            `household ${householdId}`
+        );
+      }
+
+      // B. Send Emails (via Trigger Email Extension)
+      if (recipients.length > 0) {
+        const batch = db.batch();
+        for (const recipient of recipients) {
+          const userLang = recipient.language || "en";
+
+          const translations: {[key: string]: any} = {
+            en: {
+              subject: "⚠️ Waste Alert - FrigoZen",
+              title: "Waste Alert!",
+              intro: "The following items are expiring soon in your fridge:",
+              action: "Cook them fast!",
+              team: "The FrigoZen Team 🌿",
             },
-            data: {
-              type: "expiration_alert",
-              householdId: householdId,
+            fr: {
+              subject: "⚠️ Gaspillage imminent - FrigoZen",
+              title: "Attention au gaspillage !",
+              intro: "Les produits suivants expirent bientôt " +
+                "dans votre frigo :",
+              action: "Cuisinez-les vite !",
+              team: "L'équipe FrigoZen 🌿",
+            },
+            de: {
+              subject: "⚠️ Verschwendungswarnung - FrigoZen",
+              title: "Achtung Verschwendung!",
+              intro: "Folgende Artikel laufen bald ab:",
+              action: "Schnell kochen!",
+              team: "Das FrigoZen Team 🌿",
+            },
+            es: {
+              subject: "⚠️ Alerta de Desperdicio - FrigoZen",
+              title: "¡Alerta de Desperdicio!",
+              intro: "Los siguientes artículos caducan pronto:",
+              action: "¡Cocínalos rápido!",
+              team: "El equipo FrigoZen 🌿",
+            },
+            ar: {
+              subject: "⚠️ تنبيه هدر - FrigoZen",
+              title: "تنبيه هدر!",
+              intro: "العناصر التالية ستنتهي صلاحيتها قريبًا:",
+              action: "اطبخها بسرعة!",
+              team: "فريق FrigoZen 🌿",
             },
           };
 
-          const response = await messaging.sendEachForMulticast(message);
-          logger.info(
-            `Sent ${response.successCount} push notifications to ` +
-            `household ${householdId}`
-          );
-        }
+          const t = translations[userLang] || translations["en"];
 
-        // B. Send Emails (via Trigger Email Extension)
-        if (emailsToSend.length > 0) {
-           const batch = db.batch();
-           for (const email of emailsToSend) {
-             const mailRef = db.collection("mail").doc();
-             batch.set(mailRef, {
-               to: email,
-               message: {
-                 subject: "⚠️ Gaspillage imminent - FrigoZen",
-                 html: `
-                   <h1>Attention au gaspillage !</h1>
-                   <p>Les produits suivants expirent bientôt dans votre frigo :</p>
-                   <ul>
-                     ${items.map((i) => `<li>${i}</li>`).join("")}
-                   </ul>
-                   <p>Cuisinez-les vite !</p>
-                   <p>L'équipe FrigoZen 🌿</p>
-                 `,
-               },
-             });
-           }
-           await batch.commit();
-           logger.info(`Queued ${emailsToSend.length} emails for household ${householdId}`);
-        }
+          // Professional HTML Template
+          const htmlContent = `
+            <div style="font-family: Arial, sans-serif; color: #333; 
+              max-width: 600px; margin: 0 auto; 
+              border: 1px solid #e0e0e0; 
+              border-radius: 8px; overflow: hidden;">
+              <div style="background-color: #4CAF50; padding: 20px; 
+                text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">
+                  ${t.title}
+                </h1>
+              </div>
+              <div style="padding: 20px;">
+                <p style="font-size: 16px;">${t.intro}</p>
+                <ul style="background-color: #f9f9f9; padding: 15px 20px; 
+                  border-radius: 5px; list-style-position: inside;">
+                  ${items.map((i) =>
+    `<li style="margin-bottom: 5px; font-weight: bold;">
+                      ${i}
+                    </li>`
+  ).join("")}
+                </ul>
+                <p style="font-size: 16px; color: #d32f2f; font-weight: bold;">
+                  ${t.action}
+                </p>
+                <hr style="border: 0; border-top: 1px solid #eee; 
+                  margin: 20px 0;">
+                <p style="font-size: 14px; color: #777;">${t.team}</p>
+              </div>
+            </div>
+          `;
 
-      } catch (error) {
-        logger.error(
-          `Error sending notification to household ${householdId}:`,
-          error
+          const mailRef = db.collection("mail").doc();
+          batch.set(mailRef, {
+            to: recipient.email,
+            message: {
+              subject: t.subject,
+              html: htmlContent,
+            },
+          });
+        }
+        await batch.commit();
+        logger.info(
+          `Queued ${recipients.length} emails for household ${householdId}`
         );
+        notificationsSent++;
       }
+    } catch (error) {
+      logger.error(
+        `Error sending notification to household ${householdId}:`,
+        error
+      );
     }
-  });
+  }
+  return {notificationsSent};
+}

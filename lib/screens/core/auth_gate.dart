@@ -34,10 +34,11 @@ class _AuthGateState extends State<AuthGate> {
 
           final user = snapshot.data!;
 
-          // --- A. Notifications (Une seule fois) ---
+          // --- A. Notifications & Sync (Une seule fois) ---
           if (!_notificationsSetupDone) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _setupNotifications(user);
+              _syncUserData(user);
               _notificationsSetupDone = true; // On marque comme fait
             });
           }
@@ -105,5 +106,18 @@ class _AuthGateState extends State<AuthGate> {
       // 'platform': Theme.of(context).platform.toString(), // Attention context peut être instable ici
       'platform': 'mobile',
     });
+  }
+
+  Future<void> _syncUserData(User user) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'email': user.email,
+        'emailVerified': user.emailVerified,
+        'lastLogin': FieldValue.serverTimestamp(),
+        'language': Localizations.localeOf(context).languageCode,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint("User sync error: $e");
+    }
   }
 }

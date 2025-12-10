@@ -84,6 +84,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get authSuccess => 'تم إنشاء الحساب بنجاح. يمكنك تسجيل الدخول الآن.';
 
   @override
+  String get authVerifyEmailSent =>
+      'A verification email has been sent. Please check your inbox.';
+
+  @override
   String get authErrorGeneric =>
       'حدث خطأ، يرجى التحقق من بيانات الاعتماد الخاصة بك.';
 

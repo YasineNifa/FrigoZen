@@ -25,6 +25,7 @@
   "authHaveAccount": "Already have an account? ",
   "authToLogin": "Login",
   "authSuccess": "Account created successfully. You can now log in.",
+  "authVerifyEmailSent": "A verification email has been sent. Please check your inbox.",
   "authErrorGeneric": "An error occurred, please check your credentials.",
   "authErrorNoUser": "No user found for that email.",
   "authErrorWrongPass": "Password is incorrect.",

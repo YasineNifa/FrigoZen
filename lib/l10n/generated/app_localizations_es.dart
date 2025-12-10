@@ -85,6 +85,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Cuenta creada con éxito. Ya puedes iniciar sesión.';
 
   @override
+  String get authVerifyEmailSent =>
+      'A verification email has been sent. Please check your inbox.';
+
+  @override
   String get authErrorGeneric =>
       'Ocurrió un error, por favor verifica tus credenciales.';
 

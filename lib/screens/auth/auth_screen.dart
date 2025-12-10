@@ -141,6 +141,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
             password: _passwordController.text.trim(),
           );
 
+          // Send verification email
+          final user = FirebaseAuth.instanceFor(app: tempApp).currentUser;
+          if (user != null && !user.emailVerified) {
+            await user.sendEmailVerification();
+          }
+
           if (mounted) {
             setState(() {
               _isLoginMode = true;
@@ -149,7 +155,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(l10n.authSuccess),
+                content: Text("${l10n.authSuccess}. ${l10n.authVerifyEmailSent ?? 'Please verify your email.'}"),
                 backgroundColor: Colors.green,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

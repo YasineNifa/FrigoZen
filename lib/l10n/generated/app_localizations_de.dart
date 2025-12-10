@@ -86,6 +86,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Konto erfolgreich erstellt. Sie können sich jetzt anmelden.';
 
   @override
+  String get authVerifyEmailSent =>
+      'A verification email has been sent. Please check your inbox.';
+
+  @override
   String get authErrorGeneric =>
       'Ein Fehler ist aufgetreten, bitte überprüfen Sie Ihre Anmeldedaten.';
 

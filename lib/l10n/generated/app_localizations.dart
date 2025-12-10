@@ -254,6 +254,12 @@ abstract class AppLocalizations {
   /// **'Account created successfully. You can now log in.'**
   String get authSuccess;
 
+  /// No description provided for @authVerifyEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'A verification email has been sent. Please check your inbox.'**
+  String get authVerifyEmailSent;
+
   /// No description provided for @authErrorGeneric.
   ///
   /// In en, this message translates to:
