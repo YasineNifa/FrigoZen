@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
@@ -21,7 +22,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
   // Coherent Premium Palette
   final Color _primaryColor = const Color(0xFF6B9C5F); // FrigoZen Green
   final Color _surfaceColor = Colors.white;
-  final Color _accentColor = const Color(0xFFFFD700); // Gold
+  final Color _goldColor = const Color(0xFFFFD700); // Gold
   final Color _textDark = Colors.black87;
   final Color _textGrey = const Color(0xFF757575);
 
@@ -105,11 +106,14 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
           ),
         );
       }
-    } on PurchasesError catch (e) {
-      if (mounted) {
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
+        // User cancelled the purchase, do nothing
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.message),
+            content: Text(e.message ?? "Unknown error"),
             backgroundColor: Colors.red,
           ),
         );
@@ -137,10 +141,13 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
           );
         }
       }
-    } on PurchasesError catch (e) {
-      if (mounted) {
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
+        // User cancelled, do nothing
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.settingsRestoreFail(e.message))),
+          SnackBar(content: Text(AppLocalizations.of(context)!.settingsRestoreFail(e.message ?? "Unknown error"))),
         );
       }
     } finally {
@@ -494,7 +501,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _accentColor,
+                    color: _goldColor,
                     borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(14),
                       bottomLeft: Radius.circular(14),
