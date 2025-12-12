@@ -49,5 +49,17 @@
 	<string>FrigoZen a besoin d'accéder à votre caméra pour scanner les tickets de caisse.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>FrigoZen a besoin d'accéder à votre galerie pour importer des photos de tickets.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- TODO: Remplacer par REVERSED_CLIENT_ID du GoogleService-Info.plist -->
+				<string>com.googleusercontent.apps.720908435851-co1ip8304slq34d1c2q4k3hipe6km3kd</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

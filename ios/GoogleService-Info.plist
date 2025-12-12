@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>720908435851-co1ip8304slq34d1c2q4k3hipe6km3kd.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.720908435851-co1ip8304slq34d1c2q4k3hipe6km3kd</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>720908435851-c75euk5518q1dl8uoj7j9qq4f50bgjnv.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBk3wabXOkxadDFmzu-B-IQ_6jF3kd3Bss</string>
+	<key>GCM_SENDER_ID</key>
+	<string>720908435851</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.frigoZen</string>
+	<key>PROJECT_ID</key>
+	<string>frigozen-app</string>
+	<key>STORAGE_BUCKET</key>
+	<string>frigozen-app.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:720908435851:ios:29c9ddcb3f3cd1741c6f8e</string>
+</dict>
+</plist>
