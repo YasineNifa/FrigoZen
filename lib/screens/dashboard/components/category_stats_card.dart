@@ -93,7 +93,7 @@ class CategoryStatsCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
-                            "${item.key} (${item.value})",
+                            "${_getCategoryName(context, item.key)} (${item.value})",
                             style: const TextStyle(fontSize: 10),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -119,5 +119,23 @@ class CategoryStatsCard extends StatelessWidget {
       Color(0xFF9013FE),
     ];
     return colors[index % colors.length];
+  }
+
+  String _getCategoryName(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'cat_fruits_vegetables': return l10n.cat_fruits_vegetables;
+      case 'cat_bakery': return l10n.cat_bakery;
+      case 'cat_dairy_eggs': return l10n.cat_dairy_eggs;
+      case 'cat_meat_fish': return l10n.cat_meat_fish;
+      case 'cat_frozen': return l10n.cat_frozen;
+      case 'cat_pantry_salty': return l10n.cat_pantry_salty;
+      case 'cat_pantry_sweet': return l10n.cat_pantry_sweet;
+      case 'cat_beverages': return l10n.cat_beverages;
+      case 'cat_baby': return l10n.cat_baby;
+      case 'cat_pets': return l10n.cat_pets;
+      case 'cat_other': return l10n.cat_other;
+      default: return key;
+    }
   }
 }
