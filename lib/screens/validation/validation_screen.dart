@@ -183,7 +183,9 @@ class _ValidationScreenState extends State<ValidationScreen> {
   void _updateQuantity(int index, int change) {
     setState(() {
       final newQuantity = _editableItems[index]['quantity'] + change;
-      if (newQuantity > 0) {
+      if (newQuantity <= 0) {
+        _removeItem(index);
+      } else {
         _editableItems[index]['quantity'] = newQuantity;
       }
     });
@@ -193,6 +195,9 @@ class _ValidationScreenState extends State<ValidationScreen> {
     setState(() {
       _editableItems.removeAt(index);
     });
+    if (_editableItems.isEmpty) {
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _addItemsToInventory() async {
