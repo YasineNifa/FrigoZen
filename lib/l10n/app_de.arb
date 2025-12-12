@@ -59,6 +59,7 @@
   "inventoryTabFridge": "Kühlschrank",
   "loc_pantry": "Vorratskammer",
   "scanProTip": "Tipp: Scannen Sie den Barcode für weitere Details (Nutri-Score usw.)!",
+  "scanAnalyzing": "Beleg wird analysiert...",
   "inventoryTabFreezer": "Gefrierschrank",
   "inventorySearchHint": "Produkt suchen...",
   "inventoryEmptyTitle": "Ihr Inventar ist leer",

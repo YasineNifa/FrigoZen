@@ -99,6 +99,7 @@
   "paywallRestoreBtn": "Restaurer les achats",
   "paywallLegalText": "Sans engagement. Annulable à tout moment. En continuant, vous acceptez les CGU et la Politique de Confidentialité.",
   "paywallSuccess": "Bienvenue dans le club FrigoZen Pro ! 🌟",
+  "paywallError": "Impossible de charger les offres. Veuillez réessayer plus tard.",
   "@_FAVORITES_SCREEN": {},
   "favoritesTitle": "Mon Carnet",
   "favoritesEmptyTitle": "Aucune recette favorite",
@@ -393,5 +394,10 @@
   "loc_fridge": "Frigo",
   "loc_freezer": "Congélateur",
   "loc_pantry": "Placard",
-  "scanProTip": "Astuce : Scannez le code-barres pour plus de détails (Nutri-Score, etc.) !"
+  "scanProTip": "Astuce : Scannez le code-barres pour plus de détails (Nutri-Score, etc.) !",
+  "shoppingPrioritizeScanTitle": "Vous avez le ticket ?",
+  "shoppingPrioritizeScanMessage": "En tant que membre Premium, scannez votre ticket pour avoir plus de détails (Marque, Nutri-Score...).\n\nSi vous scannez le ticket, n'ajoutez PAS ces articles manuellement pour éviter les doublons.",
+  "shoppingPrioritizeScanBtn": "Scanner le ticket",
+  "shoppingPrioritizeManualBtn": "Non, ajouter manuellement",
+  "scanAnalyzing": "Analyse du ticket..."
 }

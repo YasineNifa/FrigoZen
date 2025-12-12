@@ -181,7 +181,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get inventoryTabFridge => 'Kühlschrank';
 
   @override
-  String get inventoryTabPantry => 'Vorratsschrank';
+  String get inventoryTabPantry => 'Pantry';
 
   @override
   String get inventoryTabFreezer => 'Gefrierschrank';
@@ -303,6 +303,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get paywallSuccess => 'Willkommen im FrigoZen Pro Club! 🌟';
+
+  @override
+  String get paywallError =>
+      'Unable to load offerings. Please try again later.';
 
   @override
   String get favoritesTitle => 'Mein Kochbuch';
@@ -828,23 +832,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recipeTitle => 'Recipes';
 
   @override
-  String get recipeTabDiscover => 'Discover';
+  String get recipeTabDiscover => 'Entdecken';
 
   @override
-  String get recipeTabCatalog => 'Catalog';
+  String get recipeTabCatalog => 'Katalog';
 
   @override
-  String get recipeTabAI => 'AI Chef';
+  String get recipeTabAI => 'KI-Chef';
 
   @override
-  String get recipeAITitle => 'Cook with your fridge';
+  String get recipeAITitle => 'Kochen mit dem Kühlschrank';
 
   @override
   String get recipeAIDesc =>
-      'Let our AI Chef generate delicious recipes based on your inventory.';
+      'Lassen Sie unseren KI-Chef köstliche Rezepte basierend auf Ihrem Inventar generieren.';
 
   @override
-  String get recipeAIBtn => 'Generate Recipes';
+  String get recipeAIBtn => 'Rezepte generieren';
 
   @override
   String get recipeTabFavorites => 'Favorites';
@@ -1023,9 +1027,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get loc_freezer => 'Freezer';
 
   @override
-  String get loc_pantry => 'Pantry';
+  String get loc_pantry => 'Vorratskammer';
 
   @override
   String get scanProTip =>
-      'Tip: Scan the barcode for more details (Nutri-Score, etc.)!';
+      'Tipp: Scannen Sie den Barcode für weitere Details (Nutri-Score usw.)!';
+
+  @override
+  String get shoppingPrioritizeScanTitle => 'Have the receipt?';
+
+  @override
+  String get shoppingPrioritizeScanMessage =>
+      'As a Premium member, you can scan your receipt to add items with more details (Brand, Nutri-Score, etc.).\n\nIf you scan the receipt, do NOT add these items manually to avoid duplicates.';
+
+  @override
+  String get shoppingPrioritizeScanBtn => 'Scan Receipt';
+
+  @override
+  String get shoppingPrioritizeManualBtn => 'No, Add Manually';
+
+  @override
+  String get scanAnalyzing => 'Beleg wird analysiert...';
 }

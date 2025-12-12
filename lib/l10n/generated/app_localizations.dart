@@ -662,6 +662,12 @@ abstract class AppLocalizations {
   /// **'Welcome to the FrigoZen Pro club! 🌟'**
   String get paywallSuccess;
 
+  /// No description provided for @paywallError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load offerings. Please try again later.'**
+  String get paywallError;
+
   /// No description provided for @favoritesTitle.
   ///
   /// In en, this message translates to:
@@ -1975,6 +1981,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tip: Scan the barcode for more details (Nutri-Score, etc.)!'**
   String get scanProTip;
+
+  /// No description provided for @shoppingPrioritizeScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Have the receipt?'**
+  String get shoppingPrioritizeScanTitle;
+
+  /// No description provided for @shoppingPrioritizeScanMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'As a Premium member, you can scan your receipt to add items with more details (Brand, Nutri-Score, etc.).\n\nIf you scan the receipt, do NOT add these items manually to avoid duplicates.'**
+  String get shoppingPrioritizeScanMessage;
+
+  /// No description provided for @shoppingPrioritizeScanBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Receipt'**
+  String get shoppingPrioritizeScanBtn;
+
+  /// No description provided for @shoppingPrioritizeManualBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'No, Add Manually'**
+  String get shoppingPrioritizeManualBtn;
+
+  /// No description provided for @scanAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing receipt...'**
+  String get scanAnalyzing;
 }
 
 class _AppLocalizationsDelegate

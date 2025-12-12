@@ -24,30 +24,38 @@ class _ValidationScreenState extends State<ValidationScreen> {
   @override
   void initState() {
     super.initState();
-    _editableItems = widget.scannedItems.map((item) {
-      final map = Map<String, dynamic>.from(item);
-      
-      // 1. Smart Parsing of Quantity/Name
-      // If quantity is default (1) and name looks like "4 Laits", parse it.
-      if ((map['quantity'] == null || map['quantity'] == 1) && map['name'] != null) {
-        final parsed = _parseQuantityAndName(map['name']);
-        if (parsed['quantity'] != 1) {
-          map['quantity'] = parsed['quantity'];
-          map['name'] = parsed['name'];
+    debugPrint("ValidationScreen initState started with ${widget.scannedItems.length} items.");
+    try {
+      _editableItems = widget.scannedItems.map((item) {
+        final map = Map<String, dynamic>.from(item);
+        
+        // 1. Smart Parsing of Quantity/Name
+        // If quantity is default (1) and name looks like "4 Laits", parse it.
+        if ((map['quantity'] == null || map['quantity'] == 1) && map['name'] != null) {
+          final parsed = _parseQuantityAndName(map['name']);
+          if (parsed['quantity'] != 1) {
+            map['quantity'] = parsed['quantity'];
+            map['name'] = parsed['name'];
+          }
         }
-      }
 
-      // 2. Prioritize OCR name (already in 'name') > canonicalName > cleanedName
-      // Only overwrite if OCR name is empty
-      if (map['name'] == null || map['name'].toString().trim().isEmpty) {
-        if (map['canonicalName'] != null && map['canonicalName'].toString().isNotEmpty) {
-          map['name'] = map['canonicalName'];
-        } else if (map['cleanedName'] != null && map['cleanedName'].toString().isNotEmpty) {
-          map['name'] = map['cleanedName'];
+        // 2. Prioritize OCR name (already in 'name') > canonicalName > cleanedName
+        // Only overwrite if OCR name is empty
+        if (map['name'] == null || map['name'].toString().trim().isEmpty) {
+          if (map['canonicalName'] != null && map['canonicalName'].toString().isNotEmpty) {
+            map['name'] = map['canonicalName'];
+          } else if (map['cleanedName'] != null && map['cleanedName'].toString().isNotEmpty) {
+            map['name'] = map['cleanedName'];
+          }
         }
-      }
-      return map;
-    }).toList();
+        return map;
+      }).toList();
+      debugPrint("ValidationScreen initialized successfully with ${_editableItems.length} editable items.");
+    } catch (e, stack) {
+      debugPrint("Error in ValidationScreen initState: $e");
+      debugPrint(stack.toString());
+      _editableItems = [];
+    }
   }
 
   Map<String, dynamic> _parseQuantityAndName(String rawName) {

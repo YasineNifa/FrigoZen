@@ -302,6 +302,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallSuccess => 'Welcome to the FrigoZen Pro club! 🌟';
 
   @override
+  String get paywallError =>
+      'Unable to load offerings. Please try again later.';
+
+  @override
   String get favoritesTitle => 'My Cookbook';
 
   @override
@@ -1021,4 +1025,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get scanProTip =>
       'Tip: Scan the barcode for more details (Nutri-Score, etc.)!';
+
+  @override
+  String get shoppingPrioritizeScanTitle => 'Have the receipt?';
+
+  @override
+  String get shoppingPrioritizeScanMessage =>
+      'As a Premium member, you can scan your receipt to add items with more details (Brand, Nutri-Score, etc.).\n\nIf you scan the receipt, do NOT add these items manually to avoid duplicates.';
+
+  @override
+  String get shoppingPrioritizeScanBtn => 'Scan Receipt';
+
+  @override
+  String get shoppingPrioritizeManualBtn => 'No, Add Manually';
+
+  @override
+  String get scanAnalyzing => 'Analyzing receipt...';
 }

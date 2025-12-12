@@ -5,6 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:cloud_functions/cloud_functions.dart';
 
+import 'package:flutter/foundation.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+
 /// OcrService handles all logic related to picking images
 /// and processing them via the backend AI.
 class OcrService {
@@ -32,10 +35,10 @@ class OcrService {
       // Loading snackbar
       final loadingSnackbar = SnackBar(
         content: Row(
-          children: const [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(width: 16),
-            Text('Analyzing receipt...'),
+          children: [
+            const CircularProgressIndicator(color: Colors.white),
+            const SizedBox(width: 16),
+            Text(AppLocalizations.of(context)!.scanAnalyzing),
           ],
         ),
         duration: const Duration(minutes: 5),
@@ -45,16 +48,9 @@ class OcrService {
       debugPrint("Image picked, processing...");
 
       final bytes = await pickedImage.readAsBytes();
-      img.Image? originalImage = img.decodeImage(bytes);
-      if (originalImage == null) {
-        throw Exception("Loading image failed.");
-      }
-
-      debugPrint("Image decoded, resizing...");
-      final img.Image resizedImage = img.copyResize(originalImage, width: 800);
-
-      debugPrint("Image resized, encoding...");
-      final String base64Image = base64Encode(img.encodeJpg(resizedImage));
+      
+      // Run heavy image processing in a separate isolate
+      final base64Image = await compute(_processImageInIsolate, bytes);
 
       debugPrint("Image encoded, calling Cloud Function...");
 
@@ -92,11 +88,20 @@ class OcrService {
               const SnackBar(content: Text('No items found in the receipt.')),
             );
           } else {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (ctx) => ValidationScreen(scannedItems: items),
-              ),
-            );
+            debugPrint("Navigating to ValidationScreen with ${items.length} items.");
+            try {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => ValidationScreen(scannedItems: items),
+                ),
+              );
+            } catch (e, stack) {
+              debugPrint("Error navigating to ValidationScreen: $e");
+              debugPrint(stack.toString());
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Navigation Error: $e')),
+              );
+            }
           }
         }
       } else {
@@ -124,4 +129,19 @@ class OcrService {
       );
     }
   }
+}
+
+/// Top-level function to run in an isolate
+Future<String> _processImageInIsolate(Uint8List bytes) async {
+  debugPrint("Isolate: Decoding image...");
+  img.Image? originalImage = img.decodeImage(bytes);
+  if (originalImage == null) {
+    throw Exception("Loading image failed.");
+  }
+
+  debugPrint("Isolate: Resizing image...");
+  final img.Image resizedImage = img.copyResize(originalImage, width: 800);
+
+  debugPrint("Isolate: Encoding image...");
+  return base64Encode(img.encodeJpg(resizedImage));
 }

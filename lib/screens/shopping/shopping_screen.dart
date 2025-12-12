@@ -14,6 +14,10 @@ import 'package:frigo_zen/screens/core/navigation_controller.dart';
 
 import 'package:confetti/confetti.dart';
 
+import 'package:frigo_zen/services/ocr_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:frigo_zen/services/revenue_provider.dart';
+
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
 
@@ -239,6 +243,41 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
               ),
               backgroundColor: Theme.of(context).primaryColor,
               onPressed: vm.isLoading ? null : () async {
+                final isPro = context.read<RevenueProvider>().isPro;
+
+                if (isPro) {
+                  final shouldScan = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(l10n.shoppingPrioritizeScanTitle),
+                      content: Text(l10n.shoppingPrioritizeScanMessage),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(l10n.shoppingPrioritizeManualBtn),
+                        ),
+                        FilledButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(l10n.shoppingPrioritizeScanBtn),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (shouldScan == true) {
+                    if (!context.mounted) return;
+                    // Use OcrService to scan receipt
+                    // We need a parent context for OcrService, but here context is fine.
+                    // OcrService().pickAndProcessReceipt(context, ImageSource.camera);
+                    // Wait, OcrService might need to be instantiated or static?
+                    // Checking ScanOptionsSheet usage: OcrService ocrService = OcrService();
+                    final ocrService = OcrService();
+                    // It seems pickAndProcessReceipt takes (BuildContext context, ImageSource source)
+                    await ocrService.pickAndProcessReceipt(context, ImageSource.camera);
+                    return;
+                  }
+                }
+
                 try {
                   await vm.moveCheckedItemsToInventory();
                   if (!context.mounted) return;

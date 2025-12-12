@@ -302,6 +302,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get paywallSuccess => 'مرحبًا بك في نادي FrigoZen Pro! 🌟';
 
   @override
+  String get paywallError =>
+      'Unable to load offerings. Please try again later.';
+
+  @override
   String get favoritesTitle => 'كتاب الطبخ الخاص بي';
 
   @override
@@ -819,23 +823,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recipeTitle => 'Recipes';
 
   @override
-  String get recipeTabDiscover => 'Discover';
+  String get recipeTabDiscover => 'اكتشف';
 
   @override
-  String get recipeTabCatalog => 'Catalog';
+  String get recipeTabCatalog => 'كتالوج';
 
   @override
-  String get recipeTabAI => 'AI Chef';
+  String get recipeTabAI => 'طاهي الذكاء الاصطناعي';
 
   @override
-  String get recipeAITitle => 'Cook with your fridge';
+  String get recipeAITitle => 'اطبخ بمحتويات ثلاجتك';
 
   @override
   String get recipeAIDesc =>
-      'Let our AI Chef generate delicious recipes based on your inventory.';
+      'دع طاهي الذكاء الاصطناعي يولد وصفات لذيذة بناءً على مخزونك.';
 
   @override
-  String get recipeAIBtn => 'Generate Recipes';
+  String get recipeAIBtn => 'توليد وصفات';
 
   @override
   String get recipeTabFavorites => 'Favorites';
@@ -1014,9 +1018,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loc_freezer => 'Freezer';
 
   @override
-  String get loc_pantry => 'Pantry';
+  String get loc_pantry => 'مخزن';
 
   @override
   String get scanProTip =>
-      'Tip: Scan the barcode for more details (Nutri-Score, etc.)!';
+      'نصيحة: امسح الباركود للحصول على مزيد من التفاصيل (Nutri-Score، إلخ)!';
+
+  @override
+  String get shoppingPrioritizeScanTitle => 'Have the receipt?';
+
+  @override
+  String get shoppingPrioritizeScanMessage =>
+      'As a Premium member, you can scan your receipt to add items with more details (Brand, Nutri-Score, etc.).\n\nIf you scan the receipt, do NOT add these items manually to avoid duplicates.';
+
+  @override
+  String get shoppingPrioritizeScanBtn => 'Scan Receipt';
+
+  @override
+  String get shoppingPrioritizeManualBtn => 'No, Add Manually';
+
+  @override
+  String get scanAnalyzing => 'جارٍ تحليل الإيصال...';
 }

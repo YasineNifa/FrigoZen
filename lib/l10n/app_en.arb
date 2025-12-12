@@ -113,6 +113,7 @@
   "paywallRestoreBtn": "Restore purchases",
   "paywallLegalText": "No commitment required. Cancellable at any time. By continuing, you agree to the Terms of Service and Privacy Policy.",
   "paywallSuccess": "Welcome to the FrigoZen Pro club! 🌟",
+  "paywallError": "Unable to load offerings. Please try again later.",
   "@_FAVORITES_SCREEN": {},
   "favoritesTitle": "My Cookbook",
   "favoritesEmptyTitle": "No favorite recipes yet",
@@ -474,5 +475,10 @@
   "loc_fridge": "Fridge",
   "loc_freezer": "Freezer",
   "loc_pantry": "Pantry",
-  "scanProTip": "Tip: Scan the barcode for more details (Nutri-Score, etc.)!"
+  "scanProTip": "Tip: Scan the barcode for more details (Nutri-Score, etc.)!",
+  "shoppingPrioritizeScanTitle": "Have the receipt?",
+  "shoppingPrioritizeScanMessage": "As a Premium member, you can scan your receipt to add items with more details (Brand, Nutri-Score, etc.).\n\nIf you scan the receipt, do NOT add these items manually to avoid duplicates.",
+  "shoppingPrioritizeScanBtn": "Scan Receipt",
+  "shoppingPrioritizeManualBtn": "No, Add Manually",
+  "scanAnalyzing": "Analyzing receipt..."
 }

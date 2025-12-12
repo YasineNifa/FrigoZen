@@ -11,6 +11,7 @@
   "db_tomato": "طماطم",
   "loc_pantry": "مخزن",
   "scanProTip": "نصيحة: امسح الباركود للحصول على مزيد من التفاصيل (Nutri-Score، إلخ)!",
+  "scanAnalyzing": "جارٍ تحليل الإيصال...",
   "db_pasta": "معكرونة",
   "db_rice": "أرز",
   "@_AUTH_SCREEN": {},

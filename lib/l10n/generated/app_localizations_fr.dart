@@ -304,6 +304,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get paywallSuccess => 'Bienvenue dans le club FrigoZen Pro ! 🌟';
 
   @override
+  String get paywallError =>
+      'Impossible de charger les offres. Veuillez réessayer plus tard.';
+
+  @override
   String get favoritesTitle => 'Mon Carnet';
 
   @override
@@ -1028,4 +1032,20 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get scanProTip =>
       'Astuce : Scannez le code-barres pour plus de détails (Nutri-Score, etc.) !';
+
+  @override
+  String get shoppingPrioritizeScanTitle => 'Vous avez le ticket ?';
+
+  @override
+  String get shoppingPrioritizeScanMessage =>
+      'En tant que membre Premium, scannez votre ticket pour avoir plus de détails (Marque, Nutri-Score...).\n\nSi vous scannez le ticket, n\'ajoutez PAS ces articles manuellement pour éviter les doublons.';
+
+  @override
+  String get shoppingPrioritizeScanBtn => 'Scanner le ticket';
+
+  @override
+  String get shoppingPrioritizeManualBtn => 'Non, ajouter manuellement';
+
+  @override
+  String get scanAnalyzing => 'Analyse du ticket...';
 }

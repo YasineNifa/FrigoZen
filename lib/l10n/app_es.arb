@@ -59,6 +59,7 @@
   "inventoryTabFridge": "Nevera",
   "loc_pantry": "Despensa",
   "scanProTip": "Consejo: ¡Escanea el código de barras para más detalles (Nutri-Score, etc.)!",
+  "scanAnalyzing": "Analizando recibo...",
   "inventoryTabFreezer": "Congelador",
   "inventorySearchHint": "Buscar un producto...",
   "inventoryEmptyTitle": "Tu inventario está vacío",
