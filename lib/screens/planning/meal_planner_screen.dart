@@ -420,7 +420,20 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
 
     try {
       final languageCode = Localizations.localeOf(context).languageCode;
-      final count = await planner.generateShoppingList(inventory, shopping, languageCode, isPro: isPro);
+      
+      // Calculate current week range (Monday to Sunday)
+      final now = DateTime.now();
+      final startOfWeek = DateTime(now.year, now.month, now.day).subtract(Duration(days: now.weekday - 1));
+      final endOfWeek = startOfWeek.add(const Duration(days: 7)).subtract(const Duration(milliseconds: 1));
+
+      final count = await planner.generateShoppingList(
+        inventory, 
+        shopping, 
+        languageCode, 
+        start: startOfWeek,
+        end: endOfWeek,
+        isPro: isPro,
+      );
       
       if (!mounted) return;
       
