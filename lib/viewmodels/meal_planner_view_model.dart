@@ -154,18 +154,11 @@ class MealPlannerViewModel extends ChangeNotifier {
 
     if (potentialCandidates.isEmpty) return 0;
 
-    // 4. Resolve Items (Parallelized - Slower but parallel) & 5. Canonical Check
-    // We delegate the resolution and final "add" decision to shopping view model via addItemsFromRecipe
-    // But wait, addItemsFromRecipe blindly adds most things or does loose checking?
-    // Let's look at ShoppingViewModel.addItemsFromRecipe. It resolves names but doesn't explicitly 
-    // check against EXISTING canonical names in that method (checking view_file output... it just adds).
-    // So we should do the resolution here or improve addItemsFromRecipe.
-    // Given the architecture, let's keep logic here to be precise.
-
+    // 4. Resolve Items and Add to Shopping List
     final List<String> finalItemsToAdd = [];
 
     if (isPro) {
-      // Parallel Resolution
+      // Parallel Resolution for Pro users
       final resolvedItems = await Future.wait(
         potentialCandidates.map((name) => shopping.resolveItemName(name, languageCode))
       );
@@ -187,57 +180,20 @@ class MealPlannerViewModel extends ChangeNotifier {
             );
             if (hasCanonicalInShopping) continue;
             
-            // If we are here, it's a new item. We'll add the Original Name to the list
-            // and let ShoppingViewModel resolve it again? Or optimize to pass the object?
-            // ShoppingViewModel.addItemsFromRecipe resolves again. That's double work.
-            // But we can't easily pass ShoppingItem objects to addItemsFromRecipe without changing it.
-            // OPTIMIZATION: We already resolved it. We should use `shopping.addItem(item)` directly for each.
-            // But we need to batch it or do it carefully.
-            // Let's rely on ShoppingViewModel.addItemsFromRecipe for now to avoid logic duplication 
-            // OR simply call `shopping.addItem` here since we have the object.
-            
+            // Add resolved item directly
             await shopping.addItem(resolvedItem);
-            finalItemsToAdd.add(originalName); // Just for counting
+            finalItemsToAdd.add(originalName);
         } else {
-          // Resolution failed, treat as raw unique item (already checked raw existence)
+          // Resolution failed, treat as raw unique item
           finalItemsToAdd.add(originalName);
-           await shopping.addItemByName(originalName, languageCode); // Fallback add
+          await shopping.addItemByName(originalName, languageCode);
         }
       }
     } else {
-      // Not Pro: We already filtered by raw name. Just add them.
-      // But avoid duplicates within the batch? Set handles that.
+      // Not Pro: Add items using standard logic (which handles resolution if implemented there, or raw add)
       finalItemsToAdd.addAll(potentialCandidates);
       await shopping.addItemsFromRecipe(potentialCandidates, languageCode);
     }
-    
-    // Note: The above logic for PRO mixes explicit addItem calls and implicit logic. 
-    // To be safer and more consistent with previous architecture where `addItemsFromRecipe` handles the add:
-    // If IS PRO: We manually verified canonical names. We should probably just call `shopping.addItemsFromRecipe(finalItemsToAdd)`
-    // BUT `addItemsFromRecipe` re-resolves. That's wasteful.
-    // AND `addItemsFromRecipe` does NOT check canonical existence against inventory/shopping list (based on my read).
-    // So if we just pass names to it, we lose the benefit of the canonical check we just did?
-    // Wait, `addItemsFromRecipe` implementation:
-    //   resolves items -> adds to list.
-    // It does NOT check for duplicates in Repo or ViewModel before adding (Repo might, but ViewModel doesn't see it).
-    // So YES, we must handle the add ourselves if we want to key off the resolution.
-    
-    // Correction on implementation above:
-    // The previous implementation loop was:
-    // for each meal -> ingredients -> check raw -> if Pro resolve -> check canonical -> add to set -> finally `shopping.addItemsFromRecipe`.
-    // My previous analysis said `addItemsFromRecipe` does resolution. So we were resolving TWICE! 
-    // Once here for the check, and once inside `shopping.addItemsFromRecipe`.
-    
-    // REVISED PLAN FOR PRO:
-    // 1. Resolve all potential items in parallel.
-    // 2. Filter resolved items against Inventory/Shopping using Canonical Name.
-    // 3. Collect the *ShoppingItem* objects that passed the filter.
-    // 4. Call `shopping.addShoppingItems(items)` (need to ensure this exists or use loop loop of `addItem`).
-    // `ShoppingViewModel` has `addItem` (singular) and `addItemsFromRecipe` (does resolution).
-    // It does NOT have `addItems(List<ShoppingItem>)` public method visible in previous view_file.
-    // `ShoppingRepository` has `addShoppingItems`.
-    // I should check `ShoppingViewModel` again or just iterate `addItem` (it's essentially just a repo call wrapper).
-    // Iterating `addItem` is fine since it's just firing async calls, we can `Future.wait` them.
 
     return finalItemsToAdd.length;
   }
