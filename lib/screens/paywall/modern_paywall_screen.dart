@@ -168,7 +168,7 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
                 Container(
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/paywall_bg.jpg'),
+                      image: AssetImage('assets/images/zen.jpg'),
                       fit: BoxFit.cover,
                       opacity: 0.1,
                     ),
