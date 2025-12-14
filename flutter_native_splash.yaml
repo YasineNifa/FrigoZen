@@ -1,7 +1,7 @@
 flutter_native_splash:
   color: "#6B9C5F" # Primary Green Color
-  # image: assets/images/fridge.png # Commented out to test color-only first and fix the broken file issue
-  branding: assets/images/fridge.png # branding is placed differently, maybe safer? No, let's keep it simple.
+  image: assets/images/zen.jpg
+  # branding: assets/images/zen.jpg
   android_12:
     color: "#6B9C5F"
   web: false
