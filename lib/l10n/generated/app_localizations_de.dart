@@ -87,7 +87,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get authVerifyEmailSent =>
-      'A verification email has been sent. Please check your inbox.';
+      'Eine Bestätigungs-E-Mail wurde gesendet. Bitte überprüfen Sie Ihren Posteingang.';
 
   @override
   String get authErrorGeneric =>
@@ -181,7 +181,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get inventoryTabFridge => 'Kühlschrank';
 
   @override
-  String get inventoryTabPantry => 'Pantry';
+  String get inventoryTabPantry => 'Vorratskammer';
 
   @override
   String get inventoryTabFreezer => 'Gefrierschrank';
@@ -306,7 +306,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get paywallError =>
-      'Unable to load offerings. Please try again later.';
+      'Angebote konnten nicht geladen werden. Bitte versuchen Sie es später erneut.';
 
   @override
   String get favoritesTitle => 'Mein Kochbuch';
@@ -534,7 +534,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mealPlannerGenerateList => 'Einkaufsliste erstellen';
 
   @override
-  String get mealPlannerBreakfast => 'Breakfast ☕';
+  String get mealPlannerBreakfast => 'Frühstück ☕';
 
   @override
   String get mealPlannerLunch => 'Mittagessen ☀️';
@@ -781,55 +781,55 @@ class AppLocalizationsDe extends AppLocalizations {
   String get proBadge => 'PRO';
 
   @override
-  String get shoppingItemAlreadyInStockTitle => 'Item already in stock';
+  String get shoppingItemAlreadyInStockTitle => 'Artikel bereits vorrätig';
 
   @override
   String shoppingItemAlreadyInStockMessage(String itemName) {
-    return 'You already have \'$itemName\' in your inventory. Do you want to add it to the shopping list anyway?';
+    return 'Sie haben \'$itemName\' bereits in Ihrem Inventar. Möchten Sie ihn trotzdem zur Einkaufsliste hinzufügen?';
   }
 
   @override
-  String get shoppingDialogNo => 'No';
+  String get shoppingDialogNo => 'Nein';
 
   @override
-  String get shoppingDialogYesAdd => 'Yes, add';
+  String get shoppingDialogYesAdd => 'Ja, hinzufügen';
 
   @override
-  String get shoppingFinishedTitle => 'Shopping finished! 🎉';
+  String get shoppingFinishedTitle => 'Einkauf erledigt! 🎉';
 
   @override
-  String get shoppingDialogStay => 'Stay here';
+  String get shoppingDialogStay => 'Hier bleiben';
 
   @override
-  String get shoppingDialogViewInventory => 'View Inventory';
+  String get shoppingDialogViewInventory => 'Inventar ansehen';
 
   @override
-  String get shoppingUncheckAllTooltip => 'Uncheck all';
+  String get shoppingUncheckAllTooltip => 'Alle abwählen';
 
   @override
-  String get shoppingCheckAllTooltip => 'Check all';
+  String get shoppingCheckAllTooltip => 'Alle auswählen';
 
   @override
-  String get shoppingDeleteAllTooltip => 'Delete all';
+  String get shoppingDeleteAllTooltip => 'Alle löschen';
 
   @override
-  String get shoppingDeleteAllTitle => 'Delete all?';
+  String get shoppingDeleteAllTitle => 'Alle löschen?';
 
   @override
   String get shoppingDeleteAllMessage =>
-      'Do you really want to clear your shopping list? This action is irreversible.';
+      'Möchten Sie wirklich Ihre Einkaufsliste leeren? Diese Aktion kann nicht rückgängig gemacht werden.';
 
   @override
-  String get shoppingDialogCancel => 'Cancel';
+  String get shoppingDialogCancel => 'Abbrechen';
 
   @override
-  String get shoppingDialogDelete => 'Delete';
+  String get shoppingDialogDelete => 'Löschen';
 
   @override
-  String get shoppingCategoryOther => 'Other';
+  String get shoppingCategoryOther => 'Sonstiges';
 
   @override
-  String get recipeTitle => 'Recipes';
+  String get recipeTitle => 'Rezepte';
 
   @override
   String get recipeTabDiscover => 'Entdecken';
@@ -851,34 +851,34 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recipeAIBtn => 'Rezepte generieren';
 
   @override
-  String get recipeTabFavorites => 'Favorites';
+  String get recipeTabFavorites => 'Favoriten';
 
   @override
-  String get recipeSearchHint => 'Search for a recipe...';
+  String get recipeSearchHint => 'Rezept suchen...';
 
   @override
-  String get recipeNoResults => 'No recipes found.';
+  String get recipeNoResults => 'Keine Rezepte gefunden.';
 
   @override
-  String get recipeIngredientsAddedTitle => 'Ingredients added!';
+  String get recipeIngredientsAddedTitle => 'Zutaten hinzugefügt!';
 
   @override
   String get recipeIngredientsAddedMessage =>
-      'Ingredients have been added to your shopping list. Do you want to see it now?';
+      'Zutaten wurden Ihrer Einkaufsliste hinzugefügt. Möchten Sie sie jetzt sehen?';
 
   @override
-  String get recipeDialogStay => 'Stay here';
+  String get recipeDialogStay => 'Hier bleiben';
 
   @override
-  String get recipeDialogViewList => 'View list';
+  String get recipeDialogViewList => 'Liste ansehen';
 
   @override
   String recipeAddError(String error) {
-    return 'Error adding items: $error';
+    return 'Fehler beim Hinzufügen: $error';
   }
 
   @override
-  String get recipeMealTypeTitle => 'Which meal?';
+  String get recipeMealTypeTitle => 'Welche Mahlzeit?';
 
   @override
   String get recipeMealTypeBreakfast => 'Frühstück ☕';
@@ -893,33 +893,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recipeMealTypeDinner => 'Abendessen 🌙';
 
   @override
-  String get recipeAddedToPlanning => 'Recipe added to planner!';
+  String get recipeAddedToPlanning => 'Rezept zum Planer hinzugefügt!';
 
   @override
-  String get recipeViewPlanning => 'View';
+  String get recipeViewPlanning => 'Ansehen';
 
   @override
   String recipeError(String error) {
-    return 'Error: $error';
+    return 'Fehler: $error';
   }
 
   @override
-  String get recipeIngredientsTitle => 'Ingredients';
+  String get recipeIngredientsTitle => 'Zutaten';
 
   @override
-  String get recipeAddIngredientsBtn => 'Add to shopping list';
+  String get recipeAddIngredientsBtn => 'Zur Einkaufsliste';
 
   @override
-  String get recipeFilterTitle => 'Chef Preferences';
+  String get recipeFilterTitle => 'Chef-Präferenzen';
 
   @override
-  String get recipeFilterMealType => 'Meal Type';
+  String get recipeFilterMealType => 'Mahlzeitentyp';
 
   @override
-  String get recipeFilterDiet => 'Diet';
+  String get recipeFilterDiet => 'Diät';
 
   @override
-  String get recipeFilterDifficulty => 'Difficulty';
+  String get recipeFilterDifficulty => 'Schwierigkeit';
 
   @override
   String get recipeFilterGenerate => 'Generieren';
@@ -970,61 +970,61 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String recipeMissingIngredientsCount(int count) {
-    return 'Missing: $count';
+    return 'Fehlend: $count';
   }
 
   @override
   String get mealPlannerIngredientsAddedMessage =>
-      'Ingredients have been added to your shopping list.';
+      'Zutaten wurden Ihrer Einkaufsliste hinzugefügt.';
 
   @override
-  String get mealPlannerNoIngredientsAddedTitle => 'No ingredients added';
+  String get mealPlannerNoIngredientsAddedTitle => 'Keine Zutaten hinzugefügt';
 
   @override
   String get mealPlannerNoIngredientsAddedMessage =>
-      'All necessary ingredients are already in your list or inventory.';
+      'Alle notwendigen Zutaten sind bereits in Ihrer Liste oder Ihrem Inventar.';
 
   @override
   String get ok => 'OK';
 
   @override
-  String get cat_fruits_vegetables => 'Fruits & Vegetables';
+  String get cat_fruits_vegetables => 'Obst & Gemüse';
 
   @override
-  String get cat_bakery => 'Bakery';
+  String get cat_bakery => 'Bäckerei';
 
   @override
-  String get cat_dairy_eggs => 'Dairy & Eggs';
+  String get cat_dairy_eggs => 'Milch & Eier';
 
   @override
-  String get cat_meat_fish => 'Meat & Fish';
+  String get cat_meat_fish => 'Fleisch & Fisch';
 
   @override
-  String get cat_frozen => 'Frozen';
+  String get cat_frozen => 'Tiefkühl';
 
   @override
-  String get cat_pantry_salty => 'Salty Pantry';
+  String get cat_pantry_salty => 'Salzige Vorratskammer';
 
   @override
-  String get cat_pantry_sweet => 'Sweet Pantry';
+  String get cat_pantry_sweet => 'Süße Vorratskammer';
 
   @override
-  String get cat_beverages => 'Beverages';
+  String get cat_beverages => 'Getränke';
 
   @override
   String get cat_baby => 'Baby';
 
   @override
-  String get cat_pets => 'Pets';
+  String get cat_pets => 'Haustiere';
 
   @override
-  String get cat_other => 'Other';
+  String get cat_other => 'Sonstiges';
 
   @override
-  String get loc_fridge => 'Fridge';
+  String get loc_fridge => 'Kühlschrank';
 
   @override
-  String get loc_freezer => 'Freezer';
+  String get loc_freezer => 'Gefrierschrank';
 
   @override
   String get loc_pantry => 'Vorratskammer';
@@ -1034,17 +1034,17 @@ class AppLocalizationsDe extends AppLocalizations {
       'Tipp: Scannen Sie den Barcode für weitere Details (Nutri-Score usw.)!';
 
   @override
-  String get shoppingPrioritizeScanTitle => 'Have the receipt?';
+  String get shoppingPrioritizeScanTitle => 'Haben Sie den Beleg?';
 
   @override
   String get shoppingPrioritizeScanMessage =>
-      'As a Premium member, you can scan your receipt to add items with more details (Brand, Nutri-Score, etc.).\n\nIf you scan the receipt, do NOT add these items manually to avoid duplicates.';
+      'Als Premium-Mitglied können Sie Ihren Beleg scannen, um Artikel mit mehr Details (Marke, Nutri-Score...) hinzuzufügen.\n\nWenn Sie den Beleg scannen, fügen Sie diese Artikel NICHT manuell hinzu, um Duplikate zu vermeiden.';
 
   @override
-  String get shoppingPrioritizeScanBtn => 'Scan Receipt';
+  String get shoppingPrioritizeScanBtn => 'Beleg scannen';
 
   @override
-  String get shoppingPrioritizeManualBtn => 'No, Add Manually';
+  String get shoppingPrioritizeManualBtn => 'Nein, manuell hinzufügen';
 
   @override
   String get scanAnalyzing => 'Beleg wird analysiert...';
