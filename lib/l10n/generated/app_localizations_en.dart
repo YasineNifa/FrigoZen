@@ -1053,4 +1053,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get headerFresh => 'Fresh';
+
+  @override
+  String get searchProductTitle => 'Search a product';
+
+  @override
+  String get searchProductHint => 'Product name (e.g. Nutella)';
+
+  @override
+  String get searchProductNoResults => 'No results found';
+
+  @override
+  String get searchProductEmpty => 'Type a product name...';
 }

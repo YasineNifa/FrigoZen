@@ -408,5 +408,9 @@
   "headerExpired": "منتهية الصلاحية",
   "headerUrgent": "عاجل (≤ 3 أيام)",
   "headerThisWeek": "هذا الأسبوع",
-  "headerFresh": "طازج"
+  "headerFresh": "طازج",
+  "searchProductTitle": "البحث عن منتج",
+  "searchProductHint": "اسم المنتج (مثل نوتيلا)",
+  "searchProductNoResults": "لم يتم العثور على نتائج",
+  "searchProductEmpty": "اكتب اسم المنتج..."
 }

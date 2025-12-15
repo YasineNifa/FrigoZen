@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/models/scanned_product.dart';
@@ -100,5 +101,32 @@ class OpenFoodFactsService {
         dvm: dvm,
         quantity: quantity,
     );
+  }
+
+  Future<List<Map<String, String>>> searchProducts(String query) async {
+    // Sort by popularity (unique scans) for better relevance
+    final url = Uri.parse(
+        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=$query&search_simple=1&action=process&json=1&page_size=30&sort_by=unique_scans_n&fields=code,product_name,brands,image_front_small_url');
+    
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        final List<dynamic> products = jsonResponse['products'] ?? [];
+        
+        return products.map<Map<String, String>>((p) {
+           return {
+             'code': p['code']?.toString() ?? '',
+             'name': p['product_name']?.toString() ?? '',
+             'brand': p['brands']?.toString() ?? '',
+             'image': p['image_front_small_url']?.toString() ?? '',
+           };
+        }).where((p) => p['name']!.isNotEmpty).toList();
+      }
+    } catch (e) {
+      debugPrint("Search error: $e");
+    }
+    return [];
   }
 }

@@ -2035,6 +2035,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fresh'**
   String get headerFresh;
+
+  /// No description provided for @searchProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a product'**
+  String get searchProductTitle;
+
+  /// No description provided for @searchProductHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Product name (e.g. Nutella)'**
+  String get searchProductHint;
+
+  /// No description provided for @searchProductNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get searchProductNoResults;
+
+  /// No description provided for @searchProductEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a product name...'**
+  String get searchProductEmpty;
 }
 
 class _AppLocalizationsDelegate

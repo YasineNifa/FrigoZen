@@ -403,5 +403,9 @@
   "headerExpired": "Périmé",
   "headerUrgent": "Urgent (≤ 3 jours)",
   "headerThisWeek": "Cette semaine",
+  "searchProductTitle": "Rechercher un produit",
+  "searchProductHint": "Nom du produit (ex: Nutella)",
+  "searchProductNoResults": "Aucun résultat",
+  "searchProductEmpty": "Tapez le nom d'un produit...",
   "headerFresh": "Frais"
 }

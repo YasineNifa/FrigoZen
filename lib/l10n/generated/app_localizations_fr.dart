@@ -1060,4 +1060,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get headerFresh => 'Frais';
+
+  @override
+  String get searchProductTitle => 'Rechercher un produit';
+
+  @override
+  String get searchProductHint => 'Nom du produit (ex: Nutella)';
+
+  @override
+  String get searchProductNoResults => 'Aucun résultat';
+
+  @override
+  String get searchProductEmpty => 'Tapez le nom d\'un produit...';
 }

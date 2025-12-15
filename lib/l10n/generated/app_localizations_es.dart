@@ -1059,4 +1059,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get headerFresh => 'Fresco';
+
+  @override
+  String get searchProductTitle => 'Buscar un producto';
+
+  @override
+  String get searchProductHint => 'Nombre del producto (ej. Nutella)';
+
+  @override
+  String get searchProductNoResults => 'No hay resultados';
+
+  @override
+  String get searchProductEmpty => 'Escriba un nombre de producto...';
 }

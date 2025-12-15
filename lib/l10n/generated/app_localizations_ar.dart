@@ -1051,4 +1051,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get headerFresh => 'طازج';
+
+  @override
+  String get searchProductTitle => 'البحث عن منتج';
+
+  @override
+  String get searchProductHint => 'اسم المنتج (مثل نوتيلا)';
+
+  @override
+  String get searchProductNoResults => 'لم يتم العثور على نتائج';
+
+  @override
+  String get searchProductEmpty => 'اكتب اسم المنتج...';
 }

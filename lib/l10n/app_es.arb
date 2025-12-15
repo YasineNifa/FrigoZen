@@ -408,5 +408,9 @@
   "headerExpired": "Caducado",
   "headerUrgent": "Urgente (≤ 3 días)",
   "headerThisWeek": "Esta semana",
-  "headerFresh": "Fresco"
+  "headerFresh": "Fresco",
+  "searchProductTitle": "Buscar un producto",
+  "searchProductHint": "Nombre del producto (ej. Nutella)",
+  "searchProductNoResults": "No hay resultados",
+  "searchProductEmpty": "Escriba un nombre de producto..."
 }
