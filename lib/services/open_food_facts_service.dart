@@ -103,10 +103,13 @@ class OpenFoodFactsService {
     );
   }
 
-  Future<List<Map<String, String>>> searchProducts(String query) async {
+  Future<List<Map<String, String>>> searchProducts(String query, {int page = 1}) async {
     // Sort by popularity (unique scans) for better relevance
+    // If query is empty, allow a broad search (e.g. all products with images) to act as a catalog
+    final String searchTerms = query.isEmpty ? "" : "&search_terms=$query";
+    
     final url = Uri.parse(
-        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=$query&search_simple=1&action=process&json=1&page_size=30&sort_by=unique_scans_n&fields=code,product_name,brands,image_front_small_url');
+        'https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=24&page=$page&sort_by=unique_scans_n&fields=code,product_name,brands,image_front_small_url,categories$searchTerms');
     
     try {
       final response = await http.get(url);
@@ -121,6 +124,7 @@ class OpenFoodFactsService {
              'name': p['product_name']?.toString() ?? '',
              'brand': p['brands']?.toString() ?? '',
              'image': p['image_front_small_url']?.toString() ?? '',
+             'categories': p['categories']?.toString() ?? '',
            };
         }).where((p) => p['name']!.isNotEmpty).toList();
       }

@@ -407,5 +407,10 @@
   "searchProductHint": "Nom du produit (ex: Nutella)",
   "searchProductNoResults": "Aucun résultat",
   "searchProductEmpty": "Tapez le nom d'un produit...",
+  "searchProductAddBtn": "Ajouter ({count})",
+  "searchProductAdding": "Ajout en cours...",
+  "searchProductSuccess": "{count} articles ajoutés avec succès !",
+  "searchProductError": "{count} articles ajoutés. Echecs : {failed}",
+  "searchProductFilterAll": "Tout",
   "headerFresh": "Frais"
 }

@@ -412,5 +412,10 @@
   "searchProductTitle": "البحث عن منتج",
   "searchProductHint": "اسم المنتج (مثل نوتيلا)",
   "searchProductNoResults": "لم يتم العثور على نتائج",
-  "searchProductEmpty": "اكتب اسم المنتج..."
+  "searchProductEmpty": "اكتب اسم المنتج...",
+  "searchProductAddBtn": "إضافة ({count})",
+  "searchProductAdding": "جارٍ الإضافة...",
+  "searchProductSuccess": "تمت إضافة {count} عنصر بنجاح!",
+  "searchProductError": "تمت إضافة {count} عنصر. فشل: {failed}",
+  "searchProductFilterAll": "الكل"
 }

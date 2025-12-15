@@ -1063,4 +1063,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchProductEmpty => 'اكتب اسم المنتج...';
+
+  @override
+  String searchProductAddBtn(Object count) {
+    return 'إضافة ($count)';
+  }
+
+  @override
+  String get searchProductAdding => 'جارٍ الإضافة...';
+
+  @override
+  String searchProductSuccess(Object count) {
+    return 'تمت إضافة $count عنصر بنجاح!';
+  }
+
+  @override
+  String searchProductError(Object count, Object failed) {
+    return 'تمت إضافة $count عنصر. فشل: $failed';
+  }
+
+  @override
+  String get searchProductFilterAll => 'الكل';
 }

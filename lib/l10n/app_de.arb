@@ -410,5 +410,10 @@
   "searchProductTitle": "Produkt suchen",
   "searchProductHint": "Produktname (z.B. Nutella)",
   "searchProductNoResults": "Keine Ergebnisse",
-  "searchProductEmpty": "Geben Sie einen Produktnamen ein..."
+  "searchProductEmpty": "Geben Sie einen Produktnamen ein...",
+  "searchProductAddBtn": "Hinzufügen ({count})",
+  "searchProductAdding": "Hinzufügen...",
+  "searchProductSuccess": "{count} Artikel erfolgreich hinzugefügt!",
+  "searchProductError": "{count} Artikel hinzugefügt. Fehlgeschlagen: {failed}",
+  "searchProductFilterAll": "Alle"
 }

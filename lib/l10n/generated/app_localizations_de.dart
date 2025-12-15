@@ -1072,4 +1072,25 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get searchProductEmpty => 'Geben Sie einen Produktnamen ein...';
+
+  @override
+  String searchProductAddBtn(Object count) {
+    return 'Hinzufügen ($count)';
+  }
+
+  @override
+  String get searchProductAdding => 'Hinzufügen...';
+
+  @override
+  String searchProductSuccess(Object count) {
+    return '$count Artikel erfolgreich hinzugefügt!';
+  }
+
+  @override
+  String searchProductError(Object count, Object failed) {
+    return '$count Artikel hinzugefügt. Fehlgeschlagen: $failed';
+  }
+
+  @override
+  String get searchProductFilterAll => 'Alle';
 }

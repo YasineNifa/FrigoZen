@@ -11,7 +11,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
 import 'package:frigo_zen/services/open_food_facts_service.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:frigo_zen/screens/inventory/search_product_sheet.dart';
+import 'package:frigo_zen/screens/inventory/search_product_page.dart';
 
 class ScanOptionsSheet extends StatefulWidget {
   final BuildContext parentContext;
@@ -202,10 +202,10 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
             title: Text(l10n.searchProductTitle),
             onTap: () {
                Navigator.of(context).pop();
-               showModalBottomSheet(
-                 context: widget.parentContext, // Use parent context
-                 isScrollControlled: true,
-                 builder: (ctx) => SearchProductSheet(parentContext: widget.parentContext),
+               Navigator.of(widget.parentContext).push(
+                 MaterialPageRoute(
+                   builder: (context) => const SearchProductPage(),
+                 ),
                );
             },
           ),

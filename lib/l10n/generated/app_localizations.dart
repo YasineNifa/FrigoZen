@@ -2059,6 +2059,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Type a product name...'**
   String get searchProductEmpty;
+
+  /// No description provided for @searchProductAddBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add ({count})'**
+  String searchProductAddBtn(Object count);
+
+  /// No description provided for @searchProductAdding.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding items...'**
+  String get searchProductAdding;
+
+  /// No description provided for @searchProductSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} items successfully!'**
+  String searchProductSuccess(Object count);
+
+  /// No description provided for @searchProductError.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} items. Failed: {failed}'**
+  String searchProductError(Object count, Object failed);
+
+  /// No description provided for @searchProductFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get searchProductFilterAll;
 }
 
 class _AppLocalizationsDelegate
