@@ -1,6 +1,6 @@
 flutter_native_splash:
   color: "#6B9C5F" # Primary Green Color
-  image: assets/images/zen.jpg
+  image: assets/images/zen.png
   # branding: assets/images/zen.jpg
   android_12:
     color: "#6B9C5F"

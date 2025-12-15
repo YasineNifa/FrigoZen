@@ -1,5 +1,20 @@
 # frigo_zen
 
+
+🎉 C'est une victoire technique ! Le fait que vous ayez ces messages signifie que l'upload a fonctionné (plus d'erreur de signature). Votre fichier .aab est bien accepté par Google.
+
+Voici comment gérer les 2 messages :
+
+🔴 "Votre compte présente des problèmes..."
+C'est purement administratif. Google doit vérifier votre identité/passeport ou votre paiement.
+Action : Allez sur le Tableau de bord de la console, vous devez avoir un bandeau rouge ou jaune qui vous demande d'envoyer un document. Faites-le dès que possible (ça prend ~48h).
+⚠️ "Aucun utilisateur ne pourra accéder..." (Testeurs)
+C'est normal. Google vous dit "J'ai l'app, mais je ne sais pas à qui l'envoyer".
+Action : Dans la rubrique Tests internes (où vous êtes), cliquez sur l'onglet Testeurs. Créez une liste (mettez votre email Gmail) et sauvegardez.
+Conclusion pour Android : Techniquement, tout est prêt. 🚀 L'application est sur les serveurs de Google. Dès qu'ils valideront votre compte, vous pourrez appuyer sur "Promouvoir la release" pour qu'elle devienne publique.
+
+👉 Voulez-vous qu'on s'occupe de la version iOS maintenant ? (Ou avez-vous d'autres questions sur Android ?)
+
 A new Flutter project.
 
 ## Getting Started

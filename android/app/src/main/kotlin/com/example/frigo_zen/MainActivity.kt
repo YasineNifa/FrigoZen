@@ -1,4 +1,4 @@
-package com.example.frigo_zen
+package com.frigozen.app
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

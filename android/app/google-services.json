@@ -48,6 +48,42 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:720908435851:android:adf0e066a0574a1c1c6f8e",
+        "android_client_info": {
+          "package_name": "com.frigozen.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "720908435851-ibttrpfvta77ibo311jkkbeuvkaiq8lp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIztgSME0QT_g1UP1WcubAi6MJODWRaeE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "720908435851-ibttrpfvta77ibo311jkkbeuvkaiq8lp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "720908435851-co1ip8304slq34d1c2q4k3hipe6km3kd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.frigoZen"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
