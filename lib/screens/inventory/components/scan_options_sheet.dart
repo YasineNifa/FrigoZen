@@ -55,67 +55,30 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
     );
 
     try {
-      final product = await OpenFoodFactsService().fetchProduct(barcode!);
+      final product = await OpenFoodFactsService().getScannedProduct(barcode!);
       
       if (!context.mounted) return;
       Navigator.pop(context); // close loader
 
       if (product != null) {
-          final productName = product['product_name'] ?? AppLocalizations.of(context)!.productUnknown;
-          final brands = product['brands'] ?? '';
-          final nutriscore = product['nutriscore_grade'] ?? '';
-          final imageUrl = product['image_front_url'] ?? product['image_url'];
-          
-          // Capture all image variants
-          final Map<String, String> images = {};
-          final imageKeys = [
-            "image_front_small_url",
-            "image_front_thumb_url",
-            "image_front_url",
-            "image_nutrition_small_url",
-            "image_nutrition_thumb_url",
-            "image_nutrition_url",
-            "image_small_url",
-            "image_thumb_url",
-            "image_url"
-          ];
-
-          for (var key in imageKeys) {
-            if (product[key] != null && product[key].toString().isNotEmpty) {
-              images[key] = product[key].toString();
-            }
-          }
-
-          final String fullName = brands.isNotEmpty ? "$productName ($brands)" : productName;
+          final String fullName = product.brands.isNotEmpty ? "${product.name} (${product.brands})" : product.name;
 
           if (mounted) {
-            // ... (dialog logic would go here if uncommented)
+            // ...
           }
 
-          final functions = FirebaseFunctions.instanceFor(region: "us-central1");
-          final callable = functions.httpsCallable('getSmartItemData');
-          final result = await callable.call({'productName': productName});
-          final Map<String, dynamic> itemData =
-              Map<String, dynamic>.from(result.data['item']);
-
-          final String cleanedName = itemData['cleanedName'] ?? productName;
-          final String canonicalName = itemData['canonicalName'] ?? productName;
-          final int dvm = itemData['dvm'] ?? 7;
-          final String category = itemData['category'] ?? 'Other';
-          final String location = itemData['location'] ?? 'Frigo';
-          final int quantity = itemData['quantity'] ?? 1;
-
+          // Use data directly from product
           await InventoryService().upsertItemToInventory(
             name: fullName,
-            canonicalName: canonicalName,
-            cleanedName: cleanedName,
-            quantity: quantity,
-            dvm: dvm,
-            category: category,
-            location: location,
-            imageUrl: imageUrl,
-            nutriscore: nutriscore,
-            images: images,
+            canonicalName: product.canonicalName,
+            cleanedName: product.cleanedName,
+            quantity: product.quantity,
+            dvm: product.dvm,
+            category: product.category,
+            location: product.location,
+            imageUrl: product.imageUrl,
+            nutriscore: product.nutriscore ?? '',
+            images: product.images,
           );
 
           if (context.mounted) {

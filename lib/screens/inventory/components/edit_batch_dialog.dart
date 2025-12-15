@@ -28,6 +28,8 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
   String? _nutriscore;
   String? _imageUrl;
   Map<String, String>? _images;
+  String? _cleanedName;
+  String? _canonicalName;
 
   final List<String> _nutriscoreOptions = ['A', 'B', 'C', 'D', 'E'];
   bool _isLoading = false;
@@ -44,6 +46,8 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
     _nutriscore = widget.batch.nutriscore?.toUpperCase();
     _imageUrl = widget.batch.imageUrl;
     _images = widget.batch.images;
+    _cleanedName = widget.batch.cleanedName;
+    _canonicalName = widget.batch.canonicalName;
   }
 
   @override
@@ -69,61 +73,39 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
       setState(() => _isLoading = true);
       
       try {
-        // 2. Fetch from Open Food Facts using Service
-        final product = await _offService.fetchProduct(res);
+        // 2. Fetch from Open Food Facts using Service (now includes smart data)
+        final product = await _offService.getScannedProduct(res);
 
         if (product != null) {
-            // 3. Extract Info
-            final String? productName = product['product_name'] ?? product['product_name_fr'];
-            final String? brands = product['brands'];
-            final String? nutriscore = product['nutriscore_grade'];
-            final String? stores = product['stores'];
-            final String? imageUrl = product['image_front_url'] ?? product['image_url'];
-            
-            // Capture all image variants
-            final Map<String, String> images = {};
-            final imageKeys = [
-              "image_front_small_url",
-              "image_front_thumb_url",
-              "image_front_url",
-              "image_nutrition_small_url",
-              "image_nutrition_thumb_url",
-              "image_nutrition_url",
-              "image_small_url",
-              "image_thumb_url",
-              "image_url"
-            ];
-            for (var key in imageKeys) {
-               if (product[key] != null && product[key].toString().isNotEmpty) {
-                 images[key] = product[key].toString();
-               }
-            }
-
             // 4. Update Fields if empty or user wants to overwrite
-            if (productName != null && productName.isNotEmpty) {
-              _nameController.text = productName;
-            }
-            if (brands != null && brands.isNotEmpty) {
-              _brandController.text = brands;
-            }
-            if (stores != null && stores.isNotEmpty) {
-              _storeController.text = stores;
-            }
-            if (nutriscore != null && _nutriscoreOptions.contains(nutriscore.toUpperCase())) {
+            if (product.name.isNotEmpty) {
+              _nameController.text = product.name;
               setState(() {
-                _nutriscore = nutriscore.toUpperCase();
+                  _cleanedName = product.cleanedName;
+                  _canonicalName = product.canonicalName;
               });
             }
-            if (imageUrl != null && imageUrl.isNotEmpty) {
+            if (product.brands.isNotEmpty) {
+              _brandController.text = product.brands;
+            }
+            if (product.stores != null && product.stores!.isNotEmpty) {
+              _storeController.text = product.stores!;
+            }
+            if (product.nutriscore != null && _nutriscoreOptions.contains(product.nutriscore!.toUpperCase())) {
+              setState(() {
+                _nutriscore = product.nutriscore!.toUpperCase();
+              });
+            }
+            if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
                setState(() {
-                 _imageUrl = imageUrl;
-                 _images = images;
+                 _imageUrl = product.imageUrl;
+                 _images = product.images;
                });
             }
             
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                 SnackBar(content: Text(l10n.productAdded(productName ?? 'Product')), backgroundColor: Colors.green),
+                 SnackBar(content: Text(l10n.productAdded(product.name)), backgroundColor: Colors.green),
               );
             }
         } else {
@@ -178,6 +160,8 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
       nutriscore: _nutriscore,
       imageUrl: _imageUrl,
       images: _images,
+      cleanedName: _cleanedName,
+      canonicalName: _canonicalName,
     );
     widget.onSave(updatedBatch);
     Navigator.pop(context);

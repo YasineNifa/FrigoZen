@@ -463,11 +463,31 @@ class EditBatchesSheet extends StatelessWidget {
                                           batch: batch,
                                           onSave: (updatedBatch) async {
                                             try {
+                                              // 1. Update Batch details (this re-calculates aggregates based on batches)
+                                              var itemToUpdate = currentItem;
+                                              
+                                              // 2. If scan occurred or name changed manually, update top-level names
+                                              // We check if any of the name-related fields have changed/enriched
+                                              bool hasNameChanged = updatedBatch.name != batch.name;
+                                              bool hasCleanedChanged = updatedBatch.cleanedName != batch.cleanedName;
+                                              bool hasCanonicalChanged = updatedBatch.canonicalName != batch.canonicalName;
+                                              
+                                              if ((hasNameChanged || hasCleanedChanged || hasCanonicalChanged) && updatedBatch.name != null) {
+                                                  // Propagate changes to the Item level
+                                                  // Ensure we don't accidentally set nulls if they were present
+                                                  itemToUpdate = itemToUpdate.copyWith(
+                                                      name: updatedBatch.name,
+                                                      cleanedName: updatedBatch.cleanedName ?? updatedBatch.name,
+                                                      canonicalName: updatedBatch.canonicalName ?? updatedBatch.name?.toLowerCase() 
+                                                  );
+                                              }
+
                                               await vm.updateBatchDetails(
-                                                currentItem,
+                                                itemToUpdate,
                                                 batch,
                                                 updatedBatch,
                                               );
+                                              
                                               if (context.mounted) {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
