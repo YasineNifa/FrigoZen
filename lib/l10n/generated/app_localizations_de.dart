@@ -1048,4 +1048,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get scanAnalyzing => 'Beleg wird analysiert...';
+
+  @override
+  String get headerExpired => 'Abgelaufen';
+
+  @override
+  String get headerUrgent => 'Dringend (≤ 3 Tage)';
+
+  @override
+  String get headerThisWeek => 'Diese Woche';
+
+  @override
+  String get headerFresh => 'Frisch';
 }

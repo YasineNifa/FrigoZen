@@ -399,5 +399,9 @@
   "shoppingPrioritizeScanMessage": "En tant que membre Premium, scannez votre ticket pour avoir plus de détails (Marque, Nutri-Score...).\n\nSi vous scannez le ticket, n'ajoutez PAS ces articles manuellement pour éviter les doublons.",
   "shoppingPrioritizeScanBtn": "Scanner le ticket",
   "shoppingPrioritizeManualBtn": "Non, ajouter manuellement",
-  "scanAnalyzing": "Analyse du ticket..."
+  "scanAnalyzing": "Analyse du ticket...",
+  "headerExpired": "Périmé",
+  "headerUrgent": "Urgent (≤ 3 jours)",
+  "headerThisWeek": "Cette semaine",
+  "headerFresh": "Frais"
 }

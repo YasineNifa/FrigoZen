@@ -2011,6 +2011,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Analyzing receipt...'**
   String get scanAnalyzing;
+
+  /// No description provided for @headerExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get headerExpired;
+
+  /// No description provided for @headerUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent (≤ 3 days)'**
+  String get headerUrgent;
+
+  /// No description provided for @headerThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get headerThisWeek;
+
+  /// No description provided for @headerFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh'**
+  String get headerFresh;
 }
 
 class _AppLocalizationsDelegate

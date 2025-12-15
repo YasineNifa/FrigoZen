@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/screens/inventory/components/inventory_empty_state.dart';
 import 'package:frigo_zen/screens/inventory/components/inventory_item_card.dart';
@@ -91,20 +92,22 @@ class InventoryList extends StatelessWidget {
             }
           }
 
+          final l10n = AppLocalizations.of(context)!;
+
           if (expired.isNotEmpty) {
-            groupedItems.add(_HeaderData("Périmé", AppTheme.statusExpired));
+            groupedItems.add(_HeaderData(l10n.headerExpired, AppTheme.statusExpired));
             groupedItems.addAll(expired);
           }
           if (urgent.isNotEmpty) {
-            groupedItems.add(_HeaderData("Urgent (≤ 3 jours)", AppTheme.statusWarning));
+            groupedItems.add(_HeaderData(l10n.headerUrgent, AppTheme.statusWarning));
             groupedItems.addAll(urgent);
           }
           if (thisWeek.isNotEmpty) {
-            groupedItems.add(_HeaderData("Cette semaine", AppTheme.statusSafe));
+            groupedItems.add(_HeaderData(l10n.headerThisWeek, AppTheme.statusSafe));
             groupedItems.addAll(thisWeek);
           }
           if (fresh.isNotEmpty) {
-            groupedItems.add(_HeaderData("Frais", AppTheme.statusNeutral));
+            groupedItems.add(_HeaderData(l10n.headerFresh, AppTheme.statusNeutral));
             groupedItems.addAll(fresh);
           }
         } else if (viewMode == InventoryViewMode.category) {

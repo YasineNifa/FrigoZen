@@ -480,5 +480,9 @@
   "shoppingPrioritizeScanMessage": "As a Premium member, you can scan your receipt to add items with more details (Brand, Nutri-Score, etc.).\n\nIf you scan the receipt, do NOT add these items manually to avoid duplicates.",
   "shoppingPrioritizeScanBtn": "Scan Receipt",
   "shoppingPrioritizeManualBtn": "No, Add Manually",
-  "scanAnalyzing": "Analyzing receipt..."
+  "scanAnalyzing": "Analyzing receipt...",
+  "headerExpired": "Expired",
+  "headerUrgent": "Urgent (≤ 3 days)",
+  "headerThisWeek": "This week",
+  "headerFresh": "Fresh"
 }

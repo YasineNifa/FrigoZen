@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/core/auth_gate.dart';
+import 'package:frigo_zen/providers_setup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:frigo_zen/screens/onboarding/onboarding_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,26 +20,7 @@ import 'package:frigo_zen/screens/core/navigation_controller.dart';
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
 import 'package:frigo_zen/viewmodels/recipes_view_model.dart';
 
-// 2. Créer un "Provider" simple pour notre inventaire
-// Il tiendra juste la liste des noms d'articles de l'inventaire.
-class InventoryProvider with ChangeNotifier {
-  List<String> _itemNames = []; // Liste privée
-
-  // "Getter" public pour que les autres widgets puissent lire la liste
-  List<String> get itemNames => _itemNames;
-
-  // Fonction pour mettre à jour la liste
-  void updateInventory(List<String> newItemNames) {
-    _itemNames = newItemNames;
-    notifyListeners(); // Informe les widgets qui écoutent que les données ont changé
-  }
-
-  // Fonction pour vérifier si un article existe (insensible à la casse)
-  bool doesItemExist(String name) {
-    final lowerCaseName = name.toLowerCase().trim();
-    return _itemNames.any((item) => item.toLowerCase().trim() == lowerCaseName);
-  }
-}
+// 2. Créer un "Provider" simple pour notre inventaire : REMOVED (Dead Code)
 
 // The main function must be "async" to await initialization
 Future<void> main() async {
@@ -61,21 +43,7 @@ Future<void> main() async {
 
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => InventoryProvider()),
-        ChangeNotifierProvider(
-          create: (context) => locator<InventoryViewModel>(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => locator<ShoppingViewModel>(),
-        ),
-        ChangeNotifierProvider(create: (context) => MealPlannerViewModel()),
-        ChangeNotifierProvider(
-          create: (context) => locator<RecipesViewModel>(),
-        ),
-        ChangeNotifierProvider(create: (context) => NavigationController()),
-        ChangeNotifierProvider.value(value: revenueProvider),
-      ],
+      providers: getApplicationProviders(),
       child: FrigoZenApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
   );

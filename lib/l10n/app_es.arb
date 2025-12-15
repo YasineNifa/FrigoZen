@@ -404,5 +404,9 @@
   "shoppingPrioritizeScanMessage": "Como miembro Premium, puedes escanear tu ticket para añadir artículos con más detalles (Marca, Nutri-Score...).\n\nSi escaneas el ticket, NO añadas estos artículos manualmente para evitar duplicados.",
   "shoppingPrioritizeScanBtn": "Escanear ticket",
   "shoppingPrioritizeManualBtn": "No, añadir manualmente",
-  "scanAnalyzing": "Analizando ticket..."
+  "scanAnalyzing": "Analizando ticket...",
+  "headerExpired": "Caducado",
+  "headerUrgent": "Urgente (≤ 3 días)",
+  "headerThisWeek": "Esta semana",
+  "headerFresh": "Fresco"
 }

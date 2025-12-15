@@ -1041,4 +1041,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanAnalyzing => 'Analyzing receipt...';
+
+  @override
+  String get headerExpired => 'Expired';
+
+  @override
+  String get headerUrgent => 'Urgent (≤ 3 days)';
+
+  @override
+  String get headerThisWeek => 'This week';
+
+  @override
+  String get headerFresh => 'Fresh';
 }

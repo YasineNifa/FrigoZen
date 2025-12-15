@@ -118,14 +118,17 @@ class MockMealPlannerViewModel extends _i1.Mock
   @override
   _i4.Future<int> generateShoppingList(
     _i5.InventoryViewModel? inventory,
-    _i6.ShoppingViewModel? shopping, {
+    _i6.ShoppingViewModel? shopping,
+    String? languageCode, {
+    required DateTime? start,
+    required DateTime? end,
     bool? isPro = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #generateShoppingList,
-              [inventory, shopping],
-              {#isPro: isPro},
+              [inventory, shopping, languageCode],
+              {#start: start, #end: end, #isPro: isPro},
             ),
             returnValue: _i4.Future<int>.value(0),
             returnValueForMissingStub: _i4.Future<int>.value(0),
@@ -368,6 +371,18 @@ class MockInventoryViewModel extends _i1.Mock
           as _i4.Future<void>);
 
   @override
+  _i4.Future<void> updateItemCategory(
+    _i8.InventoryItem? item,
+    String? newCategory,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateItemCategory, [item, newCategory]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
   _i4.Future<void> updateBatchDetails(
     _i8.InventoryItem? item,
     _i10.Batch? oldBatch,
@@ -497,27 +512,36 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<_i11.ShoppingItem?> resolveItemName(String? name) =>
+  _i4.Future<_i11.ShoppingItem?> resolveItemName(
+    String? name,
+    String? languageCode,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#resolveItemName, [name]),
+            Invocation.method(#resolveItemName, [name, languageCode]),
             returnValue: _i4.Future<_i11.ShoppingItem?>.value(),
             returnValueForMissingStub: _i4.Future<_i11.ShoppingItem?>.value(),
           )
           as _i4.Future<_i11.ShoppingItem?>);
 
   @override
-  _i4.Future<void> addItemByName(String? name) =>
+  _i4.Future<void> addItemByName(String? name, String? languageCode) =>
       (super.noSuchMethod(
-            Invocation.method(#addItemByName, [name]),
+            Invocation.method(#addItemByName, [name, languageCode]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> addItemsFromRecipe(List<String>? ingredientNames) =>
+  _i4.Future<void> addItemsFromRecipe(
+    List<String>? ingredientNames,
+    String? languageCode,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#addItemsFromRecipe, [ingredientNames]),
+            Invocation.method(#addItemsFromRecipe, [
+              ingredientNames,
+              languageCode,
+            ]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -649,6 +673,24 @@ class MockAuthService extends _i1.Mock implements _i14.AuthService {
             returnValueForMissingStub: _i4.Stream<_i15.User?>.empty(),
           )
           as _i4.Stream<_i15.User?>);
+
+  @override
+  _i4.Future<_i15.UserCredential?> signInWithGoogle() =>
+      (super.noSuchMethod(
+            Invocation.method(#signInWithGoogle, []),
+            returnValue: _i4.Future<_i15.UserCredential?>.value(),
+            returnValueForMissingStub: _i4.Future<_i15.UserCredential?>.value(),
+          )
+          as _i4.Future<_i15.UserCredential?>);
+
+  @override
+  _i4.Future<void> sendEmailVerification() =>
+      (super.noSuchMethod(
+            Invocation.method(#sendEmailVerification, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [HouseholdRepository].

@@ -1039,4 +1039,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scanAnalyzing => 'جارٍ تحليل الإيصال...';
+
+  @override
+  String get headerExpired => 'منتهية الصلاحية';
+
+  @override
+  String get headerUrgent => 'عاجل (≤ 3 أيام)';
+
+  @override
+  String get headerThisWeek => 'هذا الأسبوع';
+
+  @override
+  String get headerFresh => 'طازج';
 }

@@ -404,5 +404,9 @@
   "shoppingPrioritizeScanMessage": "بصفتك عضوًا مميزًا، يمكنك مسح الإيصال لإضافة عناصر بمزيد من التفاصيل (العلامة التجارية، Nutri-Score، إلخ).\n\nإذا قمت بمسح الإيصال، فلا تضف هذه العناصر يدويًا لتجنب التكرار.",
   "shoppingPrioritizeScanBtn": "مسح الإيصال",
   "shoppingPrioritizeManualBtn": "لا، إضافة يدوية",
-  "scanAnalyzing": "جارٍ تحليل الإيصال..."
+  "scanAnalyzing": "جارٍ تحليل الإيصال...",
+  "headerExpired": "منتهية الصلاحية",
+  "headerUrgent": "عاجل (≤ 3 أيام)",
+  "headerThisWeek": "هذا الأسبوع",
+  "headerFresh": "طازج"
 }

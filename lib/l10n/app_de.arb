@@ -402,5 +402,9 @@
   "shoppingPrioritizeScanMessage": "Als Premium-Mitglied können Sie Ihren Beleg scannen, um Artikel mit mehr Details (Marke, Nutri-Score...) hinzuzufügen.\n\nWenn Sie den Beleg scannen, fügen Sie diese Artikel NICHT manuell hinzu, um Duplikate zu vermeiden.",
   "shoppingPrioritizeScanBtn": "Beleg scannen",
   "shoppingPrioritizeManualBtn": "Nein, manuell hinzufügen",
-  "scanAnalyzing": "Beleg wird analysiert..."
+  "scanAnalyzing": "Beleg wird analysiert...",
+  "headerExpired": "Abgelaufen",
+  "headerUrgent": "Dringend (≤ 3 Tage)",
+  "headerThisWeek": "Diese Woche",
+  "headerFresh": "Frisch"
 }
