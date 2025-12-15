@@ -7,10 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/screens/core/premium_guard.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
+import 'package:frigo_zen/services/open_food_facts_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ScanOptionsSheet extends StatefulWidget {
@@ -46,7 +45,8 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
     if (!context.mounted) return;
 
     if (barcode == '-1') return;
-
+    if (barcode == null) return;
+    
     if (!context.mounted) return;
     showDialog(
       context: context,
@@ -55,20 +55,12 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
     );
 
     try {
-      final url = Uri.parse(
-        'https://world.openfoodfacts.org/api/v0/product/$barcode.json?fields=product_name,brands,image_front_small_url,image_front_url,categories_tags,nutriscore_grade',
-      );
-
-      final response = await http.get(url);
-
+      final product = await OpenFoodFactsService().fetchProduct(barcode!);
+      
       if (!context.mounted) return;
-      Navigator.pop(context);
+      Navigator.pop(context); // close loader
 
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-
-        if (jsonResponse['status'] == 1) {
-          final product = jsonResponse['product'];
+      if (product != null) {
           final productName = product['product_name'] ?? AppLocalizations.of(context)!.productUnknown;
           final brands = product['brands'] ?? '';
           final nutriscore = product['nutriscore_grade'] ?? '';
@@ -97,19 +89,10 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
           final String fullName = brands.isNotEmpty ? "$productName ($brands)" : productName;
 
           if (mounted) {
-            // _showAddProductDialog( // This method is not defined in the provided context.
-            //   context, 
-            //   barcode: barcode, 
-            //   name: productName,
-            //   brands: brands,
-            //   nutriscore: nutriscore,
-            //   storeName: "Scan", // Default store for now
-            //   imageUrl: imageUrl,
-            //   images: images,
-            // );
+            // ... (dialog logic would go here if uncommented)
           }
-          final functions =
-              FirebaseFunctions.instanceFor(region: "us-central1");
+
+          final functions = FirebaseFunctions.instanceFor(region: "us-central1");
           final callable = functions.httpsCallable('getSmartItemData');
           final result = await callable.call({'productName': productName});
           final Map<String, dynamic> itemData =
@@ -143,21 +126,19 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
               ),
             );
           }
-        } else {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(AppLocalizations.of(context)!.productNotFoundOFF),
-                backgroundColor: Colors.orange,
-              ),
-            );
-          }
-        }
       } else {
-        throw Exception(AppLocalizations.of(context)!.serverErrorOFF(response.statusCode));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.productNotFoundOFF),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {
+        Navigator.pop(context); // close loader if error
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.errorGeneric(e.toString())), backgroundColor: Colors.red),
         );

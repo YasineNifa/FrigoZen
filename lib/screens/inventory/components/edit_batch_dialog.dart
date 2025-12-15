@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+import 'package:frigo_zen/services/open_food_facts_service.dart';
 
 class EditBatchDialog extends StatefulWidget {
   final Batch batch;
@@ -24,8 +26,12 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
   late int _quantity;
   late DateTime _expirationDate;
   String? _nutriscore;
+  String? _imageUrl;
+  Map<String, String>? _images;
 
   final List<String> _nutriscoreOptions = ['A', 'B', 'C', 'D', 'E'];
+  bool _isLoading = false;
+  final OpenFoodFactsService _offService = OpenFoodFactsService();
 
   @override
   void initState() {
@@ -36,6 +42,8 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
     _quantity = widget.batch.quantity;
     _expirationDate = widget.batch.expirationDate;
     _nutriscore = widget.batch.nutriscore?.toUpperCase();
+    _imageUrl = widget.batch.imageUrl;
+    _images = widget.batch.images;
   }
 
   @override
@@ -44,6 +52,98 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
     _brandController.dispose();
     _storeController.dispose();
     super.dispose();
+  }
+
+  Future<void> _scanProduct() async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // 1. Scan Barcode
+    var res = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SimpleBarcodeScannerPage(),
+      ),
+    );
+
+    if (res is String && res != '-1') {
+      setState(() => _isLoading = true);
+      
+      try {
+        // 2. Fetch from Open Food Facts using Service
+        final product = await _offService.fetchProduct(res);
+
+        if (product != null) {
+            // 3. Extract Info
+            final String? productName = product['product_name'] ?? product['product_name_fr'];
+            final String? brands = product['brands'];
+            final String? nutriscore = product['nutriscore_grade'];
+            final String? stores = product['stores'];
+            final String? imageUrl = product['image_front_url'] ?? product['image_url'];
+            
+            // Capture all image variants
+            final Map<String, String> images = {};
+            final imageKeys = [
+              "image_front_small_url",
+              "image_front_thumb_url",
+              "image_front_url",
+              "image_nutrition_small_url",
+              "image_nutrition_thumb_url",
+              "image_nutrition_url",
+              "image_small_url",
+              "image_thumb_url",
+              "image_url"
+            ];
+            for (var key in imageKeys) {
+               if (product[key] != null && product[key].toString().isNotEmpty) {
+                 images[key] = product[key].toString();
+               }
+            }
+
+            // 4. Update Fields if empty or user wants to overwrite
+            if (productName != null && productName.isNotEmpty) {
+              _nameController.text = productName;
+            }
+            if (brands != null && brands.isNotEmpty) {
+              _brandController.text = brands;
+            }
+            if (stores != null && stores.isNotEmpty) {
+              _storeController.text = stores;
+            }
+            if (nutriscore != null && _nutriscoreOptions.contains(nutriscore.toUpperCase())) {
+              setState(() {
+                _nutriscore = nutriscore.toUpperCase();
+              });
+            }
+            if (imageUrl != null && imageUrl.isNotEmpty) {
+               setState(() {
+                 _imageUrl = imageUrl;
+                 _images = images;
+               });
+            }
+            
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                 SnackBar(content: Text(l10n.productAdded(productName ?? 'Product')), backgroundColor: Colors.green),
+              );
+            }
+        } else {
+             if (mounted) {
+               ScaffoldMessenger.of(context).showSnackBar(
+                 SnackBar(content: Text(l10n.productNotFoundOFF), backgroundColor: Colors.orange),
+              );
+             }
+        }
+      } catch (e) {
+        debugPrint("Scan error: $e");
+         if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+               SnackBar(content: Text(l10n.errorGeneric(e.toString())), backgroundColor: Colors.red),
+            );
+         }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _pickDate() async {
@@ -76,6 +176,8 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
       quantity: _quantity,
       expirationDate: _expirationDate,
       nutriscore: _nutriscore,
+      imageUrl: _imageUrl,
+      images: _images,
     );
     widget.onSave(updatedBatch);
     Navigator.pop(context);
@@ -89,7 +191,19 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: Text(l10n.editBatchTitle),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+           Flexible(child: Text(l10n.editBatchTitle)),
+           IconButton(
+             icon: _isLoading 
+                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)) 
+                : const Icon(Icons.qr_code_scanner),
+             onPressed: _isLoading ? null : _scanProduct,
+             tooltip: l10n.scanBarcodeTitle,
+           )
+        ],
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
