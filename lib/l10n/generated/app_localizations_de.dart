@@ -1063,4 +1063,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get shoppingInventoryCheckDisabled => 'Inventar ?';
+
+  @override
+  String get sortPriority => 'Priorität';
+
+  @override
+  String get sortCategory => 'Kategorie';
+
+  @override
+  String get sortList => 'Liste';
 }

@@ -1056,4 +1056,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shoppingInventoryCheckDisabled => 'Inventory ?';
+
+  @override
+  String get sortPriority => 'Priority';
+
+  @override
+  String get sortCategory => 'Category';
+
+  @override
+  String get sortList => 'List';
 }

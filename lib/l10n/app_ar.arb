@@ -409,5 +409,8 @@
   "headerUrgent": "عاجل (≤ 3 أيام)",
   "headerThisWeek": "هذا الأسبوع",
   "headerFresh": "طازج",
-  "shoppingInventoryCheckDisabled": "المخزون ؟"
+  "shoppingInventoryCheckDisabled": "المخزون ؟",
+  "sortPriority": "أولوية",
+  "sortCategory": "فئة",
+  "sortList": "قائمة"
 }

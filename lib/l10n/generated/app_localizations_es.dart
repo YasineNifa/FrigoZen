@@ -1062,4 +1062,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shoppingInventoryCheckDisabled => '¿ Inventario ?';
+
+  @override
+  String get sortPriority => 'Prioridad';
+
+  @override
+  String get sortCategory => 'Categoría';
+
+  @override
+  String get sortList => 'Lista';
 }

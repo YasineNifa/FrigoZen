@@ -220,7 +220,7 @@ class ShoppingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> moveCheckedItemsToInventory() async {
+  Future<void> moveCheckedItemsToInventory(String defaultStoreName) async {
     if (_householdId == null) return;
 
     final checkedItems = _items.where((item) => item.isChecked).toList();
@@ -242,7 +242,7 @@ class ShoppingViewModel extends ChangeNotifier {
           quantity: item.quantity,
           expirationDate: expirationDate,
           addedAt: now,
-          storeName: item.storeName ?? 'Liste de courses',
+          storeName: item.storeName ?? defaultStoreName,
           name: item.name,
           cleanedName: item.cleanedName,
           canonicalName: item.canonicalName,

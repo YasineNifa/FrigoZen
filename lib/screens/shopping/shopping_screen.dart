@@ -289,7 +289,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 }
 
                 try {
-                  await vm.moveCheckedItemsToInventory();
+                  await vm.moveCheckedItemsToInventory(l10n.shoppingTitle);
                   if (!context.mounted) return;
                   
                   _confettiController.play();

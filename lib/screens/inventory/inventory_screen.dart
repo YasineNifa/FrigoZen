@@ -138,20 +138,20 @@ class _InventoryScreenState extends State<InventoryScreen> {
             child: SizedBox(
               width: double.infinity,
               child: SegmentedButton<InventoryViewMode>(
-                segments: const [
+                segments: [
                   ButtonSegment<InventoryViewMode>(
                     value: InventoryViewMode.priority,
-                    label: Text('Priorité'),
+                    label: Text(l10n.sortPriority),
                     icon: Icon(Icons.traffic),
                   ),
                   ButtonSegment<InventoryViewMode>(
                     value: InventoryViewMode.category,
-                    label: Text('Rayon'),
+                    label: Text(l10n.sortCategory),
                     icon: Icon(Icons.category),
                   ),
                   ButtonSegment<InventoryViewMode>(
                     value: InventoryViewMode.list,
-                    label: Text('Liste'),
+                    label: Text(l10n.sortList),
                     icon: Icon(Icons.list),
                   ),
                 ],

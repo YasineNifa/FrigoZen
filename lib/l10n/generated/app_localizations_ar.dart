@@ -1054,4 +1054,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get shoppingInventoryCheckDisabled => 'المخزون ؟';
+
+  @override
+  String get sortPriority => 'أولوية';
+
+  @override
+  String get sortCategory => 'فئة';
+
+  @override
+  String get sortList => 'قائمة';
 }

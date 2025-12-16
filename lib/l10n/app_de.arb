@@ -407,5 +407,8 @@
   "headerUrgent": "Dringend (≤ 3 Tage)",
   "headerThisWeek": "Diese Woche",
   "headerFresh": "Frisch",
-  "shoppingInventoryCheckDisabled": "Inventar ?"
+  "shoppingInventoryCheckDisabled": "Inventar ?",
+  "sortPriority": "Priorität",
+  "sortCategory": "Kategorie",
+  "sortList": "Liste"
 }

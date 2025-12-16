@@ -2041,6 +2041,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inventory ?'**
   String get shoppingInventoryCheckDisabled;
+
+  /// No description provided for @sortPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get sortPriority;
+
+  /// No description provided for @sortCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get sortCategory;
+
+  /// No description provided for @sortList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get sortList;
 }
 
 class _AppLocalizationsDelegate
