@@ -1051,4 +1051,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get headerFresh => 'طازج';
+
+  @override
+  String get shoppingInventoryCheckDisabled => 'المخزون ؟';
 }

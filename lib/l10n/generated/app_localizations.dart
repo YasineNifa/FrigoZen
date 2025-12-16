@@ -2035,6 +2035,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fresh'**
   String get headerFresh;
+
+  /// No description provided for @shoppingInventoryCheckDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory ?'**
+  String get shoppingInventoryCheckDisabled;
 }
 
 class _AppLocalizationsDelegate

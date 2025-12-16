@@ -484,5 +484,6 @@
   "headerExpired": "Expired",
   "headerUrgent": "Urgent (≤ 3 days)",
   "headerThisWeek": "This week",
-  "headerFresh": "Fresh"
+  "headerFresh": "Fresh",
+  "shoppingInventoryCheckDisabled": "Inventory ?"
 }

@@ -408,5 +408,6 @@
   "headerExpired": "منتهية الصلاحية",
   "headerUrgent": "عاجل (≤ 3 أيام)",
   "headerThisWeek": "هذا الأسبوع",
-  "headerFresh": "طازج"
+  "headerFresh": "طازج",
+  "shoppingInventoryCheckDisabled": "المخزون ؟"
 }

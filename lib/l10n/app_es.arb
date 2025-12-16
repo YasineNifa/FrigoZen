@@ -408,5 +408,6 @@
   "headerExpired": "Caducado",
   "headerUrgent": "Urgente (≤ 3 días)",
   "headerThisWeek": "Esta semana",
-  "headerFresh": "Fresco"
+  "headerFresh": "Fresco",
+  "shoppingInventoryCheckDisabled": "¿ Inventario ?"
 }

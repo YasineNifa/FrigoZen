@@ -403,5 +403,6 @@
   "headerExpired": "Périmé",
   "headerUrgent": "Urgent (≤ 3 jours)",
   "headerThisWeek": "Cette semaine",
-  "headerFresh": "Frais"
+  "headerFresh": "Frais",
+  "shoppingInventoryCheckDisabled": "Inventaire ?"
 }

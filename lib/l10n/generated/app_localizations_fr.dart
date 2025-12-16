@@ -1060,4 +1060,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get headerFresh => 'Frais';
+
+  @override
+  String get shoppingInventoryCheckDisabled => 'Inventaire ?';
 }

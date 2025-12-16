@@ -406,5 +406,6 @@
   "headerExpired": "Abgelaufen",
   "headerUrgent": "Dringend (≤ 3 Tage)",
   "headerThisWeek": "Diese Woche",
-  "headerFresh": "Frisch"
+  "headerFresh": "Frisch",
+  "shoppingInventoryCheckDisabled": "Inventar ?"
 }

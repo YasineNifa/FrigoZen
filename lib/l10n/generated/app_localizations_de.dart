@@ -1060,4 +1060,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get headerFresh => 'Frisch';
+
+  @override
+  String get shoppingInventoryCheckDisabled => 'Inventar ?';
 }

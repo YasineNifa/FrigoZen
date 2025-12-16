@@ -1059,4 +1059,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get headerFresh => 'Fresco';
+
+  @override
+  String get shoppingInventoryCheckDisabled => '¿ Inventario ?';
 }

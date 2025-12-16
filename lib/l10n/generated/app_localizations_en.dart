@@ -1053,4 +1053,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get headerFresh => 'Fresh';
+
+  @override
+  String get shoppingInventoryCheckDisabled => 'Inventory ?';
 }
