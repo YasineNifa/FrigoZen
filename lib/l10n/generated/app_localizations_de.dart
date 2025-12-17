@@ -1108,4 +1108,22 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get activityEmpty => 'Keine kürzlichen Aktivitäten';
+
+  @override
+  String get timeJustNow => 'Gerade eben';
+
+  @override
+  String timeMinutesAgo(int minutes) {
+    return 'Vor $minutes Min.';
+  }
+
+  @override
+  String timeTodayAt(String time) {
+    return '$time';
+  }
+
+  @override
+  String timeDateAt(String date, String time) {
+    return '$date $time';
+  }
 }

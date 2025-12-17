@@ -1099,4 +1099,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get activityEmpty => 'لا يوجد نشاط حديث';
+
+  @override
+  String get timeJustNow => 'الآن';
+
+  @override
+  String timeMinutesAgo(int minutes) {
+    return 'منذ $minutes دقيقة';
+  }
+
+  @override
+  String timeTodayAt(String time) {
+    return '$time';
+  }
+
+  @override
+  String timeDateAt(String date, String time) {
+    return '$date $time';
+  }
 }

@@ -2113,6 +2113,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No recent activity'**
   String get activityEmpty;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min ago'**
+  String timeMinutesAgo(int minutes);
+
+  /// No description provided for @timeTodayAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}'**
+  String timeTodayAt(String time);
+
+  /// No description provided for @timeDateAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} {time}'**
+  String timeDateAt(String date, String time);
 }
 
 class _AppLocalizationsDelegate

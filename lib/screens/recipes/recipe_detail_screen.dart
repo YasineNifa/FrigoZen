@@ -321,7 +321,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     if (_fullRecipe != null) {
       instructions = _fullRecipe!.instructions.split(RegExp(r'\r\n|\r|\n')).where((s) => s.trim().isNotEmpty).toList();
     } else {
-      instructions = widget.recipeData?['instructions'] ?? [];
+      final rawInstructions = widget.recipeData?['instructions'];
+      if (rawInstructions is String) {
+        instructions = rawInstructions.split(RegExp(r'\r\n|\r|\n')).where((s) => s.trim().isNotEmpty).toList();
+      } else if (rawInstructions is List) {
+        instructions = rawInstructions;
+      }
     }
 
     return Scaffold(

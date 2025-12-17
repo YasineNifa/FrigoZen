@@ -421,5 +421,25 @@
   "activityBought": "اشترى {user} {item}",
   "activityConsumed": "استهلك {user} {item}",
   "activityTrashed": "رمى {user} {item}",
-  "activityEmpty": "لا يوجد نشاط حديث"
+  "activityEmpty": "لا يوجد نشاط حديث",
+  "timeJustNow": "الآن",
+  "timeMinutesAgo": "منذ {minutes} دقيقة",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "timeTodayAt": "{time}",
+  "@timeTodayAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "timeDateAt": "{date} {time}",
+  "@timeDateAt": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  }
 }

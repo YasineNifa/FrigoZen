@@ -497,5 +497,25 @@
   "activityBought": "{user} bought {item}",
   "activityConsumed": "{user} consumed {item}",
   "activityTrashed": "{user} threw away {item}",
-  "activityEmpty": "No recent activity"
+  "activityEmpty": "No recent activity",
+  "timeJustNow": "Just now",
+  "timeMinutesAgo": "{minutes} min ago",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "timeTodayAt": "{time}",
+  "@timeTodayAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "timeDateAt": "{date} {time}",
+  "@timeDateAt": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  }
 }

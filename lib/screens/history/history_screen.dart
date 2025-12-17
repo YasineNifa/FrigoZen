@@ -61,17 +61,20 @@ class _HistoryCard extends StatelessWidget {
 
   const _HistoryCard({required this.log});
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final diff = now.difference(date);
 
     if (diff.inMinutes < 60) {
-      if (diff.inMinutes < 1) return "À l'instant";
-      return "Il y a ${diff.inMinutes} min";
+      if (diff.inMinutes < 1) return l10n.timeJustNow;
+      return l10n.timeMinutesAgo(diff.inMinutes);
     } else if (diff.inHours < 24 && date.day == now.day) {
-      return "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+      final timeStr = "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+      return l10n.timeTodayAt(timeStr);
     } else {
-      return "${date.day}/${date.month} ${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+      final dateStr = "${date.day}/${date.month}";
+      final timeStr = "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+      return l10n.timeDateAt(dateStr, timeStr);
     }
   }
 
@@ -108,13 +111,13 @@ class _HistoryCard extends StatelessWidget {
 
     switch (log.type) {
       case ActivityType.addedShopping:
-        return l10n.activityAddedShopping(userName, itemName);
+        return l10n.activityAddedShopping(itemName, userName);
       case ActivityType.bought:
-        return l10n.activityBought(userName, itemName);
+        return l10n.activityBought(itemName, userName);
       case ActivityType.consumed:
-        return l10n.activityConsumed(userName, itemName);
+        return l10n.activityConsumed(itemName, userName);
       case ActivityType.trashed:
-        return l10n.activityTrashed(userName, itemName);
+        return l10n.activityTrashed(itemName, userName);
     }
   }
 
@@ -178,7 +181,7 @@ class _HistoryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                   _formatDate(log.timestamp),
+                   _formatDate(log.timestamp, l10n),
                    style: TextStyle(
                      fontSize: 11,
                      color: Colors.grey[400],
