@@ -110,6 +110,18 @@ abstract class AppLocalizations {
   /// **'FrigoZen'**
   String get appTitle;
 
+  /// No description provided for @defaultStoreName.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Add'**
+  String get defaultStoreName;
+
+  /// No description provided for @defaultUserName.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get defaultUserName;
+
   /// No description provided for @inventoryTab.
   ///
   /// In en, this message translates to:

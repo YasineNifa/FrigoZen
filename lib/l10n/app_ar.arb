@@ -1,5 +1,7 @@
 {
   "appTitle": "FrigoZen",
+  "defaultStoreName": "إضافة سريعة",
+  "defaultUserName": "مستخدم",
   "inventoryTab": "المخزون",
   "shoppingListTab": "قائمة التسوق",
   "favoritesTab": "المفضلة",

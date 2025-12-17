@@ -12,6 +12,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appTitle => 'FrigoZen';
 
   @override
+  String get defaultStoreName => 'Añadir rápido';
+
+  @override
+  String get defaultUserName => 'Usuario';
+
+  @override
   String get inventoryTab => 'Inventario';
 
   @override

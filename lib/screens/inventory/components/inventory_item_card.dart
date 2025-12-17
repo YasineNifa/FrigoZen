@@ -42,6 +42,7 @@ class InventoryItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.read<InventoryViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     // Logic extracted from original _buildItemCard
     final String displayTitle = item.cleanedName.isNotEmpty
@@ -191,7 +192,11 @@ class InventoryItemCard extends StatelessWidget {
                             size: 16,
                             color: Theme.of(context).primaryColor,
                           ),
-                          onPressed: () => vm.incrementItemQuantity(item),
+                          onPressed: () => vm.incrementItemQuantity(
+                            item,
+                            defaultStoreName: l10n.defaultStoreName,
+                            defaultUserName: l10n.defaultUserName,
+                          ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(minWidth: 32),
                         ),

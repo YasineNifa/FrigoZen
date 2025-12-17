@@ -16,6 +16,7 @@ class Batch {
   final String? addedBy;
   final String? addedByName;
   final String? addedByAvatar;
+  final double? price;
 
   Batch({
     this.id,
@@ -33,6 +34,7 @@ class Batch {
     this.addedBy,
     this.addedByName,
     this.addedByAvatar,
+    this.price,
   });
 
   Batch copyWith({
@@ -51,6 +53,7 @@ class Batch {
     String? addedBy,
     String? addedByName,
     String? addedByAvatar,
+    double? price,
   }) {
     return Batch(
       id: id ?? this.id,
@@ -68,6 +71,7 @@ class Batch {
       addedBy: addedBy ?? this.addedBy,
       addedByName: addedByName ?? this.addedByName,
       addedByAvatar: addedByAvatar ?? this.addedByAvatar,
+      price: price ?? this.price,
     );
   }
 
@@ -87,6 +91,7 @@ class Batch {
       'addedBy': addedBy,
       'addedByName': addedByName,
       'addedByAvatar': addedByAvatar,
+      'price': price,
     };
   }
 
@@ -106,6 +111,7 @@ class Batch {
       'addedBy': addedBy,
       'addedByName': addedByName,
       'addedByAvatar': addedByAvatar,
+      'price': price,
     };
   }
 
@@ -126,12 +132,13 @@ class Batch {
       addedBy: map['addedBy'] as String?,
       addedByName: map['addedByName'] as String?,
       addedByAvatar: map['addedByAvatar'] as String?,
+      price: (map['price'] as num?)?.toDouble(),
     );
   }
 
   @override
   String toString() {
-    return 'Batch(id: $id, quantity: $quantity, expirationDate: $expirationDate, addedAt: $addedAt, storeName: $storeName, imageUrl: $imageUrl, nutriscore: $nutriscore, name: $name, cleanedName: $cleanedName, canonicalName: $canonicalName, brands: $brands, images: $images)';
+    return 'Batch(id: $id, quantity: $quantity, expirationDate: $expirationDate, addedAt: $addedAt, storeName: $storeName, imageUrl: $imageUrl, nutriscore: $nutriscore, name: $name, cleanedName: $cleanedName, canonicalName: $canonicalName, brands: $brands, images: $images, price: $price)';
   }
 
   @override
@@ -153,7 +160,8 @@ class Batch {
       other.images == images &&
       other.addedBy == addedBy &&
       other.addedByName == addedByName &&
-      other.addedByAvatar == addedByAvatar;
+      other.addedByAvatar == addedByAvatar &&
+      other.price == price;
   }
 
   @override
@@ -172,6 +180,7 @@ class Batch {
       images.hashCode ^
       addedBy.hashCode ^
       addedByName.hashCode ^
-      addedByAvatar.hashCode;
+      addedByAvatar.hashCode ^
+      price.hashCode;
   }
 }

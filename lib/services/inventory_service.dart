@@ -257,7 +257,12 @@ class InventoryService {
         .snapshots();
   }
 
-  Future<void> incrementItemQuantity(String docId, int currentQuantity) async {
+  Future<void> incrementItemQuantity(
+    String docId, 
+    int currentQuantity, {
+    required String defaultStoreName,
+    required String defaultUserName,
+  }) async {
     final collection = await _getInventoryCollection();
     final docRef = collection.doc(docId);
 
@@ -274,12 +279,59 @@ class InventoryService {
       now.millisecondsSinceEpoch + dvmMillis,
     );
 
+    final user = FirebaseAuth.instance.currentUser;
+    debugPrint("DEBUG: Current user: ${user?.uid}");
+    debugPrint("DEBUG: Current user: ${user?.displayName}");
+    debugPrint("DEBUG: Current user: ${user?.photoURL}");
+    
+    // Find first non-empty values from existing batches
+    String? brands;
+    String? canonicalName;
+    String? cleanedName;
+    String? imageUrl;
+    String? name;
+    String? nutriscore;
+    double? price;
+    Map<String, String>? images;
+
+    debugPrint("DEBUG: Batches: $batches");
+
+    for (final b in batches) {
+      final batch = b as Map<String, dynamic>;
+      if (brands == null || brands.isEmpty) brands = batch['brands'];
+      if (canonicalName == null || canonicalName.isEmpty) canonicalName = batch['canonicalName'];
+      if (cleanedName == null || cleanedName.isEmpty) cleanedName = batch['cleanedName'];
+      if (imageUrl == null || imageUrl.isEmpty) imageUrl = batch['imageUrl'];
+      if (name == null || name.isEmpty) name = batch['name'];
+      if (nutriscore == null || nutriscore.isEmpty) nutriscore = batch['nutriscore'];
+      if (price == null) price = batch['price'];
+       // Handle images map carefully - if we don't have one, take the first valid one we find
+      if (images == null && batch['images'] != null && (batch['images'] as Map).isNotEmpty) {
+         images = Map<String, String>.from(batch['images']);
+      }
+    }
+
     final newBatch = {
       'quantity': 1,
       'expirationDate': expirationDate,
       'addedAt': now,
-      'storeName': 'Ajout Rapide',
+      'storeName': defaultStoreName,
+      // Enriched fields
+      'brands': brands,
+      'canonicalName': canonicalName,
+      'cleanedName': cleanedName,
+      'imageUrl': imageUrl,
+      'name': name,
+      'nutriscore': nutriscore,
+      'price': price,
+      'images': images,
+      // User info
+      'addedBy': user?.uid,
+      'addedByName': user?.displayName ?? defaultUserName,
+      'addedByAvatar': user?.photoURL,
     };
+
+    debugPrint("DEBUG: New batch: $newBatch");
 
     batches.add(newBatch);
 

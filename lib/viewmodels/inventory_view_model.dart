@@ -5,6 +5,7 @@ import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/models/activity_log.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 enum LocationFilter {
   all,
@@ -191,7 +192,11 @@ class InventoryViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> incrementItemQuantity(InventoryItem item) async {
+  Future<void> incrementItemQuantity(
+    InventoryItem item, {
+    required String defaultStoreName,
+    required String defaultUserName,
+  }) async {
     if (_householdId == null) return;
 
     // Log Activity (Quick Add)
@@ -202,27 +207,64 @@ class InventoryViewModel extends ChangeNotifier {
     );
 
     // Logic ported from InventoryService:
-    // 1. Calculate expiration date based on DVM (Default Value Max? or Shelf Life)
-    final int dvm = item.dvm; // Default to 7 if 0? Model defaults to 7 usually.
+    // 1. Calculate expiration date based on DVM
+    final int dvm = item.dvm;
     final now = DateTime.now();
     final expirationDate = now.add(Duration(days: dvm > 0 ? dvm : 7));
 
-    // 2. Create new batch
+    // 2. Enrich batch data
+    final user = FirebaseAuth.instance.currentUser;
+    
+    // Find first non-empty values from existing batches
+    String? brands;
+    String? canonicalName;
+    String? cleanedName;
+    String? imageUrl;
+    String? name;
+    String? nutriscore;
+    double? price;
+    Map<String, String>? images;
+
+    for (final batch in item.batches) {
+      if (brands == null || brands.isEmpty) brands = batch.brands;
+      if (canonicalName == null || canonicalName.isEmpty) canonicalName = batch.canonicalName;
+      if (cleanedName == null || cleanedName.isEmpty) cleanedName = batch.cleanedName;
+      if (imageUrl == null || imageUrl.isEmpty) imageUrl = batch.imageUrl;
+      if (name == null || name.isEmpty) name = batch.name;
+      if (nutriscore == null || nutriscore.isEmpty) nutriscore = batch.nutriscore;
+      if (price == null) price = batch.price;
+      if (images == null && batch.images != null && batch.images!.isNotEmpty) {
+         images = Map<String, String>.from(batch.images!);
+      }
+    }
+
+    // 3. Create new batch
     final newBatch = Batch(
       quantity: 1,
       expirationDate: expirationDate,
       addedAt: now,
-      storeName: 'Ajout Rapide',
+      storeName: defaultStoreName,
+      // Enriched fields
+      brands: brands,
+      canonicalName: canonicalName,
+      cleanedName: cleanedName,
+      imageUrl: imageUrl,
+      name: name,
+      nutriscore: nutriscore,
+      price: price,
+      images: images,
+      // User info
+      addedBy: user?.uid,
+      addedByName: user?.displayName ?? defaultUserName,
+      addedByAvatar: user?.photoURL,
     );
 
-    // 3. Add to batches and sort
+    // 4. Add to batches and sort
     final List<Batch> updatedBatches = List.from(item.batches);
     updatedBatches.add(newBatch);
     updatedBatches.sort((a, b) => a.expirationDate.compareTo(b.expirationDate));
 
-    // 4. Update item with new total quantity and earliest expiration date
-    // Note: totalQuantity is calculated from batches in the service, 
-    // but here we can just increment or recalculate. Recalculating is safer.
+    // 5. Update item with new total quantity and earliest expiration date
     final newTotalQuantity = updatedBatches.fold(0, (sum, b) => sum + b.quantity);
     
     final updatedItem = item.copyWith(
