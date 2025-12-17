@@ -151,6 +151,8 @@ export const processReceiptGemini = onCall(
             C'est pour la logique.
           - "quantity": Quantité détectée (défaut 1).
           - "dvm": Durée de vie estimée (jours).
+          - "price": Prix unitaire ou total de la ligne (nombre).
+             Si flou, ignorer ou mettre null.
           
           Format JSON :
           {
@@ -158,9 +160,11 @@ export const processReceiptGemini = onCall(
             "items": [
               { "name": "...", "canonicalName": "...", "quantity": 1, "dvm": 7,
                "location": "Frigo",
-               "category": "Dairy" },
+               "category": "Dairy", "price": 1.50 },
                { "name": "...", "canonicalName": "...", "quantity": 2,
-                "dvm": 365, "location": "Placard", "category": "Pantry" }
+                "dvm": 365, "location": "Placard", "category": "Pantry",
+                "price": 0.99 }
+            ]
             ]
           }
       `;
@@ -281,7 +285,7 @@ export const getSmartItemData = onCall(
       });
 
       let jsonText =
-      result.response.candidates?.[0].content.parts[0].text || "{}";
+        result.response.candidates?.[0].content.parts[0].text || "{}";
       jsonText = jsonText.replace(/```json/g, "").replace(/```/g, "").trim();
       const jsonData = JSON.parse(jsonText);
       return {success: true, item: jsonData.item};
@@ -556,7 +560,7 @@ async function runExpirationCheck(targetHouseholdId?: string) {
   }
 
   // 2. Group items by household
-  const householdItems: {[key: string]: string[]} = {};
+  const householdItems: { [key: string]: string[] } = {};
 
   snapshot.docs.forEach((doc) => {
     // doc.ref.parent is 'inventory' collection
@@ -597,8 +601,8 @@ async function runExpirationCheck(targetHouseholdId?: string) {
       // Check if expiration is Today, Tomorrow, or Day After
       // Check if expiration is Today, Tomorrow, or Day After
       if (expStr === todayStr ||
-          expStr === tomorrowStr ||
-          expStr === dayAfterStr) {
+        expStr === tomorrowStr ||
+        expStr === dayAfterStr) {
         if (!householdItems[householdId]) {
           householdItems[householdId] = [];
         }
@@ -614,7 +618,7 @@ async function runExpirationCheck(targetHouseholdId?: string) {
     try {
       // Get household members
       const householdDoc =
-          await db.collection("households").doc(householdId).get();
+        await db.collection("households").doc(householdId).get();
 
       if (!householdDoc.exists) continue;
 
@@ -629,8 +633,8 @@ async function runExpirationCheck(targetHouseholdId?: string) {
         .get();
 
       let isPremiumHousehold = false;
-      const tokensByLang: {[lang: string]: string[]} = {};
-      const recipients: {email: string, language: string}[] = [];
+      const tokensByLang: { [lang: string]: string[] } = {};
+      const recipients: { email: string, language: string }[] = [];
 
       usersSnapshot.docs.forEach((userDoc) => {
         const userData = userDoc.data();
@@ -666,12 +670,12 @@ async function runExpirationCheck(targetHouseholdId?: string) {
       }
 
       const itemsList = items.slice(0, 3).join(", ") +
-                          (items.length > 3 ? "..." : "");
+        (items.length > 3 ? "..." : "");
 
       // A. Send Push Notifications (Grouped by Language)
       for (const [lang, tokens] of Object.entries(tokensByLang)) {
         if (tokens.length > 0) {
-          const pushTranslations: {[key: string]: any} = {
+          const pushTranslations: { [key: string]: any } = {
             en: {
               title: "⚠️ Waste Alert!",
               body: `Quick! ${items.length} items are expiring soon: ` +
@@ -716,7 +720,7 @@ async function runExpirationCheck(targetHouseholdId?: string) {
           const response = await messaging.sendEachForMulticast(message);
           logger.info(
             `Sent ${response.successCount} push notifications (${lang}) to ` +
-              `household ${householdId}`
+            `household ${householdId}`
           );
         }
       }
@@ -727,7 +731,7 @@ async function runExpirationCheck(targetHouseholdId?: string) {
         for (const recipient of recipients) {
           const userLang = recipient.language || "en";
 
-          const translations: {[key: string]: any} = {
+          const translations: { [key: string]: any } = {
             en: {
               subject: "⚠️ Waste Alert - FrigoZen",
               title: "Waste Alert!",

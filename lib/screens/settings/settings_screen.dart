@@ -14,6 +14,7 @@ import 'package:frigo_zen/components/skeleton.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frigo_zen/screens/settings/privacy_screen.dart';
+import 'package:frigo_zen/repositories/product_catalog_repository.dart' as frigo_zen;
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -321,9 +322,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
 
           // --- SECTION: DEBUG (HIDDEN) ---
-          /* 
-           * Debug section removed for production. 
-           */
+           /* 
+            * Debug section removed for production. 
+            */
+           _buildSectionHeader(context, "MINTENANCE (TEMP)"),
+           _buildSettingsTile(
+             context,
+             icon: Icons.build,
+             title: "Reconstruire le Catalogue",
+             subtitle: "Importer l'historique et l'inventaire",
+             onTap: () async {
+                 try {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(content: Text("Migration en cours... (ça peut être long)")),
+                   );
+                   // Accessing repo usually via Provider or direct instance? 
+                   // Since it's a repository not a provider, let's instantiate.
+                   final count = await frigo_zen.ProductCatalogRepository().populateCatalogFromHistory();
+                   
+                   if (context.mounted) {
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(content: Text("Terminé ! $count éléments traités.")),
+                     );
+                   }
+                 } catch (e) {
+                    if (context.mounted) {
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(content: Text("Erreur: $e")),
+                     );
+                   }
+                 }
+             },
+           ),
 
           const SizedBox(height: 32),
 

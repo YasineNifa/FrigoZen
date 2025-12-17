@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/models/activity_log.dart';
+import 'package:frigo_zen/repositories/product_catalog_repository.dart';
 
 class InventoryService {
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
@@ -62,6 +63,7 @@ class InventoryService {
     String? nutriscore = '',
     String? storeName = '',
     String? brands = '',
+    double? price,
     Map<String, String>? images,
   }) async {
     final inventoryCollection = await _getInventoryCollection();
@@ -89,60 +91,91 @@ class InventoryService {
       'nutriscore': nutriscore,
       'brands': brands,
       'storeName': storeName,
+      'price': price,
       'images': images,
       'addedBy': user?.uid,
       'addedByName': user?.displayName ?? 'Utilisateur',
       'addedByAvatar': user?.photoURL,
+      'method': 'scan_validation', // Added method
     };
 
     if (existingDoc != null) {
       final data = existingDoc.data() as Map<String, dynamic>;
-      final List<dynamic> oldBatches = data['batches'] ?? [];
+      List<dynamic> oldBatches = List<dynamic>.from(data['batches'] ?? []);
       final newBatches = [...oldBatches, newBatch];
 
-      int newTotalQuantity = 0;
-      for (var batch in newBatches) {
-        newTotalQuantity += (batch['quantity'] as int? ?? 0);
-      }
-
       await inventoryCollection.doc(existingDoc.id).update({
-        'batches': newBatches,
-        'totalQuantity': newTotalQuantity,
+        'totalQuantity': FieldValue.increment(quantity),
+        'batches': FieldValue.arrayUnion([newBatch]),
+        // Update main fields in case they were empty or we have better data
+        if ((imageUrl != null && imageUrl.isNotEmpty) &&
+            (data['imageUrl'] == null || data['imageUrl'] == ''))
+          'imageUrl': imageUrl,
         'earliestExpirationDate': getEarliestDate(newBatches),
         'name': name,
         'dvm': dvm,
         'category': category ?? data['category'] ?? 'Other',
         'location': location ?? data['location'] ?? 'Fridge',
       });
+
+      // Log activity
+      await HistoryService().logActivity(
+        type: ActivityType.bought,
+        itemName: name,
+        details: {
+          'quantity': quantity,
+          'unit': 'unit',
+          'action': 'added',
+        },
+      );
     } else {
       await inventoryCollection.add({
         'name': name,
         'cleanedName': cleanedName,
         'canonicalName': canonicalName,
-        'category': category ?? 'Other',
-        'location': location ?? 'Fridge',
-        'totalQuantity': quantity,
-        'batches': [newBatch],
-        'earliestExpirationDate': finalExpirationDate,
+        'totalQuantity': quantity, // Initial total
+        'category': category,
+        'location': location,
+        'imageUrl': imageUrl,
+        'nutriscore': nutriscore,
+        'brands': brands,
+        'storeName': storeName,
         'createdAt': now,
-        'dvm': dvm,
+        'updatedAt': now,
+        'earliestExpirationDate': finalExpirationDate,
+        'batches': [newBatch],
+        'images': images,
       });
 
-    }
-
-    // Log user activity
-    try {
-      final historyService = HistoryService();
-      await historyService.logActivity(
+      // Log activity
+      await HistoryService().logActivity(
         type: ActivityType.bought,
         itemName: name,
         details: {
           'quantity': quantity,
-          'method': 'scan_validation',
-        }
+          'unit': 'unit',
+          'action': 'created',
+        },
+      );
+    }
+
+    try {
+       // Log history separate from Inventory logic if needed, but above we already called HistoryService.
+       // Sync to Product Catalog
+      final catalogRepo = ProductCatalogRepository();
+      await catalogRepo.logItemToCatalog(
+        name: name,
+        canonicalName: canonicalName,
+        category: category ?? 'Other',
+        defaultDVM: dvm ?? 7,
+        imageUrl: imageUrl, // Takes priority if set
+        brands: brands,
+        nutriscore: nutriscore,
+        storeName: storeName,
+        lastPrice: price,
       );
     } catch (e) {
-      debugPrint("Error logging history: $e");
+      debugPrint("Error logging history/catalog: $e");
     }
   }
 

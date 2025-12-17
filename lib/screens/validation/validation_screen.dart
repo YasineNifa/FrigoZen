@@ -224,6 +224,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
         final String? nutriscore = item['nutriscore'];
         final String? storeName = item['storeName'];
         final String? brands = item['brands'];
+        final double? price = (item['price'] is num) ? (item['price'] as num).toDouble() : null;
 
         final int dvm = item['dvm'] ?? 7;
         final int dvmMillis = dvm * 24 * 60 * 60 * 1000;
@@ -243,6 +244,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
           nutriscore: nutriscore,
           storeName: storeName,
           brands: brands,
+          price: price,
           images: item['images'],
         );
       }

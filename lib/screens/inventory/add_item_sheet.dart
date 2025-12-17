@@ -9,6 +9,8 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 import 'package:frigo_zen/models/scanned_product.dart';
+import 'package:frigo_zen/models/catalog_item.dart';
+import 'package:frigo_zen/repositories/product_catalog_repository.dart';
 
 class AddItemSheet extends StatefulWidget {
   const AddItemSheet({super.key});
@@ -149,9 +151,12 @@ class _AddItemSheetState extends State<AddItemSheet> {
     }
   }
 
+  final _focusNode = FocusNode();
+
   @override
   void dispose() {
     _nameController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -176,43 +181,119 @@ class _AddItemSheetState extends State<AddItemSheet> {
             ),
             const ScanTipCard(),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: l10n.addItemNameLabel,
-                border: const OutlineInputBorder(),
-                suffixIcon: Consumer<RevenueProvider>(
-                   builder: (context, revenue, child) {
-                     final isPro = revenue.isPro;
-                     return Stack(
-                       alignment: Alignment.center,
-                       children: [
-                         IconButton(
-                           icon: _isLoading 
-                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
-                              : Icon(Icons.qr_code_scanner, color: isPro ? null : Colors.grey),
-                           onPressed: _isLoading ? null : () async {
-                             if (await PremiumGuard.checkPremiumStatus(context)) {
-                               _scanProduct();
-                             }
-                           },
-                         ),
-                         if (!isPro && !_isLoading)
-                           const Positioned(
-                             right: 8,
-                             bottom: 8,
-                             child: Icon(Icons.lock, size: 10, color: Colors.amber),
-                           ),
-                       ],
-                     );
-                   },
-                 ),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return l10n.addItemNameError;
+            RawAutocomplete<CatalogItem>(
+              textEditingController: _nameController,
+              focusNode: _focusNode, // Use persistent focus node
+              optionsBuilder: (TextEditingValue textEditingValue) async {
+                if (textEditingValue.text.trim().length < 2) {
+                   return const Iterable<CatalogItem>.empty();
                 }
-                return null;
+                final repo = ProductCatalogRepository();
+                return await repo.searchCatalog(textEditingValue.text);
+              },
+              displayStringForOption: (CatalogItem option) => option.name,
+              onSelected: (CatalogItem selection) {
+                // Populate _scannedProduct with catalog data (Silver/Gold record)
+                setState(() {
+                  _scannedProduct = ScannedProduct(
+                    name: selection.name,
+                    brands: selection.brands ?? '',
+                    nutriscore: selection.nutriscore,
+                    imageUrl: selection.imageUrl,
+                    images: selection.imageUrl != null ? {'front_fr': selection.imageUrl!} : {},
+                    cleanedName: selection.name,
+                    canonicalName: selection.canonicalName,
+                    category: selection.category,
+                    location: 'Frigo', // Default
+                    dvm: selection.defaultDVM,
+                  );
+                });
+              },
+              fieldViewBuilder: (
+                  BuildContext context, 
+                  TextEditingController fieldTextEditingController, 
+                  FocusNode fieldFocusNode, 
+                  VoidCallback onFieldSubmitted
+              ) {
+                  return TextFormField(
+                    controller: fieldTextEditingController,
+                    focusNode: fieldFocusNode,
+                    decoration: InputDecoration(
+                        labelText: l10n.addItemNameLabel,
+                        border: const OutlineInputBorder(),
+                        suffixIcon: Consumer<RevenueProvider>(
+                           builder: (context, revenue, child) {
+                             final isPro = revenue.isPro;
+                             return Stack(
+                               alignment: Alignment.center,
+                               children: [
+                                 IconButton(
+                                   icon: _isLoading 
+                                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                                      : Icon(Icons.qr_code_scanner, color: isPro ? null : Colors.grey),
+                                   onPressed: _isLoading ? null : () async {
+                                     if (await PremiumGuard.checkPremiumStatus(context)) {
+                                       _scanProduct();
+                                     }
+                                   },
+                                 ),
+                                 if (!isPro && !_isLoading)
+                                   const Positioned(
+                                     right: 8,
+                                     bottom: 8,
+                                     child: Icon(Icons.lock, size: 10, color: Colors.amber),
+                                   ),
+                               ],
+                             );
+                           },
+                        ),
+                    ),
+                    validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return l10n.addItemNameError;
+                        }
+                        return null;
+                    },
+                    onChanged: (val) {
+                         // Reset scanned product if user types manually effectively
+                         // But we want to keep it if they just selected it.
+                         // Actually, standard behavior: if they edit, they might lose specifics.
+                         // But let's verify if we need to clear _scannedProduct
+                    },
+                  );
+              },
+              optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<CatalogItem> onSelected, Iterable<CatalogItem> options) {
+                 return Align(
+                   alignment: Alignment.topLeft,
+                   child: Material(
+                      elevation: 4.0,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width - 48, // Match parent padding
+                        height: 200,
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: options.length,
+                          itemBuilder: (BuildContext context, int index) {
+                             final CatalogItem option = options.elementAt(index);
+                             return ListTile(
+                               leading: option.imageUrl != null && option.imageUrl!.isNotEmpty
+                                   ? SizedBox(
+                                       width: 40, 
+                                       height: 40,
+                                       child: Image.network(option.imageUrl!, errorBuilder: (_,__,___) => const Icon(Icons.fastfood))
+                                   )
+                                   : const Icon(Icons.fastfood), // Fallback icon
+                               title: Text(option.name),
+                               subtitle: Text(option.brands ?? option.category),
+                               onTap: () {
+                                 onSelected(option);
+                               },
+                             );
+                          },
+                        ),
+                      ),
+                   ),
+                 );
               },
             ),
             const SizedBox(height: 24),
