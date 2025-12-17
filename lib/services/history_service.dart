@@ -65,4 +65,66 @@ class HistoryService {
           .toList();
     });
   }
+
+
+  Future<List<ActivityLog>> getSpendingHistory() async {
+    final householdId = await _householdService.getUserHouseholdId();
+    if (householdId == null) return [];
+
+    final now = DateTime.now();
+    final sixMonthsAgo = now.subtract(const Duration(days: 180));
+
+    final snapshot = await _firestore
+        .collection('households')
+        .doc(householdId)
+        .collection('history')
+        .where('type', isEqualTo: ActivityType.bought.name)
+        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(sixMonthsAgo))
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) => ActivityLog.fromSnapshot(doc)).toList();
+  }
+
+  // DEBUG ONLY
+  Future<void> generateFakeData() async {
+    final householdId = await _householdService.getUserHouseholdId();
+    if (householdId == null) return;
+    
+    final random = DateTime.now().millisecondsSinceEpoch;
+    final collection = _firestore.collection('households').doc(householdId).collection('history');
+
+    // Generate 10 entries over last 3 months
+    final now = DateTime.now();
+    
+    final items = [
+      {'name': 'Pommes', 'price': 2.50},
+      {'name': 'Lait', 'price': 1.20},
+      {'name': 'Viande', 'price': 15.00},
+      {'name': 'Pâtes', 'price': 0.90},
+      {'name': 'Fromage', 'price': 4.50},
+    ];
+
+    for (int i = 0; i < 20; i++) {
+        final item = items[i % items.length];
+        final daysAgo = (i * 5) % 90; // Spread over 3 months
+        final date = now.subtract(Duration(days: daysAgo));
+        
+        final activity = ActivityLog(
+          id: '',
+          type: ActivityType.bought,
+          itemName: item['name'] as String,
+          userId: _auth.currentUser?.uid ?? 'test',
+          userName: 'Test User',
+          userAvatar: '',
+          timestamp: date,
+          details: {
+             'price': item['price'],
+             'quantity': 1,
+             'action': 'fake_data'
+          }
+        );
+        await collection.add(activity.toMap()..['timestamp'] = Timestamp.fromDate(date));
+    }
+  }
 }

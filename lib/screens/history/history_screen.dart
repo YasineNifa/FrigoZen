@@ -4,6 +4,7 @@ import 'package:frigo_zen/models/activity_log.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
+import 'package:frigo_zen/screens/analysis/analysis_screen.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -16,6 +17,17 @@ class HistoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.historyTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AnalysisScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<List<ActivityLog>>(
         stream: historyService.getHistoryStream(),
@@ -108,12 +120,22 @@ class _HistoryCard extends StatelessWidget {
   String _getDescription(BuildContext context, AppLocalizations l10n) {
     final userName = log.userName;
     final itemName = log.itemName;
+    
+    // Check for price in details
+    String suffix = "";
+    if (log.details != null && log.details!['price'] != null) {
+      final price = log.details!['price'];
+      if (price is num) {
+         // Simple currency formatting
+         suffix = " (${price.toStringAsFixed(2)}€)";
+      }
+    }
 
     switch (log.type) {
       case ActivityType.addedShopping:
         return l10n.activityAddedShopping(itemName, userName);
       case ActivityType.bought:
-        return l10n.activityBought(itemName, userName);
+        return "${l10n.activityBought(itemName, userName)}$suffix";
       case ActivityType.consumed:
         return l10n.activityConsumed(itemName, userName);
       case ActivityType.trashed:

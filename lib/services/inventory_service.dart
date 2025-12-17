@@ -126,6 +126,7 @@ class InventoryService {
           'quantity': quantity,
           'unit': 'unit',
           'action': 'added',
+          'price': price, // Added price
         },
       );
     } else {
@@ -155,6 +156,7 @@ class InventoryService {
           'quantity': quantity,
           'unit': 'unit',
           'action': 'created',
+          'price': price, // Added price
         },
       );
     }

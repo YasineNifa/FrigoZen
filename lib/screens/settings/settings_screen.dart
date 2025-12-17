@@ -15,6 +15,8 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frigo_zen/screens/settings/privacy_screen.dart';
 import 'package:frigo_zen/repositories/product_catalog_repository.dart' as frigo_zen;
+import 'package:frigo_zen/locator.dart';
+import 'package:frigo_zen/services/history_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -351,6 +353,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                        SnackBar(content: Text("Erreur: $e")),
                      );
                    }
+                 }
+             },
+           ),
+           _buildSettingsTile(
+             context,
+             icon: Icons.data_usage,
+             title: "Générer Données Test (Prix)",
+             subtitle: "Ajoute 20 entrées pour tester le graphe",
+             onTap: () async {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(content: Text("Génération en cours...")),
+                 );
+                 await locator<HistoryService>().generateFakeData();
+                 if (context.mounted) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                       const SnackBar(content: Text("Données générées ! Allez voir le graphe.")),
+                   );
                  }
              },
            ),
