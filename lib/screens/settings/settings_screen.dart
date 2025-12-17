@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 import 'package:frigo_zen/services/household_service.dart';
+import 'package:frigo_zen/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -54,13 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // --- SECTION: ACCOUNT ---
           _buildSectionHeader(context, l10n.settingsAccountInfo),
           if (_user != null)
-            _buildSettingsTile(
-              context,
-              icon: Icons.person_outline,
-              title: _user!.displayName ?? 'Utilisateur',
-              subtitle: _user!.email ?? l10n.settingsNoEmail,
-              onTap: _showEditProfileDialog,
-            ),
+            _buildProfileTile(context),
           
           const SizedBox(height: 24),
 
@@ -479,6 +474,156 @@ class _SettingsScreenState extends State<SettingsScreen> {
         trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
         onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+  Widget _buildProfileTile(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final hasAvatar = _user?.photoURL != null && _user!.photoURL!.isNotEmpty;
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        leading: GestureDetector(
+          onTap: _showAvatarSelectionDialog,
+          child: Stack(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  shape: BoxShape.circle,
+                  image: hasAvatar
+                      ? DecorationImage(
+                          image: AssetImage(_user!.photoURL!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: !hasAvatar
+                    ? Icon(Icons.person, size: 30, color: Colors.grey[400])
+                    : null,
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(Icons.edit, size: 12, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+        title: Text(
+          _user!.displayName ?? 'Utilisateur',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        subtitle: Text(
+          _user!.email ?? l10n.settingsNoEmail,
+          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.edit_outlined, color: Colors.grey),
+          onPressed: _showEditProfileDialog,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  void _showAvatarSelectionDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    final List<String> avatars = [
+      'assets/images/avatars/panda.png',
+      'assets/images/avatars/fox.png',
+      'assets/images/avatars/cat.png',
+      'assets/images/avatars/dog.png',
+      'assets/images/avatars/koala.png',
+      'assets/images/avatars/rabbit.png',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.settingsSelectAvatar,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: avatars.length,
+              itemBuilder: (context, index) {
+                final avatar = avatars[index];
+                final isSelected = _user?.photoURL == avatar;
+                
+                return GestureDetector(
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    await AuthService().updateAvatar(avatar);
+                    setState(() {
+                      _user = FirebaseAuth.instance.currentUser;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: isSelected 
+                          ? Border.all(color: Theme.of(context).primaryColor, width: 3)
+                          : null,
+                      boxShadow: [
+                         BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                      ]
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage(avatar),
+                      backgroundColor: Colors.grey[100],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

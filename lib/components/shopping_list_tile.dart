@@ -87,44 +87,64 @@ class ShoppinglistTile extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          subtitle: (item.brands != null || item.quantity > 1)
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Row(
-                    children: [
-                      if (item.quantity > 1)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          margin: const EdgeInsets.only(right: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: Text(
-                            "x${item.quantity}",
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+          subtitle: (item.quantity > 1 || (item.brands != null && item.brands!.isNotEmpty) || item.creatorAvatar != null)
+            ? Row(
+                children: [
+                  if (item.quantity > 1)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Text(
+                        "x${item.quantity}",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
                         ),
-                      if (item.brands != null && item.brands!.isNotEmpty)
-                        Expanded(
-                          child: Text(
-                            item.brands!,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      ),
+                    ),
+                  if (item.brands != null && item.brands!.isNotEmpty)
+                    Expanded(
+                      child: Text(
+                        item.brands!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  if (item.creatorAvatar != null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: item.creatorAvatar!.startsWith('http')
+                              ? NetworkImage(item.creatorAvatar!)
+                              : AssetImage(item.creatorAvatar!) as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    if (item.creatorName != null) ...[
+                      const SizedBox(width: 4),
+                      Text(
+                        item.creatorName!,
+                        style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                      ),
                     ],
-                  ),
-                )
-              : null,
+                  ],
+                ],
+              )
+            : null,
           trailing: IconButton(
             icon: Icon(Icons.close, size: 18, color: Colors.grey[400]),
             onPressed: onDelete,

@@ -16,6 +16,9 @@ class ShoppingItem {
   final String? brands;
   final String? storeName;
   final DateTime? expirationDate;
+  final String? creatorId;
+  final String? creatorName;
+  final String? creatorAvatar;
 
   ShoppingItem({
     required this.id,
@@ -33,6 +36,9 @@ class ShoppingItem {
     this.brands,
     this.storeName,
     this.expirationDate,
+    this.creatorId,
+    this.creatorName,
+    this.creatorAvatar,
   });
 
   ShoppingItem copyWith({
@@ -51,6 +57,9 @@ class ShoppingItem {
     String? brands,
     String? storeName,
     DateTime? expirationDate,
+    String? creatorId,
+    String? creatorName,
+    String? creatorAvatar,
   }) {
     return ShoppingItem(
       id: id ?? this.id,
@@ -68,6 +77,9 @@ class ShoppingItem {
       brands: brands ?? this.brands,
       storeName: storeName ?? this.storeName,
       expirationDate: expirationDate ?? this.expirationDate,
+      creatorId: creatorId ?? this.creatorId,
+      creatorName: creatorName ?? this.creatorName,
+      creatorAvatar: creatorAvatar ?? this.creatorAvatar,
     );
   }
 
@@ -87,6 +99,9 @@ class ShoppingItem {
       'brands': brands,
       'storeName': storeName,
       'expirationDate': expirationDate != null ? Timestamp.fromDate(expirationDate!) : null,
+      'creatorId': creatorId,
+      'creatorName': creatorName,
+      'creatorAvatar': creatorAvatar,
     };
   }
 
@@ -107,6 +122,9 @@ class ShoppingItem {
       brands: map['brands'] as String?,
       storeName: map['storeName'] as String?,
       expirationDate: (map['expirationDate'] as Timestamp?)?.toDate(),
+      creatorId: map['creatorId'] as String?,
+      creatorName: map['creatorName'] as String?,
+      creatorAvatar: map['creatorAvatar'] as String?,
     );
   }
 

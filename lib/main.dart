@@ -33,7 +33,9 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
   await Purchases.configure(
-    PurchasesConfiguration("goog_jffnkmLisnUHGaDInMHpqQUcLra"),//test_khYjXVBlKWQdgHIghJZqvHlaXyV
+    PurchasesConfiguration(
+      "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
+    ), //test_khYjXVBlKWQdgHIghJZqvHlaXyV // goog_jffnkmLisnUHGaDInMHpqQUcLra
   );
 
   setupLocator();

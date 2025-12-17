@@ -3,6 +3,7 @@ import 'package:frigo_zen/services/recipe_service.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
+import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/screens/core/navigation_controller.dart';
 
 import 'package:frigo_zen/models/recipe.dart';
@@ -128,6 +129,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   void _addMissingItemsToShoppingList(List<dynamic> missingItems) async {
     final vm = context.read<ShoppingViewModel>();
+    final isPro = context.read<RevenueProvider>().isPro;
     
     // Extract names
     final names = missingItems.map((item) {
@@ -152,7 +154,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
     try {
       final languageCode = Localizations.localeOf(context).languageCode;
-      await vm.addItemsFromRecipe(names, languageCode);
+      await vm.addItemsFromRecipe(names, languageCode, checkInventory: isPro);
       
       if (mounted) {
         // Close loading dialog

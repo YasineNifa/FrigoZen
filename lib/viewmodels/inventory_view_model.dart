@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
+import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/models/activity_log.dart';
 
 enum LocationFilter {
   all,
@@ -13,6 +15,7 @@ enum LocationFilter {
 
 class InventoryViewModel extends ChangeNotifier {
   final InventoryRepository _inventoryRepository;
+  final HistoryService _historyService;
   
   // State
   List<InventoryItem> _items = [];
@@ -120,8 +123,11 @@ class InventoryViewModel extends ChangeNotifier {
     return distribution;
   }
 
-  InventoryViewModel({required InventoryRepository inventoryRepository})
-      : _inventoryRepository = inventoryRepository;
+  InventoryViewModel({
+    required InventoryRepository inventoryRepository,
+    required HistoryService historyService,
+  })  : _inventoryRepository = inventoryRepository,
+        _historyService = historyService;
 
   void init(String householdId) {
     if (_householdId == householdId) return;
@@ -165,13 +171,35 @@ class InventoryViewModel extends ChangeNotifier {
     await _inventoryRepository.updateInventoryItem(_householdId!, item);
   }
 
-  Future<void> deleteItem(String itemId) async {
+  Future<void> deleteItem(String itemId, {bool logActivity = true}) async {
     if (_householdId == null) return;
+    
+    // Find item name for logging before deletion
+    String itemName = 'Article';
+    try {
+      final item = _items.firstWhere((i) => i.id == itemId);
+      itemName = item.name;
+    } catch (_) {}
+
     await _inventoryRepository.deleteInventoryItem(_householdId!, itemId);
+
+    if (logActivity) {
+      await _historyService.logActivity(
+        type: ActivityType.trashed,
+        itemName: itemName,
+      );
+    }
   }
 
   Future<void> incrementItemQuantity(InventoryItem item) async {
     if (_householdId == null) return;
+
+    // Log Activity (Quick Add)
+    await _historyService.logActivity(
+      type: ActivityType.bought,
+      itemName: item.name,
+      details: {'quantity': 1, 'method': 'quick_add'},
+    );
 
     // Logic ported from InventoryService:
     // 1. Calculate expiration date based on DVM (Default Value Max? or Shelf Life)
@@ -209,6 +237,13 @@ class InventoryViewModel extends ChangeNotifier {
   Future<void> decrementItemQuantity(InventoryItem item) async {
     if (_householdId == null || item.totalQuantity <= 0) return;
 
+    // Log Consumption
+    await _historyService.logActivity(
+      type: ActivityType.consumed,
+      itemName: item.name,
+      details: {'quantity': 1},
+    );
+
     // Logic ported from InventoryService:
     // 1. Sort batches by expiration date (already sorted usually, but good to be safe)
     final List<Batch> updatedBatches = List.from(item.batches);
@@ -220,7 +255,7 @@ class InventoryViewModel extends ChangeNotifier {
       // If no batches but quantity > 0, it's an inconsistent state.
       // We'll just decrement totalQuantity to be safe, or delete if 1.
       if (item.totalQuantity <= 1) {
-        await deleteItem(item.id);
+        await deleteItem(item.id, logActivity: false);
       } else {
         await updateItem(item.copyWith(totalQuantity: item.totalQuantity - 1));
       }
@@ -237,7 +272,7 @@ class InventoryViewModel extends ChangeNotifier {
 
     // 3. Check if item should be removed
     if (updatedBatches.isEmpty) {
-      await deleteItem(item.id);
+      await deleteItem(item.id, logActivity: false);
       return;
     }
 

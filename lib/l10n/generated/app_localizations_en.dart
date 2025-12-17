@@ -1065,4 +1065,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sortList => 'List';
+
+  @override
+  String get householdFullError =>
+      'This household has reached the limit of 5 members.';
+
+  @override
+  String get settingsEditAvatar => 'Edit Avatar';
+
+  @override
+  String get settingsSelectAvatar => 'Select an avatar';
+
+  @override
+  String get historyTitle => 'Activity';
+
+  @override
+  String activityAddedShopping(Object item, Object user) {
+    return '$user added $item to the list';
+  }
+
+  @override
+  String activityBought(Object item, Object user) {
+    return '$user bought $item';
+  }
+
+  @override
+  String activityConsumed(Object item, Object user) {
+    return '$user consumed $item';
+  }
+
+  @override
+  String activityTrashed(Object item, Object user) {
+    return '$user threw away $item';
+  }
+
+  @override
+  String get activityEmpty => 'No recent activity';
 }

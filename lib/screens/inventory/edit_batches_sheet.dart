@@ -541,13 +541,50 @@ class EditBatchesSheet extends StatelessWidget {
                                   ),
                                   if (addedDateStr.isNotEmpty)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: Text(
-                                        l10n.addedOnDate(addedDateStr),
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.grey[400],
-                                        ),
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            l10n.addedOnDate(addedDateStr),
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.grey[400],
+                                            ),
+                                          ),
+                                          if (batch.addedByAvatar != null || batch.addedByName != null) ...[
+                                            const SizedBox(height: 2),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (batch.addedByAvatar != null)
+                                                  Container(
+                                                    width: 12,
+                                                    height: 12,
+                                                    margin: const EdgeInsets.only(right: 4),
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      image: DecorationImage(
+                                                        image: batch.addedByAvatar!.startsWith('http')
+                                                            ? NetworkImage(batch.addedByAvatar!)
+                                                            : AssetImage(batch.addedByAvatar!) as ImageProvider,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                if (batch.addedByName != null)
+                                                  Text(
+                                                    batch.addedByName!,
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.grey[500],
+                                                      fontStyle: FontStyle.italic,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ],
+                                        ],
                                       ),
                                     ),
                                 ],

@@ -407,5 +407,14 @@
   "shoppingInventoryCheckDisabled": "Inventaire ?",
   "sortPriority": "Priorité",
   "sortCategory": "Rayon",
-  "sortList": "Liste"
+  "sortList": "Liste",
+  "householdFullError": "Ce foyer a atteint la limite de 5 membres.",
+  "settingsEditAvatar": "Modifier l'avatar",
+  "settingsSelectAvatar": "Choisir un avatar",
+  "historyTitle": "Activité",
+  "activityAddedShopping": "{user} a ajouté {item} à la liste",
+  "activityBought": "{user} a acheté {item}",
+  "activityConsumed": "{user} a consommé {item}",
+  "activityTrashed": "{user} a jeté {item}",
+  "activityEmpty": "Aucune activité récente"
 }

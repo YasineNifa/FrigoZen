@@ -412,5 +412,14 @@
   "shoppingInventoryCheckDisabled": "المخزون ؟",
   "sortPriority": "أولوية",
   "sortCategory": "فئة",
-  "sortList": "قائمة"
+  "sortList": "قائمة",
+  "householdFullError": "وصلت هذه العائلة إلى الحد الأقصى وهو 5 أعضاء.",
+  "settingsEditAvatar": "تعديل الصورة الرمزية",
+  "settingsSelectAvatar": "اختيار الصورة الرمزية",
+  "historyTitle": "النشاط",
+  "activityAddedShopping": "أضاف {user} {item} إلى القائمة",
+  "activityBought": "اشترى {user} {item}",
+  "activityConsumed": "استهلك {user} {item}",
+  "activityTrashed": "رمى {user} {item}",
+  "activityEmpty": "لا يوجد نشاط حديث"
 }

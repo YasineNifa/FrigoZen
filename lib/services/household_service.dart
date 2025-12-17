@@ -75,6 +75,10 @@ class HouseholdService {
       return;
     }
 
+    if (members.length >= 5) {
+      throw Exception('HOUSEHOLD_FULL');
+    }
+
     await householdDoc.reference.update({
       'members': FieldValue.arrayUnion([user.uid]),
     });
@@ -103,5 +107,21 @@ class HouseholdService {
 
     final String householdId = userDocSnapshot.get('householdId');
     yield* _firestore.collection('households').doc(householdId).snapshots();
+  }
+  Future<String?> getUserHouseholdId() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+
+    final userDocSnapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    if (!userDocSnapshot.exists ||
+        !userDocSnapshot.data()!.containsKey('householdId')) {
+      return null;
+    }
+
+    return userDocSnapshot.get('householdId');
   }
 }

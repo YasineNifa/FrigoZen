@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/models/activity_log.dart';
 
 class InventoryService {
   final String? _userId = FirebaseAuth.instance.currentUser?.uid;
@@ -64,6 +66,7 @@ class InventoryService {
   }) async {
     final inventoryCollection = await _getInventoryCollection();
     final now = Timestamp.now();
+    final user = FirebaseAuth.instance.currentUser;
     final existingDoc = await _findExistingItem(canonicalName, name);
     final Timestamp finalExpirationDate;
     if (expirationDate != null) {
@@ -87,6 +90,9 @@ class InventoryService {
       'brands': brands,
       'storeName': storeName,
       'images': images,
+      'addedBy': user?.uid,
+      'addedByName': user?.displayName ?? 'Utilisateur',
+      'addedByAvatar': user?.photoURL,
     };
 
     if (existingDoc != null) {
@@ -121,6 +127,22 @@ class InventoryService {
         'createdAt': now,
         'dvm': dvm,
       });
+
+    }
+
+    // Log user activity
+    try {
+      final historyService = HistoryService();
+      await historyService.logActivity(
+        type: ActivityType.bought,
+        itemName: name,
+        details: {
+          'quantity': quantity,
+          'method': 'scan_validation',
+        }
+      );
+    } catch (e) {
+      debugPrint("Error logging history: $e");
     }
   }
 

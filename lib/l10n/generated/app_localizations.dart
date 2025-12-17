@@ -2059,6 +2059,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'List'**
   String get sortList;
+
+  /// No description provided for @householdFullError.
+  ///
+  /// In en, this message translates to:
+  /// **'This household has reached the limit of 5 members.'**
+  String get householdFullError;
+
+  /// No description provided for @settingsEditAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Avatar'**
+  String get settingsEditAvatar;
+
+  /// No description provided for @settingsSelectAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an avatar'**
+  String get settingsSelectAvatar;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get historyTitle;
+
+  /// No description provided for @activityAddedShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} added {item} to the list'**
+  String activityAddedShopping(Object item, Object user);
+
+  /// No description provided for @activityBought.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} bought {item}'**
+  String activityBought(Object item, Object user);
+
+  /// No description provided for @activityConsumed.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} consumed {item}'**
+  String activityConsumed(Object item, Object user);
+
+  /// No description provided for @activityTrashed.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} threw away {item}'**
+  String activityTrashed(Object item, Object user);
+
+  /// No description provided for @activityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent activity'**
+  String get activityEmpty;
 }
 
 class _AppLocalizationsDelegate

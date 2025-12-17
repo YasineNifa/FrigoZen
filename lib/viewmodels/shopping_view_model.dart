@@ -7,10 +7,14 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/constants/app_categories.dart';
+import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/models/activity_log.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ShoppingViewModel extends ChangeNotifier {
   final ShoppingRepository _shoppingRepository;
   final InventoryRepository _inventoryRepository;
+  final HistoryService _historyService;
 
   // State
   List<ShoppingItem> _items = [];
@@ -25,8 +29,10 @@ class ShoppingViewModel extends ChangeNotifier {
   ShoppingViewModel({
     required ShoppingRepository shoppingRepository,
     required InventoryRepository inventoryRepository,
+    required HistoryService historyService,
   })  : _shoppingRepository = shoppingRepository,
-        _inventoryRepository = inventoryRepository;
+        _inventoryRepository = inventoryRepository,
+        _historyService = historyService;
 
   void init(String householdId) {
     if (_householdId == householdId) return;
@@ -52,7 +58,20 @@ class ShoppingViewModel extends ChangeNotifier {
 
   Future<void> addItem(ShoppingItem item) async {
     if (_householdId == null) return;
-    await _shoppingRepository.addShoppingItem(_householdId!, item);
+
+    final user = FirebaseAuth.instance.currentUser;
+    final itemWithCreator = item.copyWith(
+      creatorId: user?.uid,
+      creatorName: user?.displayName ?? 'Utilisateur',
+      creatorAvatar: user?.photoURL,
+    );
+    
+    await _shoppingRepository.addShoppingItem(_householdId!, itemWithCreator);
+    
+    await _historyService.logActivity(
+      type: ActivityType.addedShopping,
+      itemName: item.name,
+    );
   }
 
   Future<void> updateItem(ShoppingItem item) async {
@@ -145,7 +164,7 @@ class ShoppingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode) async {
+  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode, {bool checkInventory = false}) async {
     if (_householdId == null || ingredientNames.isEmpty) return;
 
     _isLoading = true;
@@ -155,17 +174,34 @@ class ShoppingViewModel extends ChangeNotifier {
       final List<ShoppingItem> itemsToAdd = [];
       
       // Resolve all items first
-      // We can do this in parallel for speed
       final results = await Future.wait(
         ingredientNames.map((name) => resolveItemName(name, languageCode)),
       );
 
+      final user = FirebaseAuth.instance.currentUser;
+
       for (var i = 0; i < results.length; i++) {
         final item = results[i];
         if (item != null) {
-          itemsToAdd.add(item);
+          if (checkInventory) {
+              final exists = await _inventoryRepository.findExistingItem(
+                _householdId!, 
+                item.canonicalName, 
+                item.name
+              );
+              
+              if (exists != null) {
+                continue;
+              }
+          }
+          
+          itemsToAdd.add(item.copyWith(
+            creatorId: user?.uid,
+            creatorName: user?.displayName ?? 'Utilisateur',
+            creatorAvatar: user?.photoURL,
+          ));
         } else {
-          // Fallback if resolution failed (shouldn't happen often)
+           // Fallback if resolution failed
            itemsToAdd.add(ShoppingItem(
             id: '',
             name: ingredientNames[i],
@@ -176,17 +212,28 @@ class ShoppingViewModel extends ChangeNotifier {
             createdAt: DateTime.now(),
             category: 'Other',
             location: 'Frigo',
+            creatorId: user?.uid,
+            creatorName: user?.displayName ?? 'Utilisateur',
+            creatorAvatar: user?.photoURL,
           ));
         }
       }
 
       if (itemsToAdd.isNotEmpty) {
         await _shoppingRepository.addShoppingItems(_householdId!, itemsToAdd);
+        
+        // Log activities
+        for (var item in itemsToAdd) {
+           _historyService.logActivity(
+            type: ActivityType.addedShopping,
+            itemName: item.name,
+            details: {'source': 'recipe'},
+          );
+        }
       }
 
     } catch (e) {
       debugPrint("Error adding ingredients from recipe: $e");
-      // We might want to rethrow or show error
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -246,9 +293,11 @@ class ShoppingViewModel extends ChangeNotifier {
           name: item.name,
           cleanedName: item.cleanedName,
           canonicalName: item.canonicalName,
-          brands: item.brands,
           imageUrl: item.imageUrl,
           nutriscore: item.nutriscore,
+          addedBy: FirebaseAuth.instance.currentUser?.uid,
+          addedByName: FirebaseAuth.instance.currentUser?.displayName,
+          addedByAvatar: FirebaseAuth.instance.currentUser?.photoURL,
         );
         
         // 2. Create InventoryItem
@@ -269,7 +318,17 @@ class ShoppingViewModel extends ChangeNotifier {
         // 3. Add to Inventory (Upsert)
         await _inventoryRepository.upsertInventoryItem(_householdId!, inventoryItem);
 
-        // 4. Collect ID for batch deletion (synchronized access not strictly needed for list add in JS-like async, but good practice to be aware)
+        // 4. Log Activity
+        await _historyService.logActivity(
+          type: ActivityType.bought,
+          itemName: item.name,
+          details: {
+            'quantity': item.quantity,
+            'store': item.storeName ?? defaultStoreName,
+          }
+        );
+
+        // 5. Collect ID for batch deletion
         // In Dart, this is safe as long as we don't modify the list structure concurrently in a way that race conditions matter for simple adds.
         // However, to be perfectly safe and clean, we can return the ID from the map and collect later.
       }));

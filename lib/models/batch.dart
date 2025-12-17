@@ -13,6 +13,9 @@ class Batch {
   final String? canonicalName;
   final String? brands;
   final Map<String, String>? images;
+  final String? addedBy;
+  final String? addedByName;
+  final String? addedByAvatar;
 
   Batch({
     this.id,
@@ -27,6 +30,9 @@ class Batch {
     this.canonicalName,
     this.brands,
     this.images,
+    this.addedBy,
+    this.addedByName,
+    this.addedByAvatar,
   });
 
   Batch copyWith({
@@ -42,6 +48,9 @@ class Batch {
     String? canonicalName,
     String? brands,
     Map<String, String>? images,
+    String? addedBy,
+    String? addedByName,
+    String? addedByAvatar,
   }) {
     return Batch(
       id: id ?? this.id,
@@ -56,6 +65,9 @@ class Batch {
       canonicalName: canonicalName ?? this.canonicalName,
       brands: brands ?? this.brands,
       images: images ?? this.images,
+      addedBy: addedBy ?? this.addedBy,
+      addedByName: addedByName ?? this.addedByName,
+      addedByAvatar: addedByAvatar ?? this.addedByAvatar,
     );
   }
 
@@ -72,6 +84,9 @@ class Batch {
       'canonicalName': canonicalName,
       'brands': brands,
       'images': images,
+      'addedBy': addedBy,
+      'addedByName': addedByName,
+      'addedByAvatar': addedByAvatar,
     };
   }
 
@@ -88,6 +103,9 @@ class Batch {
       'canonicalName': canonicalName,
       'brands': brands,
       'images': images,
+      'addedBy': addedBy,
+      'addedByName': addedByName,
+      'addedByAvatar': addedByAvatar,
     };
   }
 
@@ -105,6 +123,9 @@ class Batch {
       canonicalName: map['canonicalName'] as String?,
       brands: map['brands'] as String?,
       images: map['images'] != null ? Map<String, String>.from(map['images']) : null,
+      addedBy: map['addedBy'] as String?,
+      addedByName: map['addedByName'] as String?,
+      addedByAvatar: map['addedByAvatar'] as String?,
     );
   }
 
@@ -129,7 +150,10 @@ class Batch {
       other.cleanedName == cleanedName &&
       other.canonicalName == canonicalName &&
       other.brands == brands &&
-      other.images == images;
+      other.images == images &&
+      other.addedBy == addedBy &&
+      other.addedByName == addedByName &&
+      other.addedByAvatar == addedByAvatar;
   }
 
   @override
@@ -145,6 +169,9 @@ class Batch {
       cleanedName.hashCode ^
       canonicalName.hashCode ^
       brands.hashCode ^
-      images.hashCode;
+      images.hashCode ^
+      addedBy.hashCode ^
+      addedByName.hashCode ^
+      addedByAvatar.hashCode;
   }
 }

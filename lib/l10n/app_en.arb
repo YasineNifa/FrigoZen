@@ -488,5 +488,14 @@
   "shoppingInventoryCheckDisabled": "Inventory ?",
   "sortPriority": "Priority",
   "sortCategory": "Category",
-  "sortList": "List"
+  "sortList": "List",
+  "householdFullError": "This household has reached the limit of 5 members.",
+  "settingsEditAvatar": "Edit Avatar",
+  "settingsSelectAvatar": "Select an avatar",
+  "historyTitle": "Activity",
+  "activityAddedShopping": "{user} added {item} to the list",
+  "activityBought": "{user} bought {item}",
+  "activityConsumed": "{user} consumed {item}",
+  "activityTrashed": "{user} threw away {item}",
+  "activityEmpty": "No recent activity"
 }
