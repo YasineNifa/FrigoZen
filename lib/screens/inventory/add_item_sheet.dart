@@ -70,6 +70,10 @@ class _AddItemSheetState extends State<AddItemSheet> {
             location = itemData['location'] ?? 'Frigo';
         }
 
+        final double? price = _priceController.text.isNotEmpty 
+            ? double.tryParse(_priceController.text.replaceAll(',', '.')) 
+            : null;
+
         final inventoryService = InventoryService();
 
         await inventoryService.upsertItemToInventory(
@@ -85,6 +89,7 @@ class _AddItemSheetState extends State<AddItemSheet> {
           storeName: _scannedProduct?.stores ?? '',
           brands: _scannedProduct?.brands ?? '',
           images: _scannedProduct?.images,
+          price: price, // Pass optional price
         );
         if (mounted) {
           Navigator.of(context).pop();
@@ -152,10 +157,12 @@ class _AddItemSheetState extends State<AddItemSheet> {
   }
 
   final _focusNode = FocusNode();
+  final _priceController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
+    _priceController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -207,6 +214,9 @@ class _AddItemSheetState extends State<AddItemSheet> {
                     location: 'Frigo', // Default
                     dvm: selection.defaultDVM,
                   );
+                  if (selection.lastPrice != null) {
+                    _priceController.text = selection.lastPrice!.toStringAsFixed(2);
+                  }
                 });
               },
               fieldViewBuilder: (
@@ -295,6 +305,16 @@ class _AddItemSheetState extends State<AddItemSheet> {
                    ),
                  );
               },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _priceController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: "Prix (optionnel)",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.euro),
+              ),
             ),
             const SizedBox(height: 24),
             Row(

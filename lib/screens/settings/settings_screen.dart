@@ -17,6 +17,8 @@ import 'package:frigo_zen/screens/settings/privacy_screen.dart';
 import 'package:frigo_zen/repositories/product_catalog_repository.dart' as frigo_zen;
 import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/screens/analysis/analysis_screen.dart';
+import 'package:currency_picker/currency_picker.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -285,6 +287,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               }
             },
+          ),
+          
+          StreamBuilder<DocumentSnapshot?>(
+             stream: HouseholdService().getCurrentHouseholdStream(),
+             builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data == null) return const SizedBox();
+                final data = snapshot.data!.data() as Map<String, dynamic>;
+                final currentCurrency = data['currency'] ?? 'EUR';
+                
+                return _buildSettingsTile(
+                  context,
+                  icon: Icons.currency_exchange,
+                  title: "Devise du foyer",
+                  trailing: Text(currentCurrency, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  onTap: () {
+                    _showCurrencySelectionDialog(context, currentCurrency);
+                  },
+                );
+             }
+          ),
+
+          _buildSettingsTile(
+            context,
+            icon: Icons.bar_chart,
+            title: "Analyse des Dépenses",
+            subtitle: "Visualiser vos dépenses par mois",
+            onTap: () {
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (context) => const AnalysisScreen()),
+               );
+            }, 
           ),
 
           const SizedBox(height: 24),
@@ -596,6 +630,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+    );
+  }
+
+  void _showCurrencySelectionDialog(BuildContext context, String currentCurrency) {
+    showCurrencyPicker(
+      context: context,
+      showFlag: true,
+      showCurrencyName: true,
+      showCurrencyCode: true,
+      favorite: ['EUR', 'USD', 'GBP', 'CHF'],
+      onSelect: (Currency currency) async {
+        await HouseholdService().updateHouseholdCurrency(currency.code);
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text("Devise changée pour ${currency.code}")),
+           );
+        }
+      },
     );
   }
 

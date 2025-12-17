@@ -96,6 +96,22 @@ class ProductCatalogRepository {
     }
   }
 
+  Future<CatalogItem?> getItem(String canonicalName) async {
+    try {
+      final collection = await _getCatalogCollection();
+      final String safeCanonical = canonicalName.trim().toLowerCase();
+      final docId = _generateId(safeCanonical);
+      final docSnapshot = await collection.doc(docId).get();
+
+      if (docSnapshot.exists) {
+        return CatalogItem.fromSnapshot(docSnapshot);
+      }
+    } catch (e) {
+      print("Error fetching item from catalog: $e");
+    }
+    return null;
+  }
+
   Future<List<CatalogItem>> searchCatalog(String query) async {
     if (query.trim().isEmpty) return [];
 
@@ -164,7 +180,39 @@ class ProductCatalogRepository {
         storeName: data['storeName'],
         lastPrice: (data['price'] is num) ? (data['price'] as num).toDouble() : null,
       );
+
       importedCount++;
+    }
+
+    // 2. Import History (To capture Prices and deleted items)
+    // We fetch ALL history (bought/added). This might be large, but it's a migration tool.
+    final historySnapshot = await _db.collection('households').doc(householdId).collection('history')
+         .where('type', isEqualTo: 'bought')
+         .orderBy('timestamp', descending: false) // Oldest first, so newest overwrites lastPrice
+         .get();
+
+    for (var doc in historySnapshot.docs) {
+      final data = doc.data();
+      final String name = data['itemName'];
+      final Map<String, dynamic>? details = data['details'];
+      
+      // We don't have rich data (img, brands) in history usually, mostly just name and price.
+      // But we can update the 'lastPrice' and 'usageCount'.
+      
+      if (details != null) {
+        final double? price = (details['price'] is num) ? (details['price'] as num).toDouble() : null;
+        
+        // Only update if we have meaningful data
+        await logItemToCatalog(
+          name: name,
+          canonicalName: name.toLowerCase(), // Best guess
+          category: 'Other', // Don't know
+          defaultDVM: 7, 
+          // Don't overwrite rich fields with nulls if they exist
+          lastPrice: price,
+        );
+         importedCount++;
+      }
     }
 
     return importedCount;

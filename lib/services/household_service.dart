@@ -124,4 +124,13 @@ class HouseholdService {
 
     return userDocSnapshot.get('householdId');
   }
+
+  Future<void> updateHouseholdCurrency(String currencyCode) async {
+    final householdId = await getUserHouseholdId();
+    if (householdId == null) return;
+
+    await _firestore.collection('households').doc(householdId).update({
+      'currency': currencyCode,
+    });
+  }
 }
