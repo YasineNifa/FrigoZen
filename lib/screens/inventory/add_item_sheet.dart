@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:frigo_zen/services/inventory_service.dart';
+import 'package:frigo_zen/services/household_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/components/scan_tip_card.dart';
 import 'package:frigo_zen/services/open_food_facts_service.dart';
@@ -307,14 +309,26 @@ class _AddItemSheetState extends State<AddItemSheet> {
               },
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _priceController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: "Prix (optionnel)",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.euro),
-              ),
+            StreamBuilder<DocumentSnapshot?>(
+              stream: HouseholdService().getCurrentHouseholdStream(),
+              builder: (context, snapshot) {
+                String currencyLabel = 'EUR';
+                if (snapshot.hasData && snapshot.data != null) {
+                   final data = snapshot.data!.data() as Map<String, dynamic>;
+                   currencyLabel = data['currency'] as String? ?? 'EUR';
+                }
+
+                return TextFormField(
+                  controller: _priceController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: "Prix (optionnel)",
+                    border: const OutlineInputBorder(),
+                    prefixText: "$currencyLabel ",
+                    prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                  ),
+                );
+              }
             ),
             const SizedBox(height: 24),
             Row(
