@@ -8,7 +8,7 @@ class ShoppingItem {
   final int quantity;
   final int? dvm;
   final String category;
-  final String location;
+  final int location;
   final DateTime createdAt;
   final bool isChecked;
   final String? imageUrl;
@@ -49,7 +49,7 @@ class ShoppingItem {
     int? quantity,
     int? dvm,
     String? category,
-    String? location,
+    int? location,
     DateTime? createdAt,
     bool? isChecked,
     String? imageUrl,
@@ -106,6 +106,20 @@ class ShoppingItem {
   }
 
   factory ShoppingItem.fromMap(Map<String, dynamic> map, String id) {
+     // Helper to parse location
+    int parseLocation(dynamic value) {
+      if (value is int) return value;
+      if (value is String) {
+         // Map legacy strings to IDs
+         final normalized = value.toLowerCase().trim();
+         if (normalized.contains('frigo') || normalized == 'fridge' || normalized == 'loc_fridge') return 0;
+         if (normalized.contains('placard') || normalized == 'pantry' || normalized == 'loc_pantry') return 1;
+         if (normalized.contains('cong') || normalized == 'freezer' || normalized == 'loc_freezer') return 2;
+         return 3; // Other
+      }
+      return 0; // Default to Fridge
+    }
+
     return ShoppingItem(
       id: id,
       name: map['name'] as String? ?? '',
@@ -114,7 +128,7 @@ class ShoppingItem {
       quantity: map['quantity'] as int? ?? 1,
       dvm: map['dvm'] as int?,
       category: map['category'] as String? ?? 'Other',
-      location: map['location'] as String? ?? 'Frigo',
+      location: parseLocation(map['location']),
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       isChecked: map['isChecked'] as bool? ?? false,
       imageUrl: map['imageUrl'] as String?,
@@ -134,7 +148,7 @@ class ShoppingItem {
 
   @override
   String toString() {
-    return 'ShoppingItem(id: $id, name: $name, quantity: $quantity, isChecked: $isChecked, imageUrl: $imageUrl, nutriscore: $nutriscore, brands: $brands, storeName: $storeName, expirationDate: $expirationDate)';
+    return 'ShoppingItem(id: $id, name: $name, quantity: $quantity, isChecked: $isChecked, location: $location)';
   }
 
   @override

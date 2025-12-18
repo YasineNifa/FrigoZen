@@ -733,6 +733,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quantityLabel => 'الكمية';
 
   @override
+  String get priceLabel => 'سعر';
+
+  @override
   String get searchNoResults => 'لم يتم العثور على نتائج';
 
   @override

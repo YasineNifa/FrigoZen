@@ -4,6 +4,7 @@ import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/shopping_item.dart';
 import 'package:frigo_zen/models/household.dart';
+import 'package:frigo_zen/models/enums.dart';
 
 void main() {
   group('Batch Model Tests', () {
@@ -27,6 +28,7 @@ void main() {
     test('should serialize Batch to map', () {
       final now = DateTime.now();
       final batch = Batch(
+        id: 'batch1',
         quantity: 2,
         expirationDate: now,
         addedAt: now,
@@ -38,6 +40,32 @@ void main() {
       expect(map['quantity'], 2);
       expect(map['storeName'], 'Another Store');
       expect(map['expirationDate'], isA<Timestamp>());
+    });
+    test('should NOT include id in map if empty', () {
+      final now = DateTime.now();
+      final batch = Batch(
+        id: '',
+        quantity: 2,
+        expirationDate: now,
+        addedAt: now,
+      );
+
+      final map = batch.toMap();
+
+      expect(map.containsKey('id'), false);
+      expect(map['quantity'], 2);
+    });
+
+    test('StorageLocation.fromId should parse legacy strings', () {
+      expect(StorageLocation.fromId('loc_fridge'), StorageLocation.fridge);
+      expect(StorageLocation.fromId('loc_pantry'), StorageLocation.pantry);
+      expect(StorageLocation.fromId('loc_freezer'), StorageLocation.freezer);
+      expect(StorageLocation.fromId('Frigo'), StorageLocation.fridge); // Test raw string if possible, or we fix normalization
+      
+      // Test robust inputs
+      expect(StorageLocation.fromId(0.0), StorageLocation.fridge); // Double handling
+      expect(StorageLocation.fromId('0'), StorageLocation.fridge); // String number
+      expect(StorageLocation.fromId('0.0'), StorageLocation.fridge); // String double
     });
   });
 
@@ -67,13 +95,30 @@ void main() {
 
       expect(item.id, 'doc123');
       expect(item.name, 'Milk');
+      // Verify location parsing (Fridge -> 0)
+      expect(item.location.id, 0); 
       expect(item.batches.length, 1);
       expect(item.batches.first.quantity, 2);
+    });
+
+    test('should create InventoryItem with integer location', () {
+      final now = DateTime.now();
+      final map = {
+        'name': 'Cheese',
+        'location': 2, // Freezer
+        'cleanedName': '', 'canonicalName': '',
+        'category': 'cat_dairy_eggs',
+        'totalQuantity': 1,
+        'earliestExpirationDate': Timestamp.fromDate(now),
+        'createdAt': Timestamp.fromDate(now),
+      };
+      final item = InventoryItem.fromMap(map, 'doc456');
+      expect(item.location.id, 2);
     });
   });
 
   group('ShoppingItem Model Tests', () {
-    test('should create ShoppingItem from map', () {
+    test('should create ShoppingItem from map (legacy string)', () {
       final now = DateTime.now();
       final map = {
         'name': 'Bread',
@@ -81,7 +126,7 @@ void main() {
         'canonicalName': 'bread',
         'quantity': 1,
         'category': 'Bakery',
-        'location': 'Pantry',
+        'location': 'Pantry', // Legacy string
         'createdAt': Timestamp.fromDate(now),
         'isChecked': false,
       };
@@ -91,6 +136,19 @@ void main() {
       expect(item.id, 'shop123');
       expect(item.name, 'Bread');
       expect(item.isChecked, false);
+      expect(item.location, 1); // Pantry -> 1
+    });
+
+    test('should create ShoppingItem from map (integer)', () {
+      final now = DateTime.now();
+      final map = {
+        'name': 'Juice',
+        'location': 0, // Fridge
+        'createdAt': Timestamp.fromDate(now),
+        'isChecked': false,
+      };
+      final item = ShoppingItem.fromMap(map, 'shop789');
+      expect(item.location, 0);
     });
   });
 
@@ -100,6 +158,7 @@ void main() {
         'name': 'My Home',
         'members': ['user1', 'user2'],
         'ownerId': 'user1',
+        'createdAt': Timestamp.now(),
       };
 
       final household = Household.fromMap(map, 'house123');

@@ -5,6 +5,7 @@ import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/models/activity_log.dart';
+import 'package:frigo_zen/models/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 enum LocationFilter {
@@ -35,22 +36,21 @@ class InventoryViewModel extends ChangeNotifier {
   List<InventoryItem> get filteredItems {
     return _items.where((item) {
       bool matchesLocation = false;
-      
+      // print("item.location.id: ${item.location.id}");
+      // debugPrint("selectedFilter xx: ${_selectedFilter}");
+
       switch (_selectedFilter) {
         case LocationFilter.all:
           matchesLocation = true;
           break;
         case LocationFilter.fridge:
-          final loc = item.location.toLowerCase();
-          matchesLocation = loc == 'frigo' || loc == 'fridge' || loc == 'refrigerator' || loc == 'loc_fridge';
+          matchesLocation = item.location.id == StorageLocation.fridge.id;
           break;
         case LocationFilter.pantry:
-          final loc = item.location.toLowerCase();
-          matchesLocation = loc == 'placard' || loc == 'pantry' || loc == 'loc_pantry';
+           matchesLocation = item.location.id == StorageLocation.pantry.id;
           break;
         case LocationFilter.freezer:
-          final loc = item.location.toLowerCase();
-          matchesLocation = loc == 'congélateur' || loc == 'freezer' || loc == 'loc_freezer';
+           matchesLocation = item.location.id == StorageLocation.freezer.id;
           break;
       }
 
@@ -58,7 +58,7 @@ class InventoryViewModel extends ChangeNotifier {
           item.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           item.canonicalName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           item.cleanedName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          item.category.toLowerCase().contains(_searchQuery.toLowerCase());
+          item.category.key.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesLocation && matchesSearch;
     }).toList();
   }
@@ -76,13 +76,9 @@ class InventoryViewModel extends ChangeNotifier {
   Map<String, int> get nutriscoreDistribution {
     final distribution = <String, int>{};
     for (var item in _items) {
-      // Check batches for NutriScore
-      for (var batch in item.batches) {
-        if (batch.nutriscore != null && batch.nutriscore!.isNotEmpty) {
-          final score = batch.nutriscore!.toUpperCase();
-          distribution[score] = (distribution[score] ?? 0) + batch.quantity;
-        }
-      }
+      item.nutriscoreStats.forEach((key, count) {
+         distribution[key] = (distribution[key] ?? 0) + count;
+      });
     }
     return distribution;
   }
@@ -90,8 +86,8 @@ class InventoryViewModel extends ChangeNotifier {
   Map<String, int> get categoryDistribution {
     final distribution = <String, int>{};
     for (var item in _items) {
-      final category = item.category;
-      distribution[category] = (distribution[category] ?? 0) + item.totalQuantity;
+      final categoryKey = item.category.key;
+      distribution[categoryKey] = (distribution[categoryKey] ?? 0) + item.totalQuantity;
     }
     return distribution;
   }
@@ -99,8 +95,8 @@ class InventoryViewModel extends ChangeNotifier {
   Map<String, int> get locationDistribution {
     final distribution = <String, int>{};
     for (var item in _items) {
-      final location = item.location;
-      distribution[location] = (distribution[location] ?? 0) + item.totalQuantity;
+      final locationKey = item.location.localizationKey;
+      distribution[locationKey] = (distribution[locationKey] ?? 0) + item.totalQuantity;
     }
     return distribution;
   }
@@ -114,12 +110,9 @@ class InventoryViewModel extends ChangeNotifier {
   Map<String, int> get storeDistribution {
     final distribution = <String, int>{};
     for (var item in _items) {
-      for (var batch in item.batches) {
-        if (batch.storeName != null && batch.storeName!.isNotEmpty) {
-          final store = batch.storeName!;
-          distribution[store] = (distribution[store] ?? 0) + batch.quantity;
-        }
-      }
+       item.storeStats.forEach((key, count) {
+         distribution[key] = (distribution[key] ?? 0) + count;
+      });
     }
     return distribution;
   }
@@ -182,7 +175,7 @@ class InventoryViewModel extends ChangeNotifier {
       itemName = item.name;
     } catch (_) {}
 
-    await _inventoryRepository.deleteInventoryItem(_householdId!, itemId);
+    await _inventoryRepository.deleteItem(_householdId!, itemId);
 
     if (logActivity) {
       await _historyService.logActivity(
@@ -192,6 +185,11 @@ class InventoryViewModel extends ChangeNotifier {
     }
   }
 
+  Stream<List<Batch>> getBatchesStream(String itemId) {
+    if (_householdId == null) return Stream.value([]);
+    return _inventoryRepository.getBatchesStream(_householdId!, itemId);
+  }
+
   Future<void> incrementItemQuantity(
     InventoryItem item, {
     required String defaultStoreName,
@@ -199,51 +197,87 @@ class InventoryViewModel extends ChangeNotifier {
   }) async {
     if (_householdId == null) return;
 
-    // Log Activity (Quick Add)
+    // Log Activity
     await _historyService.logActivity(
       type: ActivityType.bought,
       itemName: item.name,
       details: {'quantity': 1, 'method': 'quick_add'},
     );
 
-    // Logic ported from InventoryService:
-    // 1. Calculate expiration date based on DVM
-    final int dvm = item.dvm;
+    // Get DVM from item or default
+    int dvm = item.dvm;
+
+    // Quick fetch of latest batch for enrichment & DVM check
+    final batchesStream = _inventoryRepository.getBatchesStream(_householdId!, item.id);
+    final upcomingBatches = await batchesStream.first;
+    
+    // If we have batches, check if we can deduce a better DVM
+    if (upcomingBatches.isNotEmpty) {
+      // Find the most recently added batch
+      final recentBatch = upcomingBatches.reduce((curr, next) => 
+        curr.addedAt.isAfter(next.addedAt) ? curr : next
+      );
+
+      final daysDiff = recentBatch.expirationDate.difference(recentBatch.addedAt).inDays;
+      if (daysDiff > dvm) {
+        dvm = daysDiff;
+      }
+    }
+
     final now = DateTime.now();
     final expirationDate = now.add(Duration(days: dvm > 0 ? dvm : 7));
-
-    // 2. Enrich batch data
     final user = FirebaseAuth.instance.currentUser;
     
-    // Find first non-empty values from existing batches
+    // Enrich from parent item (cache)
+    // Since we don't have immediate access to other batches without async fetch, 
+    // we use the item's current display properties as a baseline if they exist.
+    // Or we could fetch the latest batch, but for performance let's stick to item properties + defaults.
+    // Actually, the previous logic enriched from *existing* batches.
+    // Given we moved to sub-collections, we can't synchronously iterate item.batches (it's empty or stale).
+    // We will trust the item's cached "display" values if we want, OR we fetch the latest batch.
+    // Let's simplified enrichment: use item fields. The rich data (images, brands) should be on the item if we want to reuse them.
+    // But currently `InventoryItem` only has `imageUrl`.
+    // Re-fetching batches is better for "smart" enrichment.
+    
+
+    
     String? brands;
-    String? canonicalName;
-    String? cleanedName;
-    String? imageUrl;
-    String? name;
+    String? canonicalName = item.canonicalName;
+    String? cleanedName = item.cleanedName;
+    String? imageUrl = item.imageUrl;
+    String? name = item.name;
     String? nutriscore;
     double? price;
     Map<String, String>? images;
 
-    for (final batch in item.batches) {
-      if (brands == null || brands.isEmpty) brands = batch.brands;
-      if (canonicalName == null || canonicalName.isEmpty) canonicalName = batch.canonicalName;
-      if (cleanedName == null || cleanedName.isEmpty) cleanedName = batch.cleanedName;
-      if (imageUrl == null || imageUrl.isEmpty) imageUrl = batch.imageUrl;
-      if (name == null || name.isEmpty) name = batch.name;
-      if (nutriscore == null || nutriscore.isEmpty) nutriscore = batch.nutriscore;
-      if (price == null) price = batch.price;
-      if (images == null && batch.images != null && batch.images!.isNotEmpty) {
-         images = Map<String, String>.from(batch.images!);
+    // Try to find better data from recent batches
+    if (upcomingBatches.isNotEmpty) {
+      // Logic: find first non-null
+      for(final b in upcomingBatches) {
+         if (brands == null || brands!.isEmpty) brands = b.brands;
+         if (nutriscore == null || nutriscore!.isEmpty) nutriscore = b.nutriscore;
+         if (price == null) price = b.price;
+         if (images == null && b.images != null && b.images!.isNotEmpty) images = b.images;
       }
     }
 
-    // 3. Create new batch
+    // Copied from recent batch if available, otherwise null.
+    // User request: "mettre storeName à null ... si le batch recopie ne contient pas de storeName".
+    // We prioritize the most recent batch's store.
+    String? inheritedStoreName;
+    if (upcomingBatches.isNotEmpty) {
+       final recentBatch = upcomingBatches.reduce((curr, next) => 
+         curr.addedAt.isAfter(next.addedAt) ? curr : next
+       );
+       inheritedStoreName = recentBatch.storeName;
+    }
+
     final newBatch = Batch(
+      id: '', // Will be generated by repository
       quantity: 1,
       expirationDate: expirationDate,
       addedAt: now,
-      storeName: defaultStoreName,
+      storeName: inheritedStoreName,
       // Enriched fields
       brands: brands,
       canonicalName: canonicalName,
@@ -253,27 +287,36 @@ class InventoryViewModel extends ChangeNotifier {
       nutriscore: nutriscore,
       price: price,
       images: images,
-      // User info
+      // User info: ONLY UID
       addedBy: user?.uid,
-      addedByName: user?.displayName ?? defaultUserName,
-      addedByAvatar: user?.photoURL,
     );
-
-    // 4. Add to batches and sort
-    final List<Batch> updatedBatches = List.from(item.batches);
-    updatedBatches.add(newBatch);
-    updatedBatches.sort((a, b) => a.expirationDate.compareTo(b.expirationDate));
-
-    // 5. Update item with new total quantity and earliest expiration date
-    final newTotalQuantity = updatedBatches.fold(0, (sum, b) => sum + b.quantity);
     
-    final updatedItem = item.copyWith(
-      totalQuantity: newTotalQuantity,
-      batches: updatedBatches,
-      earliestExpirationDate: updatedBatches.first.expirationDate,
-    );
+    await _inventoryRepository.addBatch(_householdId!, item.id, newBatch);
+  }
 
-    await updateItem(updatedItem);
+  Future<void> updateBatchDetails(InventoryItem item, Batch oldBatch, Batch newBatch) async {
+    if (_householdId == null) return;
+    
+    // If quantity changed, we might want logs?
+    // Repository handles the update logic
+    await _inventoryRepository.updateBatch(_householdId!, item.id, newBatch);
+    
+    // If name/cleanedName changed on the batch and we propagated it to the item in UI logic,
+    // we should also update the item itself.
+    // The repository updateBatch ONLY updates the batch and aggregates (qty/date).
+    // It does NOT update the item's name/image.
+    
+    if (item.name != newBatch.name || item.cleanedName != newBatch.cleanedName) {
+       // Check if we need to update the parent item
+       // This logic was partly in the UI "EditBatchesSheet".
+       // We'll leave the explicitly passed 'item' (which might have been modified) to be updated via updateItem
+       await updateItem(item); // Update parent fields if changed
+    }
+  }
+
+  Future<void> deleteBatch(InventoryItem item, Batch batch) async {
+    if (_householdId == null) return;
+    await _inventoryRepository.deleteBatch(_householdId!, item.id, batch.id);
   }
 
   Future<void> decrementItemQuantity(InventoryItem item) async {
@@ -286,67 +329,17 @@ class InventoryViewModel extends ChangeNotifier {
       details: {'quantity': 1},
     );
 
-    // Logic ported from InventoryService:
-    // 1. Sort batches by expiration date (already sorted usually, but good to be safe)
-    final List<Batch> updatedBatches = List.from(item.batches);
-    updatedBatches.sort((a, b) => a.expirationDate.compareTo(b.expirationDate));
-
-    if (updatedBatches.isEmpty) {
-      // Should not happen if quantity > 0, but if it does, just delete item?
-      // Or just decrement quantity?
-      // If no batches but quantity > 0, it's an inconsistent state.
-      // We'll just decrement totalQuantity to be safe, or delete if 1.
-      if (item.totalQuantity <= 1) {
-        await deleteItem(item.id, logActivity: false);
-      } else {
-        await updateItem(item.copyWith(totalQuantity: item.totalQuantity - 1));
-      }
-      return;
-    }
-
-    // 2. Decrement or remove the first (oldest) batch
-    final firstBatch = updatedBatches.first;
-    if (firstBatch.quantity > 1) {
-      updatedBatches[0] = firstBatch.copyWith(quantity: firstBatch.quantity - 1);
-    } else {
-      updatedBatches.removeAt(0);
-    }
-
-    // 3. Check if item should be removed
-    if (updatedBatches.isEmpty) {
-      await deleteItem(item.id, logActivity: false);
-      return;
-    }
-
-    // 4. Update item
-    final newTotalQuantity = updatedBatches.fold(0, (sum, b) => sum + b.quantity);
-    
-    final updatedItem = item.copyWith(
-      totalQuantity: newTotalQuantity,
-      batches: updatedBatches,
-      earliestExpirationDate: updatedBatches.first.expirationDate,
-    );
-
-    await updateItem(updatedItem);
+    // Delegate to Repository for transactional decrement on sub-collection
+    await _inventoryRepository.decrementItemQuantity(_householdId!, item.id, 1);
   }
 
   Future<void> updateBatchDate(InventoryItem item, Batch batch, DateTime newDate) async {
     if (_householdId == null) return;
 
-    final List<Batch> updatedBatches = List.from(item.batches);
-    final index = updatedBatches.indexOf(batch);
-    
-    if (index != -1) {
-      updatedBatches[index] = batch.copyWith(expirationDate: newDate);
-      updatedBatches.sort((a, b) => a.expirationDate.compareTo(b.expirationDate));
-
-      final updatedItem = item.copyWith(
-        batches: updatedBatches,
-        earliestExpirationDate: updatedBatches.first.expirationDate,
-      );
-
-      await updateItem(updatedItem);
-    }
+    final updatedBatch = batch.copyWith(expirationDate: newDate);
+    // Delegate to Repository
+    // Note: updateBatch in repo expects FULL update of the batch doc.
+    await _inventoryRepository.updateBatch(_householdId!, item.id, updatedBatch);
   }
 
   Future<void> updateItemName(InventoryItem item, String newName) async {
@@ -366,31 +359,11 @@ class InventoryViewModel extends ChangeNotifier {
   Future<void> updateItemCategory(InventoryItem item, String newCategory) async {
     if (_householdId == null) return;
 
-    final updatedItem = item.copyWith(category: newCategory);
+    final updatedItem = item.copyWith(category: InventoryCategory.fromString(newCategory));
     await updateItem(updatedItem);
   }
 
-  Future<void> updateBatchDetails(InventoryItem item, Batch oldBatch, Batch newBatch) async {
-    if (_householdId == null) return;
 
-    final List<Batch> updatedBatches = List.from(item.batches);
-    final index = updatedBatches.indexOf(oldBatch);
-
-    if (index != -1) {
-      updatedBatches[index] = newBatch;
-      updatedBatches.sort((a, b) => a.expirationDate.compareTo(b.expirationDate));
-
-      final newTotalQuantity = updatedBatches.fold(0, (sum, b) => sum + b.quantity);
-
-      final updatedItem = item.copyWith(
-        totalQuantity: newTotalQuantity,
-        batches: updatedBatches,
-        earliestExpirationDate: updatedBatches.first.expirationDate,
-      );
-
-      await updateItem(updatedItem);
-    }
-  }
   
   bool doesItemExist(String canonicalName) {
     return _items.any((item) => item.canonicalName == canonicalName);

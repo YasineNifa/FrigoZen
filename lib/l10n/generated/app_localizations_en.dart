@@ -735,6 +735,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quantityLabel => 'Quantity';
 
   @override
+  String get priceLabel => 'Price';
+
+  @override
   String get searchNoResults => 'No results found';
 
   @override

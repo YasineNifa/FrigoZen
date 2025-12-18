@@ -264,6 +264,7 @@
   "nutriScoreUndefined": "Non défini",
   "expirationDateLabel": "Date d'expiration",
   "quantityLabel": "Quantité",
+  "priceLabel": "Prix",
   "searchNoResults": "Aucun résultat trouvé",
   "searchTryDifferent": "Essayez un autre terme de recherche.",
   "statusExpired": "Périmé",

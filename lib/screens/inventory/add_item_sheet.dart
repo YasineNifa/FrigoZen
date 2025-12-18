@@ -84,10 +84,10 @@ class _AddItemSheetState extends State<AddItemSheet> {
           dvm: dvm,
           category: category,
           location: location,
-          imageUrl: _scannedProduct?.imageUrl ?? '',
-          nutriscore: _scannedProduct?.nutriscore ?? '',
-          storeName: _scannedProduct?.stores ?? '',
-          brands: _scannedProduct?.brands ?? '',
+          imageUrl: _scannedProduct?.imageUrl,
+          nutriscore: _scannedProduct?.nutriscore,
+          storeName: null,
+          brands: _scannedProduct?.brands,
           images: _scannedProduct?.images,
           price: price, // Pass optional price
         );

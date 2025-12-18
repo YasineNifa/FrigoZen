@@ -2,6 +2,7 @@
   "appTitle": "FrigoZen",
   "defaultStoreName": "Añadir rápido",
   "defaultUserName": "Usuario",
+  "priceLabel": "Precio",
   "inventoryTab": "Inventario",
   "shoppingListTab": "Lista de compras",
   "favoritesTab": "Favoritos",

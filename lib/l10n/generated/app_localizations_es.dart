@@ -741,6 +741,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get quantityLabel => 'Cantidad';
 
   @override
+  String get priceLabel => 'Precio';
+
+  @override
   String get searchNoResults => 'No se encontraron resultados';
 
   @override

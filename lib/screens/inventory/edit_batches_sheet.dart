@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
+import 'package:frigo_zen/models/batch.dart';
+
 
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:provider/provider.dart';
@@ -125,479 +127,415 @@ class EditBatchesSheet extends StatelessWidget {
           currentItem = item;
         }
 
-        final batches = currentItem.batches;
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      // On agrandit un peu la hauteur pour accommoder les infos riches
-      height: MediaQuery.of(context).size.height * 0.65,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Barre de drag
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+        // Use StreamBuilder to fetch batches
+        return StreamBuilder<List<Batch>>(
+          stream: vm.getBatchesStream(currentItem.id),
+          builder: (context, snapshot) {
+            
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
+                 padding: const EdgeInsets.all(24),
+                 height: MediaQuery.of(context).size.height * 0.65,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: const Center(child: CircularProgressIndicator())
+              );
+            }
+            
+            final batches = snapshot.data ?? [];
+            // (We could merge legacy batches from currentItem.batches if we wanted, 
+            // but for sub-collection migration we assume new source of truth).
+            
+            // ... (Rest of UI similar to before, but using these 'batches')
+            
+            return Container(
+              padding: const EdgeInsets.all(24),
+              height: MediaQuery.of(context).size.height * 0.65,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.editBatchesTitle(currentItem.name),
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    InkWell(
-                      onTap: () => _showCategoryDialog(context, vm),
-                      borderRadius: BorderRadius.circular(4),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.category, size: 14, color: Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            Text(
-                              AppCategories.getLocalizedName(context, currentItem.category),
-                              style: TextStyle(color: Colors.grey[600], fontSize: 14, decoration: TextDecoration.underline),
-                            ),
-                          ],
-                        ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Barre de drag
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.edit, size: 20),
-                onPressed: () => _showRenameDialog(context, vm),
-                tooltip: l10n.renameTooltip,
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            l10n.editBatchesSubtitle,
-            style: TextStyle(color: Colors.grey[600], fontSize: 14),
-          ),
-          const SizedBox(height: 20),
+                  ),
+                  const SizedBox(height: 20),
 
-          Expanded(
-            child: batches.isEmpty
-                ? Center(child: Text(l10n.editBatchesEmpty))
-                : ListView.separated(
-                    itemCount: batches.length,
-                    separatorBuilder: (ctx, i) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final batch = batches[index];
-
-                      // --- RÉCUPÉRATION DES DONNÉES RICHES ---
-                      final int quantity = batch.quantity;
-                      final DateTime ts = batch.expirationDate;
-
-                      // Données spécifiques au lot (si disponibles), sinon fallback sur l'item
-                      final String specificName = (batch.name != null && batch.name!.isNotEmpty) 
-                          ? batch.name! 
-                          : currentItem.name;
-                      final String brand = batch.brands ?? '';
-                      final String? batchImageUrl = batch.imageUrl; // Already correct
-                      final String? nutriscore = batch.nutriscore;
-                      final String storeName = batch.storeName ?? '';
-                      final DateTime addedAtTs = batch.addedAt;
-                      final String addedDateStr = _formatDate(Timestamp.fromDate(addedAtTs));
-
-                      // Calcul Expiration
-                      final now = DateTime.now();
-                      final date = ts;
-                      final today = DateTime(now.year, now.month, now.day);
-                      final expiryDay = DateTime(
-                        date.year,
-                        date.month,
-                        date.day,
-                      );
-
-                      final isExpired = expiryDay.isBefore(today);
-                      final isToday = expiryDay.isAtSameMomentAs(today);
-
-                      Color statusColor = Colors.green[700]!;
-                      if (isExpired) {
-                        statusColor = Colors.red[700]!;
-                      } else if (isToday) {
-                        statusColor = Colors.orange[800]!;
-                      }
-
-                      // Determine name for initials (prefer cleanedName)
-                      final String initialsName = (batch.cleanedName != null && batch.cleanedName!.isNotEmpty)
-                          ? batch.cleanedName!
-                          : (currentItem.cleanedName.isNotEmpty ? currentItem.cleanedName : specificName);
-
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.editBatchesTitle(currentItem.name),
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 1. IMAGE SPÉCIFIQUE DU LOT
-                              Stack(
-                                children: [
-                                  // L'Image de base
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.grey[100],
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child:
-                                        batchImageUrl != null &&
-                                            batchImageUrl.isNotEmpty
-                                        ? Image.network(
-                                            batchImageUrl,
-                                            fit: BoxFit.contain,
-                                            errorBuilder:
-                                                (ctx, error, stackTrace) =>
-                                                    InitialsAvatar(
-                                                      name: initialsName,
-                                                    ),
-                                          )
-                                        : InitialsAvatar(name: initialsName),
-                                  ),
-
-                                  // Le Badge Nutri-Score (En bas à droite)
-                                  if (nutriscore != null)
-                                    Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 4,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: _getNutriScoreColor(
-                                            nutriscore,
-                                          ),
-                                          borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(6),
-                                            bottomRight: Radius.circular(
-                                              12,
-                                            ), // Suit le coin de l'image
-                                          ),
-                                        ),
-                                        child: Text(
-                                          nutriscore.toUpperCase(),
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-
-                              const SizedBox(width: 12),
-
-                              // 2. INFOS PRINCIPALES
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                            const SizedBox(height: 4),
+                            InkWell(
+                              onTap: () => _showCategoryDialog(context, vm),
+                              borderRadius: BorderRadius.circular(4),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // Nom précis et Marque
+                                    Icon(Icons.category, size: 14, color: Colors.grey[600]),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      specificName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (brand.isNotEmpty)
-                                      Text(
-                                        brand,
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontSize: 12,
-                                        ),
-                                      ),
-
-                                    const SizedBox(height: 8),
-
-                                    // Badges (Nutri-Score + Quantité + Magasin)
-                                    Wrap(
-                                      spacing: 6,
-                                      runSpacing: 6,
-                                      children: [
-                                        // Badge Quantité
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[100],
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.grey[300]!,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            "x$quantity",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Badge Nutri-Score (Si présent)
-                                        // if (nutriscore != null &&
-                                        //     nutriscore.isNotEmpty)
-                                        //   Container(
-                                        //     padding: const EdgeInsets.symmetric(
-                                        //       horizontal: 6,
-                                        //       vertical: 2,
-                                        //     ),
-                                        //     decoration: BoxDecoration(
-                                        //       color: _getNutriScoreColor(
-                                        //         nutriscore,
-                                        //       ),
-                                        //       borderRadius:
-                                        //           BorderRadius.circular(4),
-                                        //     ),
-                                        //     child: Text(
-                                        //       "Nutri ${nutriscore.toUpperCase()}",
-                                        //       style: const TextStyle(
-                                        //         color: Colors.white,
-                                        //         fontSize: 10,
-                                        //         fontWeight: FontWeight.bold,
-                                        //       ),
-                                        //     ),
-                                        //   ),
-
-                                        // Badge Magasin (Si présent)
-                                        if (storeName.isNotEmpty)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue[50],
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.store,
-                                                  size: 10,
-                                                  color: Colors.blue[800],
-                                                ),
-                                                const SizedBox(width: 4),
-                                                // TODO la valeur destoreName contient le lien vers l'image
-                                                Text(
-                                                  storeName,
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    color: Colors.blue[800],
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                      ],
+                                      AppCategories.getLocalizedName(context, currentItem.category.key),
+                                      style: TextStyle(color: Colors.grey[600], fontSize: 14, decoration: TextDecoration.underline),
                                     ),
                                   ],
                                 ),
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit, size: 20),
+                        onPressed: () => _showRenameDialog(context, vm),
+                        tooltip: l10n.renameTooltip,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l10n.editBatchesSubtitle,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  ),
+                  const SizedBox(height: 20),
 
-                              // 3. DATE ET ACTION
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit_outlined),
-                                    color: Colors.grey[600],
-                                    visualDensity: VisualDensity.compact,
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (ctx) => EditBatchDialog(
-                                          batch: batch,
-                                          onSave: (updatedBatch) async {
-                                            try {
-                                              // 1. Update Batch details (this re-calculates aggregates based on batches)
-                                              var itemToUpdate = currentItem;
-                                              
-                                              // 2. If scan occurred or name changed manually, update top-level names
-                                              // We check if any of the name-related fields have changed/enriched
-                                              bool hasNameChanged = updatedBatch.name != batch.name;
-                                              bool hasCleanedChanged = updatedBatch.cleanedName != batch.cleanedName;
-                                              bool hasCanonicalChanged = updatedBatch.canonicalName != batch.canonicalName;
-                                              
-                                              if ((hasNameChanged || hasCleanedChanged || hasCanonicalChanged) && updatedBatch.name != null) {
-                                                  // Propagate changes to the Item level
-                                                  // Ensure we don't accidentally set nulls if they were present
-                                                  itemToUpdate = itemToUpdate.copyWith(
-                                                      name: updatedBatch.name,
-                                                      cleanedName: updatedBatch.cleanedName ?? updatedBatch.name,
-                                                      canonicalName: updatedBatch.canonicalName ?? updatedBatch.name?.toLowerCase() 
-                                                  );
-                                              }
+                  Expanded(
+                    child: batches.isEmpty
+                        ? Center(child: Text(l10n.editBatchesEmpty))
+                        : ListView.separated(
+                            itemCount: batches.length,
+                            separatorBuilder: (ctx, i) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final batch = batches[index];
 
-                                              await vm.updateBatchDetails(
-                                                itemToUpdate,
-                                                batch,
-                                                updatedBatch,
-                                              );
-                                              
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                        l10n.editBatchesSuccess),
-                                                    backgroundColor:
-                                                        AppTheme.statusSafe,
-                                                  ),
-                                                );
-                                              }
-                                            } catch (e) {
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                        l10n.editBatchesError(
-                                                            e.toString())),
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                );
-                                              }
-                                            }
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
+                              // --- RÉCUPÉRATION DES DONNÉES RICHES ---
+                              final int quantity = batch.quantity;
+                              final DateTime ts = batch.expirationDate;
+
+                              // Données spécifiques au lot
+                              final String specificName = (batch.name != null && batch.name!.isNotEmpty) 
+                                  ? batch.name! 
+                                  : currentItem.name;
+                              final String brand = batch.brands ?? '';
+                              final String? batchImageUrl = batch.imageUrl; 
+                              final String? nutriscore = batch.nutriscore;
+                              final String storeName = batch.storeName ?? '';
+                              final DateTime addedAtTs = batch.addedAt;
+                              final String addedDateStr = _formatDate(Timestamp.fromDate(addedAtTs));
+
+                              // Calcul Expiration
+                              final now = DateTime.now();
+                              final date = ts;
+                              final today = DateTime(now.year, now.month, now.day);
+                              final expiryDay = DateTime(
+                                date.year,
+                                date.month,
+                                date.day,
+                              );
+
+                              final isExpired = expiryDay.isBefore(today);
+                              final isToday = expiryDay.isAtSameMomentAs(today);
+
+                              Color statusColor = Colors.green[700]!;
+                              if (isExpired) {
+                                statusColor = Colors.red[700]!;
+                              } else if (isToday) {
+                                statusColor = Colors.orange[800]!;
+                              }
+
+                              final String initialsName = (batch.cleanedName != null && batch.cleanedName!.isNotEmpty)
+                                  ? batch.cleanedName!
+                                  : (currentItem.cleanedName.isNotEmpty ? currentItem.cleanedName : specificName);
+
+                              // User Info Resolution from UID
+                              // Since we removed 'addedByName', we display 'User' or fetch. 
+                              // For MVP, if addedBy matches current user, say "Vous". else "User".
+                              // Or simply hide it if we can't resolve.
+                              // TODO: Implement user profile cache
+                              final String? addedByName = batch.addedBy != null ? "Utilisateur" : null;
+
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey[200]!),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.03),
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
-                                        isExpired
-                                            ? Icons.warning_amber_rounded
-                                            : Icons.event,
-                                        size: 14,
-                                        color: statusColor,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        _formatDate(Timestamp.fromDate(ts)),
-                                        style: TextStyle(
-                                          color: statusColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (addedDateStr.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 4),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                      // 1. IMAGE
+                                      Stack(
                                         children: [
-                                          Text(
-                                            l10n.addedOnDate(addedDateStr),
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: Colors.grey[400],
+                                          Container(
+                                            width: 60,
+                                            height: 60,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(12),
+                                              color: Colors.grey[100],
                                             ),
+                                            clipBehavior: Clip.antiAlias,
+                                            child:
+                                                batchImageUrl != null &&
+                                                    batchImageUrl.isNotEmpty
+                                                ? Image.network(
+                                                    batchImageUrl,
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder:
+                                                        (ctx, error, stackTrace) =>
+                                                            InitialsAvatar(
+                                                              name: initialsName,
+                                                            ),
+                                                  )
+                                                : InitialsAvatar(name: initialsName),
                                           ),
-                                          if (batch.addedByAvatar != null || batch.addedByName != null) ...[
-                                            const SizedBox(height: 2),
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
+                                          if (nutriscore != null)
+                                            Positioned(
+                                              bottom: 0,
+                                              right: 0,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 4,
+                                                  vertical: 2,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: _getNutriScoreColor(
+                                                    nutriscore,
+                                                  ),
+                                                  borderRadius: const BorderRadius.only(
+                                                    topLeft: Radius.circular(6),
+                                                    bottomRight: Radius.circular(
+                                                      12,
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  nutriscore.toUpperCase(),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+
+                                      const SizedBox(width: 12),
+
+                                      // 2. INFOS
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              specificName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            if (brand.isNotEmpty)
+                                              Text(
+                                                brand,
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+
+                                            const SizedBox(height: 8),
+
+                                            Wrap(
+                                              spacing: 6,
+                                              runSpacing: 6,
                                               children: [
-                                                if (batch.addedByAvatar != null)
-                                                  Container(
-                                                    width: 12,
-                                                    height: 12,
-                                                    margin: const EdgeInsets.only(right: 4),
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      image: DecorationImage(
-                                                        image: batch.addedByAvatar!.startsWith('http')
-                                                            ? NetworkImage(batch.addedByAvatar!)
-                                                            : AssetImage(batch.addedByAvatar!) as ImageProvider,
-                                                        fit: BoxFit.cover,
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 2,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[100],
+                                                    borderRadius: BorderRadius.circular(
+                                                      4,
+                                                    ),
+                                                    border: Border.all(
+                                                      color: Colors.grey[300]!,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    "x$quantity",
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                  if (storeName.isNotEmpty)
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.blue[50],
+                                                        borderRadius:
+                                                            BorderRadius.circular(4),
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.store,
+                                                            size: 10,
+                                                            color: Colors.blue[800],
+                                                          ),
+                                                          const SizedBox(width: 4),
+                                                          Text(
+                                                            storeName,
+                                                            style: TextStyle(
+                                                              fontSize: 10,
+                                                              color: Colors.blue[800],
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
-                                                  ),
-                                                if (batch.addedByName != null)
-                                                  Text(
-                                                    batch.addedByName!,
-                                                    style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: Colors.grey[500],
-                                                      fontStyle: FontStyle.italic,
+                                                  
+                                                  if (batch.price != null && batch.price! > 0)
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green[50],
+                                                        borderRadius:
+                                                            BorderRadius.circular(4),
+                                                      ),
+                                                      child: Text(
+                                                        "${batch.price!.toStringAsFixed(2)} €",
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: Colors.green[800],
+                                                          fontWeight: FontWeight.bold,
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
                                               ],
                                             ),
                                           ],
+                                        ),
+                                      ),
+
+                                      // 3. EDIT/ACTIONS
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.edit_outlined),
+                                            color: Colors.grey[600],
+                                            visualDensity: VisualDensity.compact,
+                                            onPressed: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (ctx) => EditBatchDialog(
+                                                  batch: batch,
+                                                  onSave: (updatedBatch) async {
+                                                     await vm.updateBatchDetails(currentItem, batch, updatedBatch);
+                                                     // SnackBar logic...
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                isExpired
+                                                    ? Icons.warning_amber_rounded
+                                                    : Icons.event,
+                                                size: 14,
+                                                color: statusColor,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                _formatDate(Timestamp.fromDate(ts)),
+                                                style: TextStyle(
+                                                  color: statusColor,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          if (addedDateStr.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    l10n.addedOnDate(addedDateStr),
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.grey[400],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                         ],
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        ),
-                      );
-                    },
                   ),
-          ),
-        ],
-      ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

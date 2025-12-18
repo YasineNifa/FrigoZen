@@ -4,11 +4,13 @@ import 'package:frigo_zen/models/shopping_item.dart';
 import 'package:frigo_zen/repositories/shopping_repository.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:frigo_zen/repositories/product_catalog_repository.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/constants/app_categories.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/models/activity_log.dart';
+import 'package:frigo_zen/models/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ShoppingViewModel extends ChangeNotifier {
@@ -115,6 +117,13 @@ class ShoppingViewModel extends ChangeNotifier {
         result.data['item'],
       );
 
+      final categoryStr = AppCategories.normalize(itemData['category']);
+      final category = InventoryCategory.fromString(categoryStr);
+      final rawLocation = itemData['location'];
+      final int locationId = rawLocation != null 
+          ? StorageLocation.fromId(rawLocation).id 
+          : category.defaultLocation.id;
+
       return ShoppingItem(
         id: '',
         name: itemData['name'] ?? name,
@@ -122,8 +131,8 @@ class ShoppingViewModel extends ChangeNotifier {
         canonicalName: itemData['canonicalName'] ?? name,
         quantity: itemData['quantity'] ?? 1,
         dvm: itemData['dvm'] ?? 7,
-        category: AppCategories.normalize(itemData['category']),
-        location: itemData['location'] ?? 'Frigo',
+        category: categoryStr,
+        location: locationId,
         isChecked: false,
         createdAt: DateTime.now(),
       );
@@ -138,8 +147,8 @@ class ShoppingViewModel extends ChangeNotifier {
         quantity: 1,
         isChecked: false,
         createdAt: DateTime.now(),
-        category: 'Other',
-        location: 'Frigo',
+        category: 'cat_other',
+        location: StorageLocation.other.id,
       );
     }
   }
@@ -210,8 +219,8 @@ class ShoppingViewModel extends ChangeNotifier {
             quantity: 1,
             isChecked: false,
             createdAt: DateTime.now(),
-            category: 'Other',
-            location: 'Frigo',
+            category: 'cat_other',
+            location: StorageLocation.other.id,
             creatorId: user?.uid,
             creatorName: user?.displayName ?? 'Utilisateur',
             creatorAvatar: user?.photoURL,
@@ -267,7 +276,7 @@ class ShoppingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> moveCheckedItemsToInventory(String defaultStoreName) async {
+  Future<void> moveCheckedItemsToInventory(String? defaultStoreName) async {
     if (_householdId == null) return;
 
     final checkedItems = _items.where((item) => item.isChecked).toList();
@@ -286,6 +295,7 @@ class ShoppingViewModel extends ChangeNotifier {
         final now = DateTime.now();
         final expirationDate = now.add(Duration(days: item.dvm ?? 7));
         final batch = Batch(
+          id: '',
           quantity: item.quantity,
           expirationDate: expirationDate,
           addedAt: now,
@@ -296,8 +306,6 @@ class ShoppingViewModel extends ChangeNotifier {
           imageUrl: item.imageUrl,
           nutriscore: item.nutriscore,
           addedBy: FirebaseAuth.instance.currentUser?.uid,
-          addedByName: FirebaseAuth.instance.currentUser?.displayName,
-          addedByAvatar: FirebaseAuth.instance.currentUser?.photoURL,
         );
         
         // 2. Create InventoryItem
@@ -306,8 +314,8 @@ class ShoppingViewModel extends ChangeNotifier {
           name: item.name,
           cleanedName: item.cleanedName,
           canonicalName: item.canonicalName,
-          category: item.category,
-          location: item.location,
+          category: InventoryCategory.fromString(item.category),
+          location: StorageLocation.fromId(item.location),
           totalQuantity: item.quantity,
           batches: [batch],
           earliestExpirationDate: expirationDate,
@@ -328,9 +336,24 @@ class ShoppingViewModel extends ChangeNotifier {
           }
         );
 
-        // 5. Collect ID for batch deletion
-        // In Dart, this is safe as long as we don't modify the list structure concurrently in a way that race conditions matter for simple adds.
-        // However, to be perfectly safe and clean, we can return the ID from the map and collect later.
+        // 5. Log to Catalog
+        try {
+          final catalogRepo = ProductCatalogRepository();
+          await catalogRepo.logItemToCatalog(
+            name: item.name,
+            canonicalName: item.canonicalName,
+            category: item.category,
+            defaultDVM: item.dvm ?? 7,
+            imageUrl: item.imageUrl,
+            nutriscore: item.nutriscore,
+            storeName: item.storeName ?? defaultStoreName,
+            // Price is not tracked in Shopping Item currently, but if we had it:
+            // lastPrice: item.price, 
+            // Since we don't, we omit it or pass null.
+          );
+        } catch (e) {
+          debugPrint("Error logging to catalog: $e");
+        }
       }));
       
       // Collect IDs after parallel execution

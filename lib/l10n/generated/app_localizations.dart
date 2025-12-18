@@ -1442,6 +1442,12 @@ abstract class AppLocalizations {
   /// **'Quantity'**
   String get quantityLabel;
 
+  /// No description provided for @priceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get priceLabel;
+
   /// No description provided for @searchNoResults.
   ///
   /// In en, this message translates to:

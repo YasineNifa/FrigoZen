@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Batch {
-  final String? id;
+  final String id;
   final int quantity;
   final DateTime expirationDate;
   final DateTime addedAt;
@@ -14,12 +14,10 @@ class Batch {
   final String? brands;
   final Map<String, String>? images;
   final String? addedBy;
-  final String? addedByName;
-  final String? addedByAvatar;
   final double? price;
 
   Batch({
-    this.id,
+    required this.id,
     required this.quantity,
     required this.expirationDate,
     required this.addedAt,
@@ -32,8 +30,6 @@ class Batch {
     this.brands,
     this.images,
     this.addedBy,
-    this.addedByName,
-    this.addedByAvatar,
     this.price,
   });
 
@@ -51,8 +47,6 @@ class Batch {
     String? brands,
     Map<String, String>? images,
     String? addedBy,
-    String? addedByName,
-    String? addedByAvatar,
     double? price,
   }) {
     return Batch(
@@ -69,14 +63,12 @@ class Batch {
       brands: brands ?? this.brands,
       images: images ?? this.images,
       addedBy: addedBy ?? this.addedBy,
-      addedByName: addedByName ?? this.addedByName,
-      addedByAvatar: addedByAvatar ?? this.addedByAvatar,
       price: price ?? this.price,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
+    final map = <String, dynamic>{
       'quantity': quantity,
       'expirationDate': Timestamp.fromDate(expirationDate),
       'addedAt': Timestamp.fromDate(addedAt),
@@ -89,14 +81,19 @@ class Batch {
       'brands': brands,
       'images': images,
       'addedBy': addedBy,
-      'addedByName': addedByName,
-      'addedByAvatar': addedByAvatar,
       'price': price,
     };
+    
+    if (id.isNotEmpty) {
+      map['id'] = id;
+    }
+    
+    return map;
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'quantity': quantity,
       'expirationDate': expirationDate.toIso8601String(),
       'addedAt': addedAt.toIso8601String(),
@@ -109,15 +106,16 @@ class Batch {
       'brands': brands,
       'images': images,
       'addedBy': addedBy,
-      'addedByName': addedByName,
-      'addedByAvatar': addedByAvatar,
       'price': price,
     };
   }
 
-  factory Batch.fromMap(Map<String, dynamic> map) {
+  factory Batch.fromMap(Map<String, dynamic> map, {String? id}) {
+    // If id is passed (from doc.id), use it, otherwise look in map, otherwise generate/fallback
+    final String batchId = id ?? map['id'] as String? ?? ''; 
+
     return Batch(
-      id: map['id'] as String?,
+      id: batchId,
       quantity: map['quantity'] as int? ?? 0,
       expirationDate: (map['expirationDate'] as Timestamp).toDate(),
       addedAt: (map['addedAt'] as Timestamp).toDate(),
@@ -130,10 +128,13 @@ class Batch {
       brands: map['brands'] as String?,
       images: map['images'] != null ? Map<String, String>.from(map['images']) : null,
       addedBy: map['addedBy'] as String?,
-      addedByName: map['addedByName'] as String?,
-      addedByAvatar: map['addedByAvatar'] as String?,
       price: (map['price'] as num?)?.toDouble(),
     );
+  }
+  
+  // Factory for Firestore DocumentSnapshot
+  factory Batch.fromSnapshot(DocumentSnapshot doc) {
+    return Batch.fromMap(doc.data() as Map<String, dynamic>, id: doc.id);
   }
 
   @override
@@ -159,8 +160,6 @@ class Batch {
       other.brands == brands &&
       other.images == images &&
       other.addedBy == addedBy &&
-      other.addedByName == addedByName &&
-      other.addedByAvatar == addedByAvatar &&
       other.price == price;
   }
 
@@ -179,8 +178,6 @@ class Batch {
       brands.hashCode ^
       images.hashCode ^
       addedBy.hashCode ^
-      addedByName.hashCode ^
-      addedByAvatar.hashCode ^
       price.hashCode;
   }
 }

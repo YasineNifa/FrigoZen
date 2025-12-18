@@ -345,6 +345,7 @@
   "nutriScoreUndefined": "Undefined",
   "expirationDateLabel": "Expiration date",
   "quantityLabel": "Quantity",
+  "priceLabel": "Price",
   "searchNoResults": "No results found",
   "searchTryDifferent": "Try a different search term.",
   "statusExpired": "Expired",

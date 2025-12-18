@@ -5,6 +5,8 @@ import 'package:frigo_zen/repositories/shopping_repository.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
+import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/models/activity_log.dart';
 
 // Mock Shopping Repository
 class MockShoppingRepository implements ShoppingRepository {
@@ -17,7 +19,6 @@ class MockShoppingRepository implements ShoppingRepository {
     return Stream.value(_items);
   }
 
-  // Removed @override
   @override
   Future<void> addShoppingItem(String householdId, ShoppingItem item) async {
     if (shouldThrow) throw Exception("Error adding item");
@@ -77,13 +78,30 @@ class MockInventoryRepository implements InventoryRepository {
   @override
   Future<void> deleteInventoryItem(String householdId, String itemId) async {}
   
+  // Missing methods stubs
+  @override
+  Future<void> addBatch(String householdId, String itemId, Batch batch) async {}
+  
+  @override
+  Future<void> decrementItemQuantity(String householdId, String itemId, int quantityToRemove) async {}
+  
+  @override
+  Future<void> deleteBatch(String householdId, String itemId, String batchId) async {}
+  
+  @override
+  Future<void> deleteItem(String householdId, String itemId) async {}
+
+  @override
+  Stream<List<Batch>> getBatchesStream(String householdId, String itemId) => Stream.value([]);
+  
+  @override
+  Future<void> updateBatch(String householdId, String itemId, Batch batch) async {}
+  
   @override
   Stream<List<InventoryItem>> getInventoryStream(String householdId, {String? location}) => Stream.value([]);
   
   @override
   Future<void> updateInventoryItem(String householdId, InventoryItem item) async {}
-
-
 
   @override
   DateTime getEarliestDate(List<Batch> batches) => DateTime.now();
@@ -95,17 +113,37 @@ class MockInventoryRepository implements InventoryRepository {
   Future<void> upsertInventoryItem(String householdId, InventoryItem item) async {}
 }
 
+class MockHistoryService implements HistoryService {
+  @override
+  Future<void> logActivity({required ActivityType type, required String itemName, Map<String, dynamic>? details}) async {}
+  
+  @override
+  Stream<List<ActivityLog>> getHistoryStream() => Stream.value([]);
+  
+  @override
+  Future<void> logAction(String householdId, String action) async {}
+  
+  @override
+  Future<void> generateFakeData() async {}
+  
+  @override
+  Future<List<ActivityLog>> getSpendingHistory() async => [];
+}
+
 void main() {
   late ShoppingViewModel viewModel;
   late MockShoppingRepository mockRepository;
   late MockInventoryRepository mockInventoryRepository;
+  late MockHistoryService mockHistoryService;
 
   setUp(() {
     mockRepository = MockShoppingRepository();
     mockInventoryRepository = MockInventoryRepository();
+    mockHistoryService = MockHistoryService();
     viewModel = ShoppingViewModel(
       shoppingRepository: mockRepository,
       inventoryRepository: mockInventoryRepository,
+      historyService: mockHistoryService,
     );
     viewModel.init("test_household");
   });
@@ -125,7 +163,7 @@ void main() {
         quantity: 1,
         createdAt: DateTime.now(),
         category: 'Other',
-        location: 'Frigo',
+        location: 0,
       );
       
       await viewModel.addItem(item);
@@ -136,6 +174,7 @@ void main() {
       expect(viewModel.items.length, 1);
       expect(viewModel.items.first.name, 'Milk');
       expect(viewModel.items.first.isChecked, false);
+      expect(viewModel.items.first.location, 0);
     });
 
     test('toggleItemChecked updates isChecked status', () async {
@@ -148,7 +187,7 @@ void main() {
         quantity: 1,
         createdAt: DateTime.now(),
         category: 'Other',
-        location: 'Frigo',
+        location: 0,
       );
       await viewModel.addItem(item);
       await Future.delayed(Duration.zero);
@@ -170,7 +209,7 @@ void main() {
         quantity: 1,
         createdAt: DateTime.now(),
         category: 'Other',
-        location: 'Frigo',
+        location: 0,
       );
       await viewModel.addItem(item);
       await Future.delayed(Duration.zero);

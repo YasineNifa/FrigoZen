@@ -26,6 +26,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
   late TextEditingController _nameController;
   late TextEditingController _brandController;
   late TextEditingController _storeController;
+  late TextEditingController _priceController;
   late int _quantity;
   late DateTime _expirationDate;
   String? _nutriscore;
@@ -44,6 +45,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
     _nameController = TextEditingController(text: widget.batch.name ?? '');
     _brandController = TextEditingController(text: widget.batch.brands ?? '');
     _storeController = TextEditingController(text: widget.batch.storeName ?? '');
+    _priceController = TextEditingController(text: widget.batch.price?.toString() ?? '');
     _quantity = widget.batch.quantity;
     _expirationDate = widget.batch.expirationDate;
     _nutriscore = widget.batch.nutriscore?.toUpperCase();
@@ -58,6 +60,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
     _nameController.dispose();
     _brandController.dispose();
     _storeController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -165,6 +168,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
       images: _images,
       cleanedName: _cleanedName,
       canonicalName: _canonicalName,
+      price: double.tryParse(_priceController.text.replaceAll(',', '.').trim()),
     );
     widget.onSave(updatedBatch);
     Navigator.pop(context);
@@ -255,6 +259,19 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
                 prefixIcon: const Icon(Icons.store_outlined),
               ),
               textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 16),
+
+            // Prix
+            TextField(
+              controller: _priceController,
+              decoration: InputDecoration(
+                labelText: l10n.priceLabel, // Make sure to add this key or reuse generic
+                hintText: "0.00",
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.euro_symbol),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 16),
 
