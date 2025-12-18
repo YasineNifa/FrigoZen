@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frigo_zen/models/enums.dart';
 
 class ShoppingItem {
   final String id;
@@ -7,8 +8,8 @@ class ShoppingItem {
   final String canonicalName;
   final int quantity;
   final int? dvm;
-  final String category;
-  final int location;
+  final InventoryCategory category;
+  final StorageLocation location;
   final DateTime createdAt;
   final bool isChecked;
   final String? imageUrl;
@@ -16,9 +17,9 @@ class ShoppingItem {
   final String? brands;
   final String? storeName;
   final DateTime? expirationDate;
-  final String? creatorId;
-  final String? creatorName;
-  final String? creatorAvatar;
+  
+  // Renamed from creator... to addedBy...
+  final String? addedBy;
 
   ShoppingItem({
     required this.id,
@@ -36,9 +37,7 @@ class ShoppingItem {
     this.brands,
     this.storeName,
     this.expirationDate,
-    this.creatorId,
-    this.creatorName,
-    this.creatorAvatar,
+    this.addedBy,
   });
 
   ShoppingItem copyWith({
@@ -48,8 +47,8 @@ class ShoppingItem {
     String? canonicalName,
     int? quantity,
     int? dvm,
-    String? category,
-    int? location,
+    InventoryCategory? category,
+    StorageLocation? location,
     DateTime? createdAt,
     bool? isChecked,
     String? imageUrl,
@@ -57,9 +56,7 @@ class ShoppingItem {
     String? brands,
     String? storeName,
     DateTime? expirationDate,
-    String? creatorId,
-    String? creatorName,
-    String? creatorAvatar,
+    String? addedBy,
   }) {
     return ShoppingItem(
       id: id ?? this.id,
@@ -77,9 +74,7 @@ class ShoppingItem {
       brands: brands ?? this.brands,
       storeName: storeName ?? this.storeName,
       expirationDate: expirationDate ?? this.expirationDate,
-      creatorId: creatorId ?? this.creatorId,
-      creatorName: creatorName ?? this.creatorName,
-      creatorAvatar: creatorAvatar ?? this.creatorAvatar,
+      addedBy: addedBy ?? this.addedBy,
     );
   }
 
@@ -90,8 +85,8 @@ class ShoppingItem {
       'canonicalName': canonicalName,
       'quantity': quantity,
       'dvm': dvm,
-      'category': category,
-      'location': location,
+      'category': category.key,
+      'location': location.id,
       'createdAt': Timestamp.fromDate(createdAt),
       'isChecked': isChecked,
       'imageUrl': imageUrl,
@@ -99,27 +94,12 @@ class ShoppingItem {
       'brands': brands,
       'storeName': storeName,
       'expirationDate': expirationDate != null ? Timestamp.fromDate(expirationDate!) : null,
-      'creatorId': creatorId,
-      'creatorName': creatorName,
-      'creatorAvatar': creatorAvatar,
+      'addedBy': addedBy,
+      // Legacy mapping (optional, but good for safety if UI expects it? No, UI reads internal fields)
     };
   }
 
   factory ShoppingItem.fromMap(Map<String, dynamic> map, String id) {
-     // Helper to parse location
-    int parseLocation(dynamic value) {
-      if (value is int) return value;
-      if (value is String) {
-         // Map legacy strings to IDs
-         final normalized = value.toLowerCase().trim();
-         if (normalized.contains('frigo') || normalized == 'fridge' || normalized == 'loc_fridge') return 0;
-         if (normalized.contains('placard') || normalized == 'pantry' || normalized == 'loc_pantry') return 1;
-         if (normalized.contains('cong') || normalized == 'freezer' || normalized == 'loc_freezer') return 2;
-         return 3; // Other
-      }
-      return 0; // Default to Fridge
-    }
-
     return ShoppingItem(
       id: id,
       name: map['name'] as String? ?? '',
@@ -127,8 +107,8 @@ class ShoppingItem {
       canonicalName: map['canonicalName'] as String? ?? '',
       quantity: map['quantity'] as int? ?? 1,
       dvm: map['dvm'] as int?,
-      category: map['category'] as String? ?? 'Other',
-      location: parseLocation(map['location']),
+      category: InventoryCategory.fromString(map['category'] as String?),
+      location: StorageLocation.fromId(map['location']),
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       isChecked: map['isChecked'] as bool? ?? false,
       imageUrl: map['imageUrl'] as String?,
@@ -136,9 +116,8 @@ class ShoppingItem {
       brands: map['brands'] as String?,
       storeName: map['storeName'] as String?,
       expirationDate: (map['expirationDate'] as Timestamp?)?.toDate(),
-      creatorId: map['creatorId'] as String?,
-      creatorName: map['creatorName'] as String?,
-      creatorAvatar: map['creatorAvatar'] as String?,
+      // Handle rename migration by checking old keys if new ones are missing
+      addedBy: map['addedBy'] as String? ?? map['creatorId'] as String?,
     );
   }
 

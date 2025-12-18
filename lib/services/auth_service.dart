@@ -50,6 +50,7 @@ class AuthService {
     // 2. Update Firestore User Document
     await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
       'photoURL': assetPath,
+      'displayName': user.displayName, // Ensure displayName is also synced
     }, SetOptions(merge: true));
   }
 }

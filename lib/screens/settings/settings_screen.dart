@@ -472,7 +472,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               try {
                 await _user?.updateDisplayName(nameController.text.trim());
                 await _user?.reload();
+
+                // Sync to Firestore
                 final updatedUser = FirebaseAuth.instance.currentUser;
+                if (updatedUser != null) {
+                   await FirebaseFirestore.instance.collection('users').doc(updatedUser.uid).set({
+                      'displayName': updatedUser.displayName,
+                   }, SetOptions(merge: true));
+                }
                 
                 if (mounted) {
                   setState(() {

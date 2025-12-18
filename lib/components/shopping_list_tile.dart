@@ -3,14 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:frigo_zen/models/shopping_item.dart';
 import 'package:frigo_zen/components/initials_avatar.dart';
 
+import 'package:frigo_zen/models/frigo_user.dart';
+
 class ShoppinglistTile extends StatelessWidget {
   final ShoppingItem item;
+  final FrigoUser? addedByUser;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
 
   const ShoppinglistTile({
     super.key,
     required this.item,
+    this.addedByUser,
     required this.onToggle,
     required this.onDelete,
   });
@@ -87,7 +91,7 @@ class ShoppinglistTile extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          subtitle: (item.quantity > 1 || (item.brands != null && item.brands!.isNotEmpty) || item.creatorAvatar != null)
+          subtitle: (item.quantity > 1 || (item.brands != null && item.brands!.isNotEmpty) || addedByUser?.photoURL != null || addedByUser?.displayName != null)
             ? Row(
                 children: [
                   if (item.quantity > 1)
@@ -119,28 +123,32 @@ class ShoppinglistTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  if (item.creatorAvatar != null) ...[
+                  if (addedByUser != null && (addedByUser!.photoURL != null || addedByUser!.displayName != null)) ...[
                     const SizedBox(width: 8),
-                    Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: item.creatorAvatar!.startsWith('http')
-                              ? NetworkImage(item.creatorAvatar!)
-                              : AssetImage(item.creatorAvatar!) as ImageProvider,
-                          fit: BoxFit.cover,
+                    if (addedByUser!.photoURL != null) ...[
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: addedByUser!.photoURL!.startsWith('http')
+                                ? NetworkImage(addedByUser!.photoURL!)
+                                : AssetImage(addedByUser!.photoURL!) as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
-                    if (item.creatorName != null) ...[
                       const SizedBox(width: 4),
-                      Text(
-                        item.creatorName!,
-                        style: TextStyle(fontSize: 10, color: Colors.grey[500]),
-                      ),
                     ],
+                    if (addedByUser!.displayName != null)
+                      Flexible(
+                        child: Text(
+                          addedByUser!.displayName!,
+                          style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                   ],
                 ],
               )
