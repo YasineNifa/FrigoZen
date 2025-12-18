@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
+import 'package:frigo_zen/repositories/product_catalog_repository.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/models/activity_log.dart';
 import 'package:frigo_zen/models/enums.dart';
@@ -18,6 +19,7 @@ enum LocationFilter {
 class InventoryViewModel extends ChangeNotifier {
   final InventoryRepository _inventoryRepository;
   final HistoryService _historyService;
+  final ProductCatalogRepository _catalogRepository;
   
   // State
   List<InventoryItem> _items = [];
@@ -26,6 +28,10 @@ class InventoryViewModel extends ChangeNotifier {
   String _searchQuery = "";
   String? _householdId;
   StreamSubscription<List<InventoryItem>>? _inventorySubscription;
+
+// ... (skipping getters if not needed in replacement, but range requires careful matching)
+// Wait, I should replace just the start of class or just constructor? Constructor and field are far apart?
+// No, fields are at top. I'll replace the top part of class.
 
   // Getters
   List<InventoryItem> get items => _items;
@@ -120,8 +126,10 @@ class InventoryViewModel extends ChangeNotifier {
   InventoryViewModel({
     required InventoryRepository inventoryRepository,
     required HistoryService historyService,
+    required ProductCatalogRepository catalogRepository,
   })  : _inventoryRepository = inventoryRepository,
-        _historyService = historyService;
+        _historyService = historyService,
+        _catalogRepository = catalogRepository;
 
   void init(String householdId) {
     if (_householdId == householdId) return;
@@ -292,6 +300,19 @@ class InventoryViewModel extends ChangeNotifier {
     );
     
     await _inventoryRepository.addBatch(_householdId!, item.id, newBatch);
+
+    // Sync to Catalog (Log usage + capture latest price/brands if missing)
+    await _catalogRepository.logItemToCatalog(
+      name: item.name,
+      canonicalName: item.canonicalName,
+      category: item.category.key,
+      defaultDVM: item.dvm,
+      imageUrl: newBatch.imageUrl ?? item.imageUrl,
+      brands: newBatch.brands,
+      nutriscore: newBatch.nutriscore,
+      storeName: newBatch.storeName,
+      lastPrice: newBatch.price,
+    );
   }
 
   Future<void> updateBatchDetails(InventoryItem item, Batch oldBatch, Batch newBatch) async {
@@ -312,6 +333,16 @@ class InventoryViewModel extends ChangeNotifier {
        // We'll leave the explicitly passed 'item' (which might have been modified) to be updated via updateItem
        await updateItem(item); // Update parent fields if changed
     }
+
+    // Sync rich data to Catalog (Price, Brands, Nutriscore, Store, Image)
+    await _catalogRepository.updateCatalogItem(
+      canonicalName: item.canonicalName,
+      lastPrice: newBatch.price,
+      brands: newBatch.brands,
+      nutriscore: newBatch.nutriscore,
+      storeName: newBatch.storeName,
+      imageUrl: newBatch.imageUrl,
+    );
   }
 
   Future<void> deleteBatch(InventoryItem item, Batch batch) async {
@@ -354,6 +385,12 @@ class InventoryViewModel extends ChangeNotifier {
     );
 
     await updateItem(updatedItem);
+    
+    // Sync to Catalog
+    await _catalogRepository.updateCatalogItem(
+      canonicalName: item.canonicalName,
+      name: newName,
+    );
   }
 
   Future<void> updateItemCategory(InventoryItem item, String newCategory) async {
@@ -361,6 +398,12 @@ class InventoryViewModel extends ChangeNotifier {
 
     final updatedItem = item.copyWith(category: InventoryCategory.fromString(newCategory));
     await updateItem(updatedItem);
+    
+    // Sync to Catalog
+    await _catalogRepository.updateCatalogItem(
+      canonicalName: item.canonicalName,
+      category: newCategory,
+    );
   }
 
 

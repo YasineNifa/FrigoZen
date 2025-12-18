@@ -96,6 +96,44 @@ class ProductCatalogRepository {
     }
   }
 
+  // Explicitly update catalog item fields (used when editing inventory items)
+  Future<void> updateCatalogItem({
+    required String canonicalName,
+    String? name,
+    String? category,
+    String? imageUrl,
+    String? brands,
+    String? nutriscore,
+    String? storeName,
+    double? lastPrice,
+  }) async {
+    try {
+      final collection = await _getCatalogCollection();
+      final String safeCanonical = canonicalName.trim().toLowerCase();
+      final docId = _generateId(safeCanonical);
+      final docRef = collection.doc(docId);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        final Map<String, dynamic> updates = {
+          'updatedAt': Timestamp.now(),
+        };
+
+        if (name != null) updates['name'] = name;
+        if (category != null) updates['category'] = category;
+        if (imageUrl != null) updates['imageUrl'] = imageUrl;
+        if (brands != null) updates['brands'] = brands;
+        if (nutriscore != null) updates['nutriscore'] = nutriscore;
+        if (storeName != null) updates['storeName'] = storeName;
+        if (lastPrice != null) updates['lastPrice'] = lastPrice;
+
+        await docRef.update(updates);
+      }
+    } catch (e) {
+      print("Error updating catalog item: $e");
+    }
+  }
+
   Future<CatalogItem?> getItem(String canonicalName) async {
     try {
       final collection = await _getCatalogCollection();
