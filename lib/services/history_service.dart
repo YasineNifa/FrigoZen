@@ -26,8 +26,6 @@ class HistoryService {
         type: type,
         itemName: itemName,
         userId: user.uid,
-        userName: user.displayName ?? 'Utilisateur',
-        userAvatar: user.photoURL ?? '',
         timestamp: DateTime.now(),
         details: details,
       );
@@ -115,8 +113,6 @@ class HistoryService {
           type: ActivityType.bought,
           itemName: item['name'] as String,
           userId: _auth.currentUser?.uid ?? 'test',
-          userName: 'Test User',
-          userAvatar: '',
           timestamp: date,
           details: {
              'price': item['price'],

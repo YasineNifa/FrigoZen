@@ -5,6 +5,9 @@ import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 import 'package:frigo_zen/screens/analysis/analysis_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/viewmodels/history_view_model.dart';
+import 'package:frigo_zen/models/frigo_user.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -29,14 +32,14 @@ class HistoryScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<List<ActivityLog>>(
-        stream: historyService.getHistoryStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+      body: Consumer<HistoryViewModel>(
+        builder: (context, vm, child) {
+          if (vm.isLoading) {
+             // Show loading only if initial load
+             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          if (vm.logs.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -52,14 +55,16 @@ class HistoryScreen extends StatelessWidget {
             );
           }
 
-          final logs = snapshot.data!;
+          final logs = vm.logs;
 
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: logs.length,
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
-              return _HistoryCard(log: logs[index]);
+              final log = logs[index];
+              final user = vm.getUser(log.userId);
+              return _HistoryCard(log: log, user: user);
             },
           );
         },
@@ -70,8 +75,9 @@ class HistoryScreen extends StatelessWidget {
 
 class _HistoryCard extends StatelessWidget {
   final ActivityLog log;
+  final FrigoUser? user;
 
-  const _HistoryCard({required this.log});
+  const _HistoryCard({required this.log, this.user});
 
   String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
@@ -91,12 +97,16 @@ class _HistoryCard extends StatelessWidget {
   }
 
   Widget _buildAvatar(BuildContext context) {
-    if (log.userAvatar.isEmpty) {
+    final displayName = user?.displayName ?? 'Utilisateur';
+    final photoUrl = user?.photoURL;
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+
+    if (photoUrl == null || photoUrl.isEmpty) {
       return CircleAvatar(
         radius: 20,
         backgroundColor: Colors.grey[200],
         child: Text(
-          log.userName.isNotEmpty ? log.userName[0].toUpperCase() : '?',
+          initial,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       );
@@ -108,9 +118,9 @@ class _HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         image: DecorationImage(
-          image: log.userAvatar.startsWith('http')
-              ? NetworkImage(log.userAvatar)
-              : AssetImage(log.userAvatar) as ImageProvider,
+          image: photoUrl.startsWith('http')
+              ? NetworkImage(photoUrl)
+              : AssetImage(photoUrl) as ImageProvider,
           fit: BoxFit.cover,
         ),
       ),
@@ -118,7 +128,7 @@ class _HistoryCard extends StatelessWidget {
   }
 
   String _getDescription(BuildContext context, AppLocalizations l10n) {
-    final userName = log.userName;
+    final userName = user?.displayName ?? 'Utilisateur';
     final itemName = log.itemName;
     
     // Check for price in details

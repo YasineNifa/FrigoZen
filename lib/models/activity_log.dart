@@ -12,8 +12,6 @@ class ActivityLog {
   final ActivityType type;
   final String itemName;
   final String userId;
-  final String userName;
-  final String userAvatar;
   final DateTime timestamp;
   final Map<String, dynamic>? details;
 
@@ -22,8 +20,6 @@ class ActivityLog {
     required this.type,
     required this.itemName,
     required this.userId,
-    required this.userName,
-    required this.userAvatar,
     required this.timestamp,
     this.details,
   });
@@ -33,8 +29,6 @@ class ActivityLog {
       'type': type.name, // Store as string
       'itemName': itemName,
       'userId': userId,
-      'userName': userName,
-      'userAvatar': userAvatar,
       'timestamp': Timestamp.fromDate(timestamp),
       'details': details,
     };
@@ -49,8 +43,6 @@ class ActivityLog {
       ),
       itemName: map['itemName'] as String,
       userId: map['userId'] as String,
-      userName: map['userName'] as String,
-      userAvatar: map['userAvatar'] as String,
       timestamp: (map['timestamp'] as Timestamp).toDate(),
       details: map['details'] as Map<String, dynamic>?,
     );

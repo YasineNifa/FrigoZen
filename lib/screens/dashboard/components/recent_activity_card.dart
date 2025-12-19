@@ -4,6 +4,9 @@ import 'package:frigo_zen/models/activity_log.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/screens/history/history_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/viewmodels/history_view_model.dart';
+import 'package:frigo_zen/models/frigo_user.dart';
 
 class RecentActivityCard extends StatelessWidget {
   const RecentActivityCard({super.key});
@@ -38,10 +41,13 @@ class RecentActivityCard extends StatelessWidget {
         ),
         SizedBox(
           height: 90, // Fixed height for activity preview
-          child: StreamBuilder<List<ActivityLog>>(
-            stream: historyService.getHistoryStream(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          child: Consumer<HistoryViewModel>(
+            builder: (context, vm, child) {
+              if (vm.isLoading) {
+                 return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
+              }
+              
+              if (vm.logs.isEmpty) {
                  return Center(
                    child: Text(
                      l10n.activityEmpty,
@@ -50,7 +56,7 @@ class RecentActivityCard extends StatelessWidget {
                  );
               }
 
-              final logs = snapshot.data!.take(5).toList(); // Show last 5 horizontally
+              final logs = vm.logs.take(5).toList(); // Show last 5 horizontally
               
               return ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -58,7 +64,9 @@ class RecentActivityCard extends StatelessWidget {
                 itemCount: logs.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
-                   return _MiniHistoryCard(log: logs[index]);
+                   final log = logs[index];
+                   final user = vm.getUser(log.userId);
+                   return _MiniHistoryCard(log: log, user: user);
                 },
               );
             },
@@ -71,10 +79,17 @@ class RecentActivityCard extends StatelessWidget {
 
 class _MiniHistoryCard extends StatelessWidget {
   final ActivityLog log;
-  const _MiniHistoryCard({required this.log});
+  final FrigoUser? user;
+  
+  const _MiniHistoryCard({required this.log, this.user});
 
   @override
   Widget build(BuildContext context) {
+    // Fallbacks
+    final displayName = user?.displayName ?? 'Utilisateur';
+    final photoUrl = user?.photoURL;
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+
     return Container(
       width: 200,
       padding: const EdgeInsets.all(12),
@@ -90,18 +105,18 @@ class _MiniHistoryCard extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              image: log.userAvatar.isNotEmpty 
+              image: photoUrl != null && photoUrl.isNotEmpty 
                   ? DecorationImage(
-                      image: log.userAvatar.startsWith('http')
-                        ? NetworkImage(log.userAvatar)
-                        : AssetImage(log.userAvatar) as ImageProvider,
+                      image: photoUrl.startsWith('http')
+                        ? NetworkImage(photoUrl)
+                        : AssetImage(photoUrl) as ImageProvider,
                       fit: BoxFit.cover,
                     )
                   : null,
                color: Colors.grey[100],
             ),
-             child: log.userAvatar.isEmpty 
-                 ? Center(child: Text(log.userName.isNotEmpty ? log.userName[0] : '?', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)))
+             child: (photoUrl == null || photoUrl.isEmpty) 
+                 ? Center(child: Text(initial, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)))
                  : null,
           ),
           const SizedBox(width: 8),
@@ -111,7 +126,7 @@ class _MiniHistoryCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  _getActionText(AppLocalizations.of(context)!),
+                  _getActionText(AppLocalizations.of(context)!, displayName),
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -128,17 +143,17 @@ class _MiniHistoryCard extends StatelessWidget {
     );
   }
 
-  String _getActionText(AppLocalizations l10n) {
+  String _getActionText(AppLocalizations l10n, String userName) {
      // Simplified text for mini card
      switch (log.type) {
       case ActivityType.addedShopping:
-        return "${log.userName} + ${log.itemName}";
+        return "$userName + ${log.itemName}";
       case ActivityType.bought:
-        return "${log.userName} -> ${log.itemName}";
+        return "$userName -> ${log.itemName}";
       case ActivityType.consumed:
-        return "${log.userName} - ${log.itemName}";
+        return "$userName - ${log.itemName}";
       case ActivityType.trashed:
-        return "${log.userName} x ${log.itemName}";
+        return "$userName x ${log.itemName}";
     }
   }
 

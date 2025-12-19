@@ -7,7 +7,9 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
 import 'package:frigo_zen/viewmodels/recipes_view_model.dart';
+import 'package:frigo_zen/viewmodels/recipes_view_model.dart';
 import 'package:frigo_zen/screens/core/navigation_controller.dart';
+import 'package:frigo_zen/viewmodels/history_view_model.dart';
 
 List<SingleChildWidget> getApplicationProviders() {
   final revenueProvider = locator<RevenueProvider>();
@@ -24,6 +26,7 @@ List<SingleChildWidget> getApplicationProviders() {
       create: (context) => locator<RecipesViewModel>(),
     ),
     ChangeNotifierProvider(create: (context) => NavigationController()),
+    ChangeNotifierProvider(create: (context) => HistoryViewModel()),
     ChangeNotifierProvider.value(value: revenueProvider),
   ];
 }

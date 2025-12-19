@@ -6,6 +6,8 @@ import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/services/household_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:frigo_zen/viewmodels/history_view_model.dart';
 
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({super.key});
@@ -47,6 +49,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     final format = NumberFormat.simpleCurrency(name: currencyCode);
     final currencySymbol = format.currencySymbol;
 
+    // Inject ViewModel (listen: false because we are in a method, not build)
+    final historyVM = context.read<HistoryViewModel>();
     final logs = await historyService.getSpendingHistory();
 
     final Map<String, double> spending = {};
@@ -54,6 +58,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     double total = 0;
     int itemsFound = logs.length;
     int priceCount = 0;
+    final Set<String> userIds = {};
 
     for (var log in logs) {
       if (log.details != null && log.details!['price'] != null) {
@@ -61,11 +66,17 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         final dateKey = DateFormat('MM/yy').format(log.timestamp);
         
         spending.update(dateKey, (value) => value + price, ifAbsent: () => price);
-        userTotal.update(log.userName, (value) => value + price, ifAbsent: () => price);
+        userTotal.update(log.userId, (value) => value + price, ifAbsent: () => price);
+        userIds.add(log.userId);
         
         total += price;
         priceCount++;
       }
+    }
+    
+    // Ensure we have user data for these IDs
+    if (userIds.isNotEmpty) {
+      await historyVM.ensureMembersForIds(userIds.toList());
     }
 
     final sortedKeys = spending.keys.toList()..sort((a, b) {
@@ -226,26 +237,43 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     final sortedUsers = _userSpending.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
       
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Dépenses par utilisateur", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        const SizedBox(height: 16),
-        ...sortedUsers.map((entry) {
-          final percentage = (_totalSpending > 0) ? (entry.value / _totalSpending) : 0.0;
-          return Column(
-            children: [
-               ListTile(
-                 leading: CircleAvatar(child: Text(entry.key[0].toUpperCase())),
-                 title: Text(entry.key),
-                 trailing: Text("${entry.value.toStringAsFixed(2)} $_currency", style: const TextStyle(fontWeight: FontWeight.bold)),
-                 subtitle: LinearProgressIndicator(value: percentage, backgroundColor: Colors.grey[200]),
-               ),
-               const Divider(),
-            ],
-          );
-        }),
-      ],
+    return Consumer<HistoryViewModel>(
+      builder: (context, historyVM, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Dépenses par utilisateur", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 16),
+            ...sortedUsers.map((entry) {
+              final userId = entry.key;
+              final percentage = (_totalSpending > 0) ? (entry.value / _totalSpending) : 0.0;
+              
+              // Resolve user from VM
+              final user = historyVM.getUser(userId);
+              final displayName = user?.displayName ?? 'Utilisateur';
+              final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+              final photoUrl = user?.photoURL;
+
+              return Column(
+                children: [
+                   ListTile(
+                     leading: CircleAvatar(
+                       backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                         ? (photoUrl.startsWith('http') ? NetworkImage(photoUrl) : AssetImage(photoUrl) as ImageProvider)
+                         : null,
+                       child: (photoUrl == null || photoUrl.isEmpty) ? Text(initial) : null,
+                     ),
+                     title: Text(displayName),
+                     trailing: Text("${entry.value.toStringAsFixed(2)} $_currency", style: const TextStyle(fontWeight: FontWeight.bold)),
+                     subtitle: LinearProgressIndicator(value: percentage, backgroundColor: Colors.grey[200]),
+                   ),
+                   const Divider(),
+                ],
+              );
+            }),
+          ],
+        );
+      },
     );
   }
 }
