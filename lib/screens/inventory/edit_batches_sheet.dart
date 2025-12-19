@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
+import 'package:frigo_zen/models/frigo_user.dart';
 
 
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
@@ -269,12 +270,19 @@ class EditBatchesSheet extends StatelessWidget {
                                   ? batch.cleanedName!
                                   : (currentItem.cleanedName.isNotEmpty ? currentItem.cleanedName : specificName);
 
-                              // User Info Resolution from UID
-                              // Since we removed 'addedByName', we display 'User' or fetch. 
-                              // For MVP, if addedBy matches current user, say "Vous". else "User".
-                              // Or simply hide it if we can't resolve.
-                              // TODO: Implement user profile cache
-                              final String? addedByName = batch.addedBy != null ? "Utilisateur" : null;
+                              // User Info Resolution
+                              final String? addedByUid = batch.addedBy;
+                              FrigoUser? addedByUser;
+                              if (addedByUid != null) {
+                                addedByUser = vm.getMember(addedByUid);
+                                if (addedByUser == null) {
+                                   // Ensure we are watching this member
+                                   vm.ensureMemberWatched(addedByUid);
+                                }
+                              }
+
+                              final String? addedByName = addedByUser?.displayName ?? (addedByUid != null ? "..." : null);
+                              final String? addedByPhoto = addedByUser?.photoURL;
 
                               return Container(
                                 decoration: BoxDecoration(
@@ -513,6 +521,39 @@ class EditBatchesSheet extends StatelessWidget {
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.end,
                                                 children: [
+                                                  if (addedByName != null) ...[
+                                                    Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        if (addedByPhoto != null)
+                                                          CircleAvatar(
+                                                            radius: 8,
+                                                            backgroundImage: addedByPhoto!.startsWith('http') 
+                                                              ? NetworkImage(addedByPhoto!) 
+                                                              : AssetImage(addedByPhoto!) as ImageProvider,
+                                                          )
+                                                        else // Initials fallback if name exists but no photo, otherwise icon
+                                                          CircleAvatar(
+                                                            radius: 8,
+                                                            backgroundColor: Colors.grey[300],
+                                                            child: Text(
+                                                              addedByName!.isNotEmpty ? addedByName![0].toUpperCase() : '?',
+                                                              style: const TextStyle(fontSize: 9, color: Colors.black54),
+                                                            ),
+                                                          ),
+                                                        const SizedBox(width: 4),
+                                                        Text(
+                                                          addedByName!,
+                                                          style: TextStyle(
+                                                            fontSize: 10,
+                                                            color: Colors.grey[600],
+                                                            fontWeight: FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                  ],
                                                   Text(
                                                     l10n.addedOnDate(addedDateStr),
                                                     style: TextStyle(

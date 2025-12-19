@@ -6,6 +6,8 @@ import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/repositories/product_catalog_repository.dart';
 import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/models/activity_log.dart';
+import 'package:frigo_zen/models/frigo_user.dart';
+import 'package:frigo_zen/services/household_service.dart';
 import 'package:frigo_zen/models/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -20,6 +22,7 @@ class InventoryViewModel extends ChangeNotifier {
   final InventoryRepository _inventoryRepository;
   final HistoryService _historyService;
   final ProductCatalogRepository _catalogRepository;
+  final HouseholdService _householdService; // Added service
   
   // State
   List<InventoryItem> _items = [];
@@ -29,12 +32,53 @@ class InventoryViewModel extends ChangeNotifier {
   String? _householdId;
   StreamSubscription<List<InventoryItem>>? _inventorySubscription;
 
-// ... (skipping getters if not needed in replacement, but range requires careful matching)
-// Wait, I should replace just the start of class or just constructor? Constructor and field are far apart?
-// No, fields are at top. I'll replace the top part of class.
+  // Member Cache
+  final Map<String, FrigoUser> _members = {};
+  /// IDs of users we are currently listening to
+  final Set<String> _watchedUserIds = {};
+  StreamSubscription<List<FrigoUser>>? _membersSubscription;
 
   // Getters
   List<InventoryItem> get items => _items;
+
+
+  InventoryViewModel({
+    required InventoryRepository inventoryRepository,
+    required HistoryService historyService,
+    required ProductCatalogRepository catalogRepository,
+    required HouseholdService householdService,
+  })  : _inventoryRepository = inventoryRepository,
+        _historyService = historyService,
+        _catalogRepository = catalogRepository,
+        _householdService = householdService;
+
+  FrigoUser? getMember(String userId) {
+    return _members[userId];
+  }
+
+  void ensureMemberWatched(String userId) {
+    if (_watchedUserIds.contains(userId)) return;
+
+    _watchedUserIds.add(userId);
+    _updateMembersSubscription();
+  }
+
+  void _updateMembersSubscription() {
+    _membersSubscription?.cancel();
+    
+    if (_watchedUserIds.isEmpty) return;
+
+    _membersSubscription = _householdService
+        .getHouseholdMembersStream(_watchedUserIds.toList())
+        .listen((users) {
+      for (var user in users) {
+        _members[user.id] = user;
+      }
+      notifyListeners();
+    }, onError: (e) {
+       debugPrint("Error listening to inventory members: $e");
+    });
+  }
   bool get isLoading => _isLoading;
   LocationFilter get selectedFilter => _selectedFilter;
   String get searchQuery => _searchQuery;
@@ -123,13 +167,7 @@ class InventoryViewModel extends ChangeNotifier {
     return distribution;
   }
 
-  InventoryViewModel({
-    required InventoryRepository inventoryRepository,
-    required HistoryService historyService,
-    required ProductCatalogRepository catalogRepository,
-  })  : _inventoryRepository = inventoryRepository,
-        _historyService = historyService,
-        _catalogRepository = catalogRepository;
+
 
   void init(String householdId) {
     if (_householdId == householdId) return;
@@ -415,6 +453,7 @@ class InventoryViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _inventorySubscription?.cancel();
+    _membersSubscription?.cancel();
     super.dispose();
   }
 }

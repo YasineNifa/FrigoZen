@@ -6,6 +6,7 @@ import 'package:frigo_zen/repositories/product_catalog_repository.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:frigo_zen/services/auth_service.dart';
 import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/services/household_service.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/repositories/recipe_repository.dart';
@@ -25,6 +26,7 @@ void setupLocator() {
   locator.registerLazySingleton<RevenueProvider>(() => RevenueProvider());
   locator.registerLazySingleton<AuthService>(() => AuthService());
   locator.registerLazySingleton<HistoryService>(() => HistoryService());
+  locator.registerLazySingleton<HouseholdService>(() => HouseholdService()); // Registering missing service
 
   // ViewModels
   locator.registerFactory<InventoryViewModel>(
@@ -32,6 +34,7 @@ void setupLocator() {
       inventoryRepository: locator<InventoryRepository>(),
       historyService: locator<HistoryService>(),
       catalogRepository: locator<ProductCatalogRepository>(),
+      householdService: locator<HouseholdService>(), // Added injection
     ),
   );
   locator.registerFactory<ShoppingViewModel>(
