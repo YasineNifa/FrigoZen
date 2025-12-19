@@ -176,7 +176,7 @@ class MealPlannerViewModel extends ChangeNotifier {
 
            // Check canonical name in shopping list
             final hasCanonicalInShopping = shopping.items.any((item) => 
-              item.canonicalName == canonicalName
+              item.canonicalName?.toLowerCase() == canonicalName.toLowerCase()
             );
             if (hasCanonicalInShopping) continue;
             

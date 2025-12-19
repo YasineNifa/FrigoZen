@@ -447,7 +447,7 @@ class InventoryViewModel extends ChangeNotifier {
 
   
   bool doesItemExist(String canonicalName) {
-    return _items.any((item) => item.canonicalName == canonicalName);
+    return _items.any((item) => item.canonicalName?.toLowerCase() == canonicalName.toLowerCase());
   }
 
   @override
