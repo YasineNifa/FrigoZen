@@ -191,7 +191,9 @@
   "mealPlannerAddedIngredients": "{count} Zutaten zur Liste hinzugefügt!",
   "@mealPlannerAddedIngredients": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerViewList": "ANSEHEN",
@@ -217,7 +219,9 @@
   "daysLeftLabel": "T-{days}",
   "@daysLeftLabel": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statsTopCategories": "Top Kategorien",
@@ -225,21 +229,24 @@
   "statsScoreLabel": "Note {score}",
   "@statsScoreLabel": {
     "placeholders": {
-      "score": { "type": "String" }
+      "score": {
+        "type": "String"
+      }
     }
   },
   "statsPremiumLabel": "Premium-Statistiken",
   "statsUnlockBtn": "Freischalten",
   "statsStorageDistribution": "Verteilung nach Lagerort",
   "statsFavoriteStores": "Ihre Lieblingsgeschäfte",
-  "@_INVENTORY_SCREEN": {},
   "recipeFinding": "Rezepte werden gesucht...",
   "inventoryEmpty": "Ihr Inventar ist leer!",
   "recipesNotFound": "Keine Rezepte gefunden.",
   "errorGeneric": "Fehler: {error}",
   "@errorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "renameProductTitle": "Produkt umbenennen",
@@ -250,7 +257,9 @@
   "addedOnDate": "Hinzugefügt am {date}",
   "@addedOnDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "editBatchTitle": "Charge bearbeiten",
@@ -272,7 +281,9 @@
   "statusExpiresInDays": "Läuft in {days} Tagen ab",
   "@statusExpiresInDays": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statusFresh": "Frisch",
@@ -281,14 +292,18 @@
   "productAdded": "{name} hinzugefügt!",
   "@productAdded": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "productNotFoundOFF": "Produkt nicht in Open Food Facts gefunden.",
   "serverErrorOFF": "OFF Serverfehler ({code})",
   "@serverErrorOFF": {
     "placeholders": {
-      "code": { "type": "Object" }
+      "code": {
+        "type": "Object"
+      }
     }
   },
   "proBadge": "PRO",
@@ -296,7 +311,9 @@
   "shoppingItemAlreadyInStockMessage": "Sie haben '{itemName}' bereits in Ihrem Inventar. Möchten Sie ihn trotzdem zur Einkaufsliste hinzufügen?",
   "@shoppingItemAlreadyInStockMessage": {
     "placeholders": {
-      "itemName": { "type": "String" }
+      "itemName": {
+        "type": "String"
+      }
     }
   },
   "shoppingDialogNo": "Nein",
@@ -313,7 +330,7 @@
   "shoppingDialogDelete": "Löschen",
   "shoppingCategoryOther": "Sonstiges",
   "@_RECIPES_SCREEN": {},
-   "recipeTitle": "Rezepte",
+  "recipeTitle": "Rezepte",
   "recipeTabDiscover": "Entdecken",
   "recipeTabCatalog": "Katalog",
   "recipeTabAI": "KI-Chef",
@@ -330,7 +347,9 @@
   "recipeAddError": "Fehler beim Hinzufügen: {error}",
   "@recipeAddError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "mealPlannerSnack": "Snack 🍎",
@@ -344,7 +363,9 @@
   "recipeError": "Fehler: {error}",
   "@recipeError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recipeIngredientsTitle": "Zutaten",
@@ -368,7 +389,9 @@
   "settingsErrorGeneric": "Fehler: {error}",
   "@settingsErrorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "householdNameRequired": "Haushaltsname ist erforderlich",
@@ -376,7 +399,9 @@
   "recipeMissingIngredientsCount": "Fehlend: {count}",
   "@recipeMissingIngredientsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerIngredientsAddedMessage": "Zutaten wurden Ihrer Einkaufsliste hinzugefügt.",
@@ -396,13 +421,10 @@
   "cat_other": "Sonstiges",
   "loc_fridge": "Kühlschrank",
   "loc_freezer": "Gefrierschrank",
-  "loc_pantry": "Vorratskammer",
-  "scanProTip": "Tipp: Scannen Sie den Barcode für weitere Details (Nutri-Score usw.)!",
   "shoppingPrioritizeScanTitle": "Haben Sie den Beleg?",
   "shoppingPrioritizeScanMessage": "Als Premium-Mitglied können Sie Ihren Beleg scannen, um Artikel mit mehr Details (Marke, Nutri-Score...) hinzuzufügen.\n\nWenn Sie den Beleg scannen, fügen Sie diese Artikel NICHT manuell hinzu, um Duplikate zu vermeiden.",
   "shoppingPrioritizeScanBtn": "Beleg scannen",
   "shoppingPrioritizeManualBtn": "Nein, manuell hinzufügen",
-  "scanAnalyzing": "Beleg wird analysiert...",
   "headerExpired": "Abgelaufen",
   "headerUrgent": "Dringend (≤ 3 Tage)",
   "headerThisWeek": "Diese Woche",
@@ -410,5 +432,49 @@
   "searchProductTitle": "Produkt suchen",
   "searchProductHint": "Produktname (z.B. Nutella)",
   "searchProductNoResults": "Keine Ergebnisse",
-  "searchProductEmpty": "Geben Sie einen Produktnamen ein..."
+  "searchProductEmpty": "Geben Sie einen Produktnamen ein...",
+  "defaultStoreName": "Schnell hinzufügen",
+  "defaultUserName": "Benutzer",
+  "priceLabel": "Preis",
+  "shoppingInventoryCheckDisabled": "Inventar ?",
+  "sortPriority": "Priorität",
+  "sortCategory": "Kategorie",
+  "sortList": "Liste",
+  "householdFullError": "Dieser Haushalt hat das Limit von 5 Mitgliedern erreicht.",
+  "settingsEditAvatar": "Avatar bearbeiten",
+  "settingsSelectAvatar": "Avatar auswählen",
+  "historyTitle": "Aktivität",
+  "activityAddedShopping": "{user} hat {item} zur Liste hinzugefügt",
+  "activityBought": "{user} hat {item} gekauft",
+  "activityConsumed": "{user} hat {item} konsumiert",
+  "activityTrashed": "{user} hat {item} weggeworfen",
+  "activityEmpty": "Keine kürzlichen Aktivitäten",
+  "timeJustNow": "Gerade eben",
+  "timeMinutesAgo": "Vor {minutes} Min.",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeTodayAt": "{time}",
+  "@timeTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeDateAt": "{date} {time}",
+  "@timeDateAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

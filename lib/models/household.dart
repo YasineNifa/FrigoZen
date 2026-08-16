@@ -7,6 +7,7 @@ class Household {
   final String ownerId;
   final DateTime createdAt;
   final String inviteCode;
+  final String currency;
 
   Household({
     required this.id,
@@ -15,6 +16,7 @@ class Household {
     required this.ownerId,
     required this.createdAt,
     required this.inviteCode,
+    this.currency = 'EUR',
   });
 
   Household copyWith({
@@ -24,6 +26,7 @@ class Household {
     String? ownerId,
     DateTime? createdAt,
     String? inviteCode,
+    String? currency,
   }) {
     return Household(
       id: id ?? this.id,
@@ -32,6 +35,7 @@ class Household {
       ownerId: ownerId ?? this.ownerId,
       createdAt: createdAt ?? this.createdAt,
       inviteCode: inviteCode ?? this.inviteCode,
+      currency: currency ?? this.currency,
     );
   }
 
@@ -42,6 +46,7 @@ class Household {
       'ownerId': ownerId,
       'createdAt': createdAt,
       'inviteCode': inviteCode,
+      'currency': currency,
     };
   }
 
@@ -53,12 +58,13 @@ class Household {
       ownerId: map['ownerId'] as String? ?? '',
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       inviteCode: map['inviteCode'] as String? ?? '',
+      currency: map['currency'] as String? ?? 'EUR',
     );
   }
 
   @override
   String toString() {
-    return 'Household(id: $id, name: $name, members: $members, ownerId: $ownerId, createdAt: $createdAt, inviteCode: $inviteCode)';
+    return 'Household(id: $id, name: $name, members: $members, ownerId: $ownerId, createdAt: $createdAt, inviteCode: $inviteCode, currency: $currency)';
   }
 
   @override
@@ -70,7 +76,8 @@ class Household {
       other.name == name &&
       other.ownerId == ownerId &&
       other.createdAt == createdAt &&
-      other.inviteCode == inviteCode;
+      other.inviteCode == inviteCode &&
+      other.currency == currency;
   }
 
   @override
@@ -79,6 +86,7 @@ class Household {
       name.hashCode ^
       ownerId.hashCode ^
       createdAt.hashCode ^
-      inviteCode.hashCode;
+      inviteCode.hashCode ^
+      currency.hashCode;
   }
 }

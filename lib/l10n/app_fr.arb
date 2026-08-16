@@ -189,7 +189,9 @@
   "mealPlannerAddedIngredients": "{count} ingrédients ajoutés à la liste !",
   "@mealPlannerAddedIngredients": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerViewList": "VOIR",
@@ -215,7 +217,9 @@
   "daysLeftLabel": "J-{days}",
   "@daysLeftLabel": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statsTopCategories": "Top Catégories",
@@ -223,21 +227,24 @@
   "statsScoreLabel": "Score {score}",
   "@statsScoreLabel": {
     "placeholders": {
-      "score": { "type": "String" }
+      "score": {
+        "type": "String"
+      }
     }
   },
   "statsPremiumLabel": "Statistiques Premium",
   "statsUnlockBtn": "Débloquer",
   "statsStorageDistribution": "Répartition par Lieu",
   "statsFavoriteStores": "Vos Magasins Préférés",
-  "@_INVENTORY_SCREEN": {},
   "recipeFinding": "Recherche de recettes...",
   "inventoryEmpty": "Votre inventaire est vide !",
   "recipesNotFound": "Aucune recette trouvée.",
   "errorGeneric": "Erreur : {error}",
   "@errorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "renameProductTitle": "Renommer le produit",
@@ -248,7 +255,9 @@
   "addedOnDate": "Ajouté le {date}",
   "@addedOnDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "editBatchTitle": "Modifier le lot",
@@ -270,7 +279,9 @@
   "statusExpiresInDays": "Périme dans {days} jours",
   "@statusExpiresInDays": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statusFresh": "Frais",
@@ -279,14 +290,18 @@
   "productAdded": "{name} ajouté !",
   "@productAdded": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "productNotFoundOFF": "Produit non trouvé dans Open Food Facts.",
   "serverErrorOFF": "Erreur serveur OFF ({code})",
   "@serverErrorOFF": {
     "placeholders": {
-      "code": { "type": "Object" }
+      "code": {
+        "type": "Object"
+      }
     }
   },
   "proBadge": "PRO",
@@ -294,7 +309,9 @@
   "shoppingItemAlreadyInStockMessage": "Vous avez déjà '{itemName}' dans votre inventaire. Voulez-vous l'ajouter quand même à la liste de courses ?",
   "@shoppingItemAlreadyInStockMessage": {
     "placeholders": {
-      "itemName": { "type": "String" }
+      "itemName": {
+        "type": "String"
+      }
     }
   },
   "shoppingDialogNo": "Non",
@@ -328,7 +345,9 @@
   "recipeAddError": "Erreur lors de l'ajout : {error}",
   "@recipeAddError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recipeMealTypeTitle": "Quel repas ?",
@@ -341,7 +360,9 @@
   "recipeError": "Erreur : {error}",
   "@recipeError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recipeIngredientsTitle": "Ingrédients",
@@ -365,7 +386,9 @@
   "settingsErrorGeneric": "Erreur : {error}",
   "@settingsErrorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "householdNameRequired": "Le nom du foyer est requis",
@@ -373,7 +396,9 @@
   "recipeMissingIngredientsCount": "Manquant : {count}",
   "@recipeMissingIngredientsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerIngredientsAddedMessage": "Les ingrédients ont été ajoutés à votre liste de courses.",
@@ -407,5 +432,49 @@
   "searchProductHint": "Nom du produit (ex: Nutella)",
   "searchProductNoResults": "Aucun résultat",
   "searchProductEmpty": "Tapez le nom d'un produit...",
-  "headerFresh": "Frais"
+  "headerFresh": "Frais",
+  "defaultStoreName": "Ajout Rapide",
+  "defaultUserName": "Utilisateur",
+  "priceLabel": "Prix",
+  "shoppingInventoryCheckDisabled": "Inventaire ?",
+  "sortPriority": "Priorité",
+  "sortCategory": "Rayon",
+  "sortList": "Liste",
+  "householdFullError": "Ce foyer a atteint la limite de 5 membres.",
+  "settingsEditAvatar": "Modifier l'avatar",
+  "settingsSelectAvatar": "Choisir un avatar",
+  "historyTitle": "Activité",
+  "activityAddedShopping": "{user} a ajouté {item} à la liste",
+  "activityBought": "{user} a acheté {item}",
+  "activityConsumed": "{user} a consommé {item}",
+  "activityTrashed": "{user} a jeté {item}",
+  "activityEmpty": "Aucune activité récente",
+  "timeJustNow": "À l'instant",
+  "timeMinutesAgo": "Il y a {minutes} min",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeTodayAt": "{time}",
+  "@timeTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeDateAt": "{date} {time}",
+  "@timeDateAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

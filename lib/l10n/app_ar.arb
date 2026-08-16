@@ -191,7 +191,9 @@
   "mealPlannerAddedIngredients": "تمت إضافة {count} مكونات إلى القائمة!",
   "@mealPlannerAddedIngredients": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerViewList": "عرض",
@@ -217,7 +219,9 @@
   "daysLeftLabel": "ي-{days}",
   "@daysLeftLabel": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statsTopCategories": "أهم الفئات",
@@ -225,21 +229,24 @@
   "statsScoreLabel": "النتيجة {score}",
   "@statsScoreLabel": {
     "placeholders": {
-      "score": { "type": "String" }
+      "score": {
+        "type": "String"
+      }
     }
   },
   "statsPremiumLabel": "إحصائيات مميزة",
   "statsUnlockBtn": "فتح",
   "statsStorageDistribution": "توزيع التخزين",
   "statsFavoriteStores": "متاجرك المفضلة",
-  "@_INVENTORY_SCREEN": {},
   "recipeFinding": "جاري البحث عن وصفات...",
   "inventoryEmpty": "مخزونك فارغ!",
   "recipesNotFound": "لم يتم العثور على وصفات.",
   "errorGeneric": "خطأ: {error}",
   "@errorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "renameProductTitle": "إعادة تسمية المنتج",
@@ -250,7 +257,9 @@
   "addedOnDate": "أضيف في {date}",
   "@addedOnDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "editBatchTitle": "تعديل الدفعة",
@@ -272,7 +281,9 @@
   "statusExpiresInDays": "تنتهي الصلاحية في {days} أيام",
   "@statusExpiresInDays": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statusFresh": "طازج",
@@ -281,14 +292,18 @@
   "productAdded": "تمت إضافة {name}!",
   "@productAdded": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "productNotFoundOFF": "المنتج غير موجود في Open Food Facts.",
   "serverErrorOFF": "خطأ في خادم OFF ({code})",
   "@serverErrorOFF": {
     "placeholders": {
-      "code": { "type": "Object" }
+      "code": {
+        "type": "Object"
+      }
     }
   },
   "proBadge": "PRO",
@@ -296,7 +311,9 @@
   "shoppingItemAlreadyInStockMessage": "لديك بالفعل '{itemName}' في مخزونك. هل تريد إضافته إلى قائمة التسوق على أي حال؟",
   "@shoppingItemAlreadyInStockMessage": {
     "placeholders": {
-      "itemName": { "type": "String" }
+      "itemName": {
+        "type": "String"
+      }
     }
   },
   "shoppingDialogNo": "لا",
@@ -313,7 +330,7 @@
   "shoppingDialogDelete": "حذف",
   "shoppingCategoryOther": "أخرى",
   "@_RECIPES_SCREEN": {},
-   "recipeTitle": "الوصفات",
+  "recipeTitle": "الوصفات",
   "recipeTabDiscover": "اكتشف",
   "recipeTabCatalog": "كتالوج",
   "recipeTabAI": "طاهي الذكاء الاصطناعي",
@@ -330,15 +347,15 @@
   "recipeAddError": "خطأ أثناء إضافة العناصر: {error}",
   "@recipeAddError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "mealPlannerSnack": "وجبة خفيفة 🍎",
   "recipeMealTypeTitle": "أي وجبة؟",
   "recipeMealTypeBreakfast": "فطور ☕",
   "recipeMealTypeLunch": "غداء ☀️",
-  "recipeMealTypeLunch": "غداء ☀️",
-  "recipeMealTypeSnack": "وجبة خفيفة 🍎",
   "recipeMealTypeSnack": "وجبة خفيفة 🍎",
   "recipeMealTypeDinner": "عشاء 🌙",
   "recipeAddedToPlanning": "تمت إضافة الوصفة إلى المخطط!",
@@ -346,7 +363,9 @@
   "recipeError": "خطأ: {error}",
   "@recipeError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recipeIngredientsTitle": "المكونات",
@@ -370,7 +389,9 @@
   "settingsErrorGeneric": "خطأ: {error}",
   "@settingsErrorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "householdNameRequired": "اسم المنزل مطلوب",
@@ -378,7 +399,9 @@
   "recipeMissingIngredientsCount": "مفقود: {count}",
   "@recipeMissingIngredientsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerIngredientsAddedMessage": "تمت إضافة المكونات إلى قائمة التسوق الخاصة بك.",
@@ -398,13 +421,10 @@
   "cat_other": "أخرى",
   "loc_fridge": "ثلاجة",
   "loc_freezer": "مجمد",
-  "loc_pantry": "مخزن",
-  "scanProTip": "نصيحة: امسح الباركود للحصول على مزيد من التفاصيل (Nutri-Score، إلخ)!",
   "shoppingPrioritizeScanTitle": "هل لديك الإيصال؟",
   "shoppingPrioritizeScanMessage": "بصفتك عضوًا مميزًا، يمكنك مسح الإيصال لإضافة عناصر بمزيد من التفاصيل (العلامة التجارية، Nutri-Score، إلخ).\n\nإذا قمت بمسح الإيصال، فلا تضف هذه العناصر يدويًا لتجنب التكرار.",
   "shoppingPrioritizeScanBtn": "مسح الإيصال",
   "shoppingPrioritizeManualBtn": "لا، إضافة يدوية",
-  "scanAnalyzing": "جارٍ تحليل الإيصال...",
   "headerExpired": "منتهية الصلاحية",
   "headerUrgent": "عاجل (≤ 3 أيام)",
   "headerThisWeek": "هذا الأسبوع",
@@ -412,5 +432,49 @@
   "searchProductTitle": "البحث عن منتج",
   "searchProductHint": "اسم المنتج (مثل نوتيلا)",
   "searchProductNoResults": "لم يتم العثور على نتائج",
-  "searchProductEmpty": "اكتب اسم المنتج..."
+  "searchProductEmpty": "اكتب اسم المنتج...",
+  "defaultStoreName": "إضافة سريعة",
+  "defaultUserName": "مستخدم",
+  "priceLabel": "سعر",
+  "shoppingInventoryCheckDisabled": "المخزون ؟",
+  "sortPriority": "أولوية",
+  "sortCategory": "فئة",
+  "sortList": "قائمة",
+  "householdFullError": "وصلت هذه العائلة إلى الحد الأقصى وهو 5 أعضاء.",
+  "settingsEditAvatar": "تعديل الصورة الرمزية",
+  "settingsSelectAvatar": "اختيار الصورة الرمزية",
+  "historyTitle": "النشاط",
+  "activityAddedShopping": "أضاف {user} {item} إلى القائمة",
+  "activityBought": "اشترى {user} {item}",
+  "activityConsumed": "استهلك {user} {item}",
+  "activityTrashed": "رمى {user} {item}",
+  "activityEmpty": "لا يوجد نشاط حديث",
+  "timeJustNow": "الآن",
+  "timeMinutesAgo": "منذ {minutes} دقيقة",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeTodayAt": "{time}",
+  "@timeTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeDateAt": "{date} {time}",
+  "@timeDateAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

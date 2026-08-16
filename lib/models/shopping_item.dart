@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frigo_zen/models/enums.dart';
 
 class ShoppingItem {
   final String id;
@@ -7,8 +8,8 @@ class ShoppingItem {
   final String canonicalName;
   final int quantity;
   final int? dvm;
-  final String category;
-  final String location;
+  final InventoryCategory category;
+  final StorageLocation location;
   final DateTime createdAt;
   final bool isChecked;
   final String? imageUrl;
@@ -16,6 +17,9 @@ class ShoppingItem {
   final String? brands;
   final String? storeName;
   final DateTime? expirationDate;
+  
+  // Renamed from creator... to addedBy...
+  final String? addedBy;
 
   ShoppingItem({
     required this.id,
@@ -33,6 +37,7 @@ class ShoppingItem {
     this.brands,
     this.storeName,
     this.expirationDate,
+    this.addedBy,
   });
 
   ShoppingItem copyWith({
@@ -42,8 +47,8 @@ class ShoppingItem {
     String? canonicalName,
     int? quantity,
     int? dvm,
-    String? category,
-    String? location,
+    InventoryCategory? category,
+    StorageLocation? location,
     DateTime? createdAt,
     bool? isChecked,
     String? imageUrl,
@@ -51,6 +56,7 @@ class ShoppingItem {
     String? brands,
     String? storeName,
     DateTime? expirationDate,
+    String? addedBy,
   }) {
     return ShoppingItem(
       id: id ?? this.id,
@@ -68,6 +74,7 @@ class ShoppingItem {
       brands: brands ?? this.brands,
       storeName: storeName ?? this.storeName,
       expirationDate: expirationDate ?? this.expirationDate,
+      addedBy: addedBy ?? this.addedBy,
     );
   }
 
@@ -78,8 +85,8 @@ class ShoppingItem {
       'canonicalName': canonicalName,
       'quantity': quantity,
       'dvm': dvm,
-      'category': category,
-      'location': location,
+      'category': category.key,
+      'location': location.id,
       'createdAt': Timestamp.fromDate(createdAt),
       'isChecked': isChecked,
       'imageUrl': imageUrl,
@@ -87,6 +94,8 @@ class ShoppingItem {
       'brands': brands,
       'storeName': storeName,
       'expirationDate': expirationDate != null ? Timestamp.fromDate(expirationDate!) : null,
+      'addedBy': addedBy,
+      // Legacy mapping (optional, but good for safety if UI expects it? No, UI reads internal fields)
     };
   }
 
@@ -98,8 +107,8 @@ class ShoppingItem {
       canonicalName: map['canonicalName'] as String? ?? '',
       quantity: map['quantity'] as int? ?? 1,
       dvm: map['dvm'] as int?,
-      category: map['category'] as String? ?? 'Other',
-      location: map['location'] as String? ?? 'Frigo',
+      category: InventoryCategory.fromString(map['category'] as String?),
+      location: StorageLocation.fromId(map['location']),
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       isChecked: map['isChecked'] as bool? ?? false,
       imageUrl: map['imageUrl'] as String?,
@@ -107,6 +116,8 @@ class ShoppingItem {
       brands: map['brands'] as String?,
       storeName: map['storeName'] as String?,
       expirationDate: (map['expirationDate'] as Timestamp?)?.toDate(),
+      // Handle rename migration by checking old keys if new ones are missing
+      addedBy: map['addedBy'] as String? ?? map['creatorId'] as String?,
     );
   }
 
@@ -116,7 +127,7 @@ class ShoppingItem {
 
   @override
   String toString() {
-    return 'ShoppingItem(id: $id, name: $name, quantity: $quantity, isChecked: $isChecked, imageUrl: $imageUrl, nutriscore: $nutriscore, brands: $brands, storeName: $storeName, expirationDate: $expirationDate)';
+    return 'ShoppingItem(id: $id, name: $name, quantity: $quantity, isChecked: $isChecked, location: $location)';
   }
 
   @override

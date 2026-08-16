@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:frigo_zen/screens/paywall/modern_paywall_screen.dart';
 import 'package:frigo_zen/services/household_service.dart';
+import 'package:frigo_zen/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -13,6 +14,11 @@ import 'package:frigo_zen/components/skeleton.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frigo_zen/screens/settings/privacy_screen.dart';
+import 'package:frigo_zen/repositories/product_catalog_repository.dart' as frigo_zen;
+import 'package:frigo_zen/locator.dart';
+import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/screens/analysis/analysis_screen.dart';
+import 'package:currency_picker/currency_picker.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -54,13 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // --- SECTION: ACCOUNT ---
           _buildSectionHeader(context, l10n.settingsAccountInfo),
           if (_user != null)
-            _buildSettingsTile(
-              context,
-              icon: Icons.person_outline,
-              title: _user!.displayName ?? 'Utilisateur',
-              subtitle: _user!.email ?? l10n.settingsNoEmail,
-              onTap: _showEditProfileDialog,
-            ),
+            _buildProfileTile(context),
           
           const SizedBox(height: 24),
 
@@ -288,6 +288,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
             },
           ),
+          
+          StreamBuilder<DocumentSnapshot?>(
+             stream: HouseholdService().getCurrentHouseholdStream(),
+             builder: (context, snapshot) {
+                if (!snapshot.hasData || snapshot.data == null) return const SizedBox();
+                final data = snapshot.data!.data() as Map<String, dynamic>;
+                final currentCurrency = data['currency'] ?? 'EUR';
+                
+                return _buildSettingsTile(
+                  context,
+                  icon: Icons.currency_exchange,
+                  title: "Devise du foyer",
+                  trailing: Text(currentCurrency, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  onTap: () {
+                    _showCurrencySelectionDialog(context, currentCurrency);
+                  },
+                );
+             }
+          ),
+
+          _buildSettingsTile(
+            context,
+            icon: Icons.bar_chart,
+            title: "Analyse des Dépenses",
+            subtitle: "Visualiser vos dépenses par mois",
+            onTap: () {
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (context) => const AnalysisScreen()),
+               );
+            }, 
+          ),
 
           const SizedBox(height: 24),
 
@@ -326,9 +358,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
 
           // --- SECTION: DEBUG (HIDDEN) ---
-          /* 
-           * Debug section removed for production. 
-           */
+           /* 
+            * Debug section removed for production. 
+            */
+           _buildSectionHeader(context, "MINTENANCE (TEMP)"),
+           _buildSettingsTile(
+             context,
+             icon: Icons.build,
+             title: "Reconstruire le Catalogue",
+             subtitle: "Importer l'historique et l'inventaire",
+             onTap: () async {
+                 try {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(content: Text("Migration en cours... (ça peut être long)")),
+                   );
+                   // Accessing repo usually via Provider or direct instance? 
+                   // Since it's a repository not a provider, let's instantiate.
+                   final count = await frigo_zen.ProductCatalogRepository().populateCatalogFromHistory();
+                   
+                   if (context.mounted) {
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(content: Text("Terminé ! $count éléments traités.")),
+                     );
+                   }
+                 } catch (e) {
+                    if (context.mounted) {
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(content: Text("Erreur: $e")),
+                     );
+                   }
+                 }
+             },
+           ),
+           _buildSettingsTile(
+             context,
+             icon: Icons.data_usage,
+             title: "Générer Données Test (Prix)",
+             subtitle: "Ajoute 20 entrées pour tester le graphe",
+             onTap: () async {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(content: Text("Génération en cours...")),
+                 );
+                 await locator<HistoryService>().generateFakeData();
+                 if (context.mounted) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                       const SnackBar(content: Text("Données générées ! Allez voir le graphe.")),
+                   );
+                 }
+             },
+           ),
 
           const SizedBox(height: 32),
 
@@ -394,7 +472,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               try {
                 await _user?.updateDisplayName(nameController.text.trim());
                 await _user?.reload();
+
+                // Sync to Firestore
                 final updatedUser = FirebaseAuth.instance.currentUser;
+                if (updatedUser != null) {
+                   await FirebaseFirestore.instance.collection('users').doc(updatedUser.uid).set({
+                      'displayName': updatedUser.displayName,
+                   }, SetOptions(merge: true));
+                }
                 
                 if (mounted) {
                   setState(() {
@@ -479,6 +564,174 @@ class _SettingsScreenState extends State<SettingsScreen> {
         trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
         onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+  Widget _buildProfileTile(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final hasAvatar = _user?.photoURL != null && _user!.photoURL!.isNotEmpty;
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        leading: GestureDetector(
+          onTap: _showAvatarSelectionDialog,
+          child: Stack(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  shape: BoxShape.circle,
+                  image: hasAvatar
+                      ? DecorationImage(
+                          image: AssetImage(_user!.photoURL!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: !hasAvatar
+                    ? Icon(Icons.person, size: 30, color: Colors.grey[400])
+                    : null,
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(Icons.edit, size: 12, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+        title: Text(
+          _user!.displayName ?? 'Utilisateur',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        subtitle: Text(
+          _user!.email ?? l10n.settingsNoEmail,
+          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.edit_outlined, color: Colors.grey),
+          onPressed: _showEditProfileDialog,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  void _showCurrencySelectionDialog(BuildContext context, String currentCurrency) {
+    showCurrencyPicker(
+      context: context,
+      showFlag: true,
+      showCurrencyName: true,
+      showCurrencyCode: true,
+      favorite: ['EUR', 'USD', 'GBP', 'CHF'],
+      onSelect: (Currency currency) async {
+        await HouseholdService().updateHouseholdCurrency(currency.code);
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text("Devise changée pour ${currency.code}")),
+           );
+        }
+      },
+    );
+  }
+
+  void _showAvatarSelectionDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    final List<String> avatars = [
+      'assets/images/avatars/panda.png',
+      'assets/images/avatars/fox.png',
+      'assets/images/avatars/cat.png',
+      'assets/images/avatars/dog.png',
+      'assets/images/avatars/koala.png',
+      'assets/images/avatars/rabbit.png',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.settingsSelectAvatar,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: avatars.length,
+              itemBuilder: (context, index) {
+                final avatar = avatars[index];
+                final isSelected = _user?.photoURL == avatar;
+                
+                return GestureDetector(
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    await AuthService().updateAvatar(avatar);
+                    setState(() {
+                      _user = FirebaseAuth.instance.currentUser;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: isSelected 
+                          ? Border.all(color: Theme.of(context).primaryColor, width: 3)
+                          : null,
+                      boxShadow: [
+                         BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                      ]
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage(avatar),
+                      backgroundColor: Colors.grey[100],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

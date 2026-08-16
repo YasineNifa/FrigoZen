@@ -1072,4 +1072,78 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get searchProductEmpty => 'Tapez le nom d\'un produit...';
+
+  @override
+  String get defaultStoreName => 'Ajout Rapide';
+
+  @override
+  String get defaultUserName => 'Utilisateur';
+
+  @override
+  String get priceLabel => 'Prix';
+
+  @override
+  String get shoppingInventoryCheckDisabled => 'Inventaire ?';
+
+  @override
+  String get sortPriority => 'Priorité';
+
+  @override
+  String get sortCategory => 'Rayon';
+
+  @override
+  String get sortList => 'Liste';
+
+  @override
+  String get householdFullError => 'Ce foyer a atteint la limite de 5 membres.';
+
+  @override
+  String get settingsEditAvatar => 'Modifier l\'avatar';
+
+  @override
+  String get settingsSelectAvatar => 'Choisir un avatar';
+
+  @override
+  String get historyTitle => 'Activité';
+
+  @override
+  String activityAddedShopping(Object item, Object user) {
+    return '$user a ajouté $item à la liste';
+  }
+
+  @override
+  String activityBought(Object item, Object user) {
+    return '$user a acheté $item';
+  }
+
+  @override
+  String activityConsumed(Object item, Object user) {
+    return '$user a consommé $item';
+  }
+
+  @override
+  String activityTrashed(Object item, Object user) {
+    return '$user a jeté $item';
+  }
+
+  @override
+  String get activityEmpty => 'Aucune activité récente';
+
+  @override
+  String get timeJustNow => 'À l\'instant';
+
+  @override
+  String timeMinutesAgo(int minutes) {
+    return 'Il y a $minutes min';
+  }
+
+  @override
+  String timeTodayAt(String time) {
+    return '$time';
+  }
+
+  @override
+  String timeDateAt(String date, String time) {
+    return '$date $time';
+  }
 }

@@ -61,7 +61,7 @@
   "inventoryTabPantry": "Despensa",
   "loc_pantry": "Despensa",
   "scanProTip": "Consejo: ¡Escanea el código de barras para más detalles (Nutri-Score, etc.)!",
-  "scanAnalyzing": "Analizando recibo...",
+  "scanAnalyzing": "Analizando ticket...",
   "inventoryTabFreezer": "Congelador",
   "inventorySearchHint": "Buscar un producto...",
   "inventoryEmptyTitle": "Tu inventario está vacío",
@@ -191,7 +191,9 @@
   "mealPlannerAddedIngredients": "¡{count} ingredientes añadidos a la lista!",
   "@mealPlannerAddedIngredients": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerViewList": "VER",
@@ -217,7 +219,9 @@
   "daysLeftLabel": "D-{days}",
   "@daysLeftLabel": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statsTopCategories": "Categorías Principales",
@@ -225,21 +229,24 @@
   "statsScoreLabel": "Puntuación {score}",
   "@statsScoreLabel": {
     "placeholders": {
-      "score": { "type": "String" }
+      "score": {
+        "type": "String"
+      }
     }
   },
   "statsPremiumLabel": "Estadísticas Premium",
   "statsUnlockBtn": "Desbloquear",
   "statsStorageDistribution": "Distribución por Almacenamiento",
   "statsFavoriteStores": "Tus Tiendas Favoritas",
-  "@_INVENTORY_SCREEN": {},
   "recipeFinding": "Buscando recetas...",
   "inventoryEmpty": "¡Tu inventario está vacío!",
   "recipesNotFound": "No se encontraron recetas.",
   "errorGeneric": "Error: {error}",
   "@errorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "renameProductTitle": "Renombrar producto",
@@ -250,7 +257,9 @@
   "addedOnDate": "Añadido el {date}",
   "@addedOnDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "editBatchTitle": "Editar lote",
@@ -272,7 +281,9 @@
   "statusExpiresInDays": "Caduca en {days} días",
   "@statusExpiresInDays": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statusFresh": "Fresco",
@@ -281,14 +292,18 @@
   "productAdded": "¡{name} añadido!",
   "@productAdded": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "productNotFoundOFF": "Producto no encontrado en Open Food Facts.",
   "serverErrorOFF": "Error del servidor OFF ({code})",
   "@serverErrorOFF": {
     "placeholders": {
-      "code": { "type": "Object" }
+      "code": {
+        "type": "Object"
+      }
     }
   },
   "proBadge": "PRO",
@@ -296,7 +311,9 @@
   "shoppingItemAlreadyInStockMessage": "Ya tienes '{itemName}' en tu inventario. ¿Quieres añadirlo a la lista de compras de todos modos?",
   "@shoppingItemAlreadyInStockMessage": {
     "placeholders": {
-      "itemName": { "type": "String" }
+      "itemName": {
+        "type": "String"
+      }
     }
   },
   "shoppingDialogNo": "No",
@@ -313,7 +330,7 @@
   "shoppingDialogDelete": "Eliminar",
   "shoppingCategoryOther": "Otros",
   "@_RECIPES_SCREEN": {},
-   "recipeTitle": "Recetas",
+  "recipeTitle": "Recetas",
   "recipeTabDiscover": "Descubrir",
   "recipeTabCatalog": "Catálogo",
   "recipeTabAI": "Chef IA",
@@ -330,15 +347,15 @@
   "recipeAddError": "Error al añadir: {error}",
   "@recipeAddError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "mealPlannerSnack": "Merienda 🍎",
   "recipeMealTypeTitle": "¿Qué comida?",
   "recipeMealTypeBreakfast": "Desayuno ☕",
   "recipeMealTypeLunch": "Almuerzo ☀️",
-  "recipeMealTypeLunch": "Almuerzo ☀️",
-  "recipeMealTypeSnack": "Merienda 🍎",
   "recipeMealTypeSnack": "Merienda 🍎",
   "recipeMealTypeDinner": "Cena 🌙",
   "recipeAddedToPlanning": "¡Receta añadida al planificador!",
@@ -346,7 +363,9 @@
   "recipeError": "Error: {error}",
   "@recipeError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recipeIngredientsTitle": "Ingredientes",
@@ -370,7 +389,9 @@
   "settingsErrorGeneric": "Error: {error}",
   "@settingsErrorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "householdNameRequired": "El nombre del hogar es obligatorio",
@@ -378,7 +399,9 @@
   "recipeMissingIngredientsCount": "Faltan: {count}",
   "@recipeMissingIngredientsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerIngredientsAddedMessage": "Los ingredientes se han añadido a tu lista de compras.",
@@ -398,13 +421,10 @@
   "cat_other": "Otros",
   "loc_fridge": "Nevera",
   "loc_freezer": "Congelador",
-  "loc_pantry": "Despensa",
-  "scanProTip": "Consejo: ¡Escanea el código de barras para más detalles (Nutri-Score, etc.)!",
   "shoppingPrioritizeScanTitle": "¿Tienes el ticket?",
   "shoppingPrioritizeScanMessage": "Como miembro Premium, puedes escanear tu ticket para añadir artículos con más detalles (Marca, Nutri-Score...).\n\nSi escaneas el ticket, NO añadas estos artículos manualmente para evitar duplicados.",
   "shoppingPrioritizeScanBtn": "Escanear ticket",
   "shoppingPrioritizeManualBtn": "No, añadir manualmente",
-  "scanAnalyzing": "Analizando ticket...",
   "headerExpired": "Caducado",
   "headerUrgent": "Urgente (≤ 3 días)",
   "headerThisWeek": "Esta semana",
@@ -412,5 +432,49 @@
   "searchProductTitle": "Buscar un producto",
   "searchProductHint": "Nombre del producto (ej. Nutella)",
   "searchProductNoResults": "No hay resultados",
-  "searchProductEmpty": "Escriba un nombre de producto..."
+  "searchProductEmpty": "Escriba un nombre de producto...",
+  "defaultStoreName": "Añadir rápido",
+  "defaultUserName": "Usuario",
+  "priceLabel": "Precio",
+  "shoppingInventoryCheckDisabled": "¿ Inventario ?",
+  "sortPriority": "Prioridad",
+  "sortCategory": "Categoría",
+  "sortList": "Lista",
+  "householdFullError": "Este hogar ha alcanzado el límite de 5 miembros.",
+  "settingsEditAvatar": "Editar Avatar",
+  "settingsSelectAvatar": "Seleccionar avatar",
+  "historyTitle": "Actividad",
+  "activityAddedShopping": "{user} añadió {item} a la lista",
+  "activityBought": "{user} compró {item}",
+  "activityConsumed": "{user} consumió {item}",
+  "activityTrashed": "{user} tiró {item}",
+  "activityEmpty": "Sin actividad reciente",
+  "timeJustNow": "Ahora mismo",
+  "timeMinutesAgo": "Hace {minutes} min",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeTodayAt": "{time}",
+  "@timeTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeDateAt": "{date} {time}",
+  "@timeDateAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

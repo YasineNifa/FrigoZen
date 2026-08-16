@@ -48,7 +48,7 @@ class ShoppingListView extends StatelessWidget {
         // Group items by category
         final groupedItems = <String, List<ShoppingItem>>{};
         for (var item in vm.items) {
-          final category = item.category.isNotEmpty ? item.category : 'cat_other';
+          final category = item.category.key;
           if (!groupedItems.containsKey(category)) {
             groupedItems[category] = [];
           }
@@ -80,17 +80,21 @@ class ShoppingListView extends StatelessWidget {
                     ),
                   ),
                 ),
-                ...items.map((item) => Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
-                      child: ShoppinglistTile(
-                        item: item, // Pass the whole item
-                        onToggle: () => vm.toggleItemChecked(item),
-                        onDelete: () {
-                          vm.deleteItem(item.id);
-                        },
-                      ),
-                    )),
+                ...items.map((item) {
+                      final addedByUser = vm.members[item.addedBy];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 4),
+                        child: ShoppinglistTile(
+                          item: item, // Pass the whole item
+                          addedByUser: addedByUser, // Pass the resolved user
+                          onToggle: () => vm.toggleItemChecked(item),
+                          onDelete: () {
+                            vm.deleteItem(item.id);
+                          },
+                        ),
+                      );
+                    }),
               ],
             );
           },

@@ -11,6 +11,7 @@ class LocationFilterPills extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final vm = context.watch<InventoryViewModel>();
     final selectedFilter = vm.selectedFilter;
+    debugPrint(selectedFilter.toString());
 
     final filters = [
       {'filter': LocationFilter.all, 'label': l10n.inventoryTabAll},

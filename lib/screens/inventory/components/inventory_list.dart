@@ -11,6 +11,7 @@ import 'package:frigo_zen/screens/inventory/inventory_view_mode.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 
 import 'package:frigo_zen/constants/app_categories.dart';
+import 'package:frigo_zen/models/enums.dart';
 
 class InventoryList extends StatelessWidget {
   final InventoryViewMode viewMode;
@@ -114,11 +115,11 @@ class InventoryList extends StatelessWidget {
           // Sort by category first
           items.sort((a, b) => a.category.compareTo(b.category));
           
-          String? currentCategory;
+          InventoryCategory? currentCategory;
           for (var item in items) {
             if (item.category != currentCategory) {
               currentCategory = item.category;
-              final localizedCategory = AppCategories.getLocalizedName(context, currentCategory ?? "cat_other");
+              final localizedCategory = AppCategories.getLocalizedName(context, currentCategory.key);
               groupedItems.add(_HeaderData(localizedCategory, Colors.grey[800]!));
             }
             groupedItems.add(item);

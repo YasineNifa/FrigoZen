@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:frigo_zen/models/frigo_user.dart';
 
 class HouseholdService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -75,6 +76,10 @@ class HouseholdService {
       return;
     }
 
+    if (members.length >= 5) {
+      throw Exception('HOUSEHOLD_FULL');
+    }
+
     await householdDoc.reference.update({
       'members': FieldValue.arrayUnion([user.uid]),
     });
@@ -103,5 +108,62 @@ class HouseholdService {
 
     final String householdId = userDocSnapshot.get('householdId');
     yield* _firestore.collection('households').doc(householdId).snapshots();
+  }
+  Future<String?> getUserHouseholdId() async {
+    final user = _auth.currentUser;
+    if (user == null) return null;
+
+    final userDocSnapshot = await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    if (!userDocSnapshot.exists ||
+        !userDocSnapshot.data()!.containsKey('householdId')) {
+      return null;
+    }
+
+    return userDocSnapshot.get('householdId');
+  }
+
+  Future<List<FrigoUser>> getHouseholdMembers(List<String> memberIds) async {
+    if (memberIds.isEmpty) return [];
+
+    // Firestore `whereIn` limit is 10. If household has more, we might need chunking.
+    // Assuming max household size is small (e.g., 5).
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where(FieldPath.documentId, whereIn: memberIds)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => FrigoUser.fromMap(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      print("Error fetching members: $e");
+      return [];
+    }
+  }
+
+  Stream<List<FrigoUser>> getHouseholdMembersStream(List<String> memberIds) {
+    if (memberIds.isEmpty) return Stream.value([]);
+    
+    return _firestore
+        .collection('users')
+        .where(FieldPath.documentId, whereIn: memberIds)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => FrigoUser.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
+  Future<void> updateHouseholdCurrency(String currencyCode) async {
+    final householdId = await getUserHouseholdId();
+    if (householdId == null) return;
+
+    await _firestore.collection('households').doc(householdId).update({
+      'currency': currencyCode,
+    });
   }
 }

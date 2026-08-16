@@ -40,7 +40,11 @@ class _HouseholdSetupScreenState extends State<HouseholdSetupScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
+            content: Text(
+              e.toString().contains('HOUSEHOLD_FULL')
+                  ? l10n.householdFullError
+                  : e.toString().replaceAll('Exception: ', ''),
+            ),
             backgroundColor: Colors.red[400],
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(

@@ -2059,6 +2059,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Type a product name...'**
   String get searchProductEmpty;
+
+  /// No description provided for @defaultStoreName.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Add'**
+  String get defaultStoreName;
+
+  /// No description provided for @defaultUserName.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get defaultUserName;
+
+  /// No description provided for @priceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get priceLabel;
+
+  /// No description provided for @shoppingInventoryCheckDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory ?'**
+  String get shoppingInventoryCheckDisabled;
+
+  /// No description provided for @sortPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get sortPriority;
+
+  /// No description provided for @sortCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get sortCategory;
+
+  /// No description provided for @sortList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get sortList;
+
+  /// No description provided for @householdFullError.
+  ///
+  /// In en, this message translates to:
+  /// **'This household has reached the limit of 5 members.'**
+  String get householdFullError;
+
+  /// No description provided for @settingsEditAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Avatar'**
+  String get settingsEditAvatar;
+
+  /// No description provided for @settingsSelectAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an avatar'**
+  String get settingsSelectAvatar;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get historyTitle;
+
+  /// No description provided for @activityAddedShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} added {item} to the list'**
+  String activityAddedShopping(Object item, Object user);
+
+  /// No description provided for @activityBought.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} bought {item}'**
+  String activityBought(Object item, Object user);
+
+  /// No description provided for @activityConsumed.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} consumed {item}'**
+  String activityConsumed(Object item, Object user);
+
+  /// No description provided for @activityTrashed.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} threw away {item}'**
+  String activityTrashed(Object item, Object user);
+
+  /// No description provided for @activityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent activity'**
+  String get activityEmpty;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min ago'**
+  String timeMinutesAgo(int minutes);
+
+  /// No description provided for @timeTodayAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}'**
+  String timeTodayAt(String time);
+
+  /// No description provided for @timeDateAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} {time}'**
+  String timeDateAt(String date, String time);
 }
 
 class _AppLocalizationsDelegate

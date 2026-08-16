@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Batch {
-  final String? id;
+  final String id;
   final int quantity;
   final DateTime expirationDate;
   final DateTime addedAt;
@@ -13,9 +13,11 @@ class Batch {
   final String? canonicalName;
   final String? brands;
   final Map<String, String>? images;
+  final String? addedBy;
+  final double? price;
 
   Batch({
-    this.id,
+    required this.id,
     required this.quantity,
     required this.expirationDate,
     required this.addedAt,
@@ -27,6 +29,8 @@ class Batch {
     this.canonicalName,
     this.brands,
     this.images,
+    this.addedBy,
+    this.price,
   });
 
   Batch copyWith({
@@ -42,6 +46,8 @@ class Batch {
     String? canonicalName,
     String? brands,
     Map<String, String>? images,
+    String? addedBy,
+    double? price,
   }) {
     return Batch(
       id: id ?? this.id,
@@ -56,11 +62,13 @@ class Batch {
       canonicalName: canonicalName ?? this.canonicalName,
       brands: brands ?? this.brands,
       images: images ?? this.images,
+      addedBy: addedBy ?? this.addedBy,
+      price: price ?? this.price,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
+    final map = <String, dynamic>{
       'quantity': quantity,
       'expirationDate': Timestamp.fromDate(expirationDate),
       'addedAt': Timestamp.fromDate(addedAt),
@@ -72,11 +80,20 @@ class Batch {
       'canonicalName': canonicalName,
       'brands': brands,
       'images': images,
+      'addedBy': addedBy,
+      'price': price,
     };
+    
+    if (id.isNotEmpty) {
+      map['id'] = id;
+    }
+    
+    return map;
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'quantity': quantity,
       'expirationDate': expirationDate.toIso8601String(),
       'addedAt': addedAt.toIso8601String(),
@@ -88,12 +105,17 @@ class Batch {
       'canonicalName': canonicalName,
       'brands': brands,
       'images': images,
+      'addedBy': addedBy,
+      'price': price,
     };
   }
 
-  factory Batch.fromMap(Map<String, dynamic> map) {
+  factory Batch.fromMap(Map<String, dynamic> map, {String? id}) {
+    // If id is passed (from doc.id), use it, otherwise look in map, otherwise generate/fallback
+    final String batchId = id ?? map['id'] as String? ?? ''; 
+
     return Batch(
-      id: map['id'] as String?,
+      id: batchId,
       quantity: map['quantity'] as int? ?? 0,
       expirationDate: (map['expirationDate'] as Timestamp).toDate(),
       addedAt: (map['addedAt'] as Timestamp).toDate(),
@@ -105,12 +127,19 @@ class Batch {
       canonicalName: map['canonicalName'] as String?,
       brands: map['brands'] as String?,
       images: map['images'] != null ? Map<String, String>.from(map['images']) : null,
+      addedBy: map['addedBy'] as String?,
+      price: (map['price'] as num?)?.toDouble(),
     );
+  }
+  
+  // Factory for Firestore DocumentSnapshot
+  factory Batch.fromSnapshot(DocumentSnapshot doc) {
+    return Batch.fromMap(doc.data() as Map<String, dynamic>, id: doc.id);
   }
 
   @override
   String toString() {
-    return 'Batch(id: $id, quantity: $quantity, expirationDate: $expirationDate, addedAt: $addedAt, storeName: $storeName, imageUrl: $imageUrl, nutriscore: $nutriscore, name: $name, cleanedName: $cleanedName, canonicalName: $canonicalName, brands: $brands, images: $images)';
+    return 'Batch(id: $id, quantity: $quantity, expirationDate: $expirationDate, addedAt: $addedAt, storeName: $storeName, imageUrl: $imageUrl, nutriscore: $nutriscore, name: $name, cleanedName: $cleanedName, canonicalName: $canonicalName, brands: $brands, images: $images, price: $price)';
   }
 
   @override
@@ -129,7 +158,9 @@ class Batch {
       other.cleanedName == cleanedName &&
       other.canonicalName == canonicalName &&
       other.brands == brands &&
-      other.images == images;
+      other.images == images &&
+      other.addedBy == addedBy &&
+      other.price == price;
   }
 
   @override
@@ -145,6 +176,8 @@ class Batch {
       cleanedName.hashCode ^
       canonicalName.hashCode ^
       brands.hashCode ^
-      images.hashCode;
+      images.hashCode ^
+      addedBy.hashCode ^
+      price.hashCode;
   }
 }

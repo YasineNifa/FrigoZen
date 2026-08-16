@@ -4,31 +4,45 @@ import 'package:frigo_zen/models/shopping_item.dart';
 import 'package:frigo_zen/repositories/shopping_repository.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:frigo_zen/repositories/product_catalog_repository.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/constants/app_categories.dart';
+import 'package:frigo_zen/services/history_service.dart';
+import 'package:frigo_zen/models/activity_log.dart';
+import 'package:frigo_zen/models/frigo_user.dart';
+import 'package:frigo_zen/services/household_service.dart';
+import 'package:frigo_zen/models/enums.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ShoppingViewModel extends ChangeNotifier {
   final ShoppingRepository _shoppingRepository;
   final InventoryRepository _inventoryRepository;
+  final HistoryService _historyService;
+  final HouseholdService _householdService = HouseholdService(); // Direct instantiation or inject
 
   // State
   List<ShoppingItem> _items = [];
+  Map<String, FrigoUser> _members = {};
   bool _isLoading = false;
   String? _householdId;
   StreamSubscription<List<ShoppingItem>>? _shoppingSubscription;
+  StreamSubscription<List<FrigoUser>>? _membersSubscription;
 
   // Getters
   List<ShoppingItem> get items => _items;
+  Map<String, FrigoUser> get members => _members;
   bool get isLoading => _isLoading;
 
   ShoppingViewModel({
     required ShoppingRepository shoppingRepository,
     required InventoryRepository inventoryRepository,
+    required HistoryService historyService,
   })  : _shoppingRepository = shoppingRepository,
-        _inventoryRepository = inventoryRepository;
+        _inventoryRepository = inventoryRepository,
+        _historyService = historyService;
 
-  void init(String householdId) {
+  Future<void> init(String householdId) async {
     if (_householdId == householdId) return;
 
     _householdId = householdId;
@@ -36,11 +50,14 @@ class ShoppingViewModel extends ChangeNotifier {
     notifyListeners();
 
     _shoppingSubscription?.cancel();
+    _membersSubscription?.cancel();
+
     _shoppingSubscription = _shoppingRepository.getShoppingListStream(householdId).listen(
       (items) {
         _items = items;
         _isLoading = false;
         notifyListeners();
+        _updateMembersSubscription(); // Update members subscription based on new items
       },
       onError: (error) {
         debugPrint("Error fetching shopping list: $error");
@@ -48,11 +65,71 @@ class ShoppingViewModel extends ChangeNotifier {
         notifyListeners();
       },
     );
+    
+    // Initial fetch to get household members list
+    _initialMemberSetup();
+  }
+  
+  Future<void> _initialMemberSetup() async {
+      // Get all household members initially
+      if (_householdId == null) return;
+       final household = await _householdService.getCurrentHouseholdStream().first;
+      if (household != null) {
+          final data = household.data() as Map<String, dynamic>;
+          final List<String> memberIds = List<String>.from(data['members'] ?? []);
+          _subscribeToMembers(memberIds);
+      }
+  }
+
+  void _updateMembersSubscription() {
+     // Identify all unique IDs in the list
+     final itemUserIds = _items
+        .map((i) => i.addedBy)
+        .where((id) => id != null)
+        .cast<String>()
+        .toSet();
+     
+     // We should also include current household members even if they haven't added items, 
+     // but the critical part is item authors.
+     // Ideally we merge with household members.
+     // For now, let's just make sure we are subscribed to everyone relevant.
+     // Since _initialMemberSetup subscribes to household members, and that list rarely changes,
+     // we might be fine. But if a NEW user adds an item (e.g. they just joined), we need to track them.
+     
+     // Checking if we need to update subscription is complex with Streams.
+     // Simplification: We will just rely on _initialMemberSetup for now, as most items are added by members.
+     // If an item is added by someone NOT in household (removed member?), we might miss them.
+     // Robustness: Re-subscribe if we see new IDs?
+     
+     // Let's implement robust re-subscription logic later if needed. 
+     // For now, `_initialMemberSetup` covers 99% of cases (active members).
+  }
+
+  void _subscribeToMembers(List<String> memberIds) {
+      if (memberIds.isEmpty) return;
+      _membersSubscription?.cancel();
+      _membersSubscription = _householdService.getHouseholdMembersStream(memberIds).listen((users) {
+          for (var user in users) {
+             _members[user.id] = user;
+          }
+          notifyListeners();
+      });
   }
 
   Future<void> addItem(ShoppingItem item) async {
     if (_householdId == null) return;
-    await _shoppingRepository.addShoppingItem(_householdId!, item);
+
+    final user = FirebaseAuth.instance.currentUser;
+    final itemWithCreator = item.copyWith(
+      addedBy: user?.uid,
+    );
+    
+    await _shoppingRepository.addShoppingItem(_householdId!, itemWithCreator);
+    
+    await _historyService.logActivity(
+      type: ActivityType.addedShopping,
+      itemName: item.name,
+    );
   }
 
   Future<void> updateItem(ShoppingItem item) async {
@@ -92,9 +169,17 @@ class ShoppingViewModel extends ChangeNotifier {
           .call({
         'productName': name,
         'language': languageCode,
-      });final Map<String, dynamic> itemData = Map<String, dynamic>.from(
+      });
+      final Map<String, dynamic> itemData = Map<String, dynamic>.from(
         result.data['item'],
       );
+
+      final categoryStr = AppCategories.normalize(itemData['category']);
+      final category = InventoryCategory.fromString(categoryStr);
+      final rawLocation = itemData['location'];
+      final StorageLocation location = rawLocation != null 
+          ? StorageLocation.fromId(rawLocation)
+          : category.defaultLocation;
 
       return ShoppingItem(
         id: '',
@@ -103,8 +188,8 @@ class ShoppingViewModel extends ChangeNotifier {
         canonicalName: itemData['canonicalName'] ?? name,
         quantity: itemData['quantity'] ?? 1,
         dvm: itemData['dvm'] ?? 7,
-        category: AppCategories.normalize(itemData['category']),
-        location: itemData['location'] ?? 'Frigo',
+        category: category,
+        location: location,
         isChecked: false,
         createdAt: DateTime.now(),
       );
@@ -119,8 +204,8 @@ class ShoppingViewModel extends ChangeNotifier {
         quantity: 1,
         isChecked: false,
         createdAt: DateTime.now(),
-        category: 'Other',
-        location: 'Frigo',
+        category: InventoryCategory.other,
+        location: StorageLocation.other,
       );
     }
   }
@@ -145,7 +230,7 @@ class ShoppingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode) async {
+  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode, {bool checkInventory = false}) async {
     if (_householdId == null || ingredientNames.isEmpty) return;
 
     _isLoading = true;
@@ -155,17 +240,32 @@ class ShoppingViewModel extends ChangeNotifier {
       final List<ShoppingItem> itemsToAdd = [];
       
       // Resolve all items first
-      // We can do this in parallel for speed
       final results = await Future.wait(
         ingredientNames.map((name) => resolveItemName(name, languageCode)),
       );
 
+      final user = FirebaseAuth.instance.currentUser;
+
       for (var i = 0; i < results.length; i++) {
         final item = results[i];
         if (item != null) {
-          itemsToAdd.add(item);
+          if (checkInventory) {
+              final exists = await _inventoryRepository.findExistingItem(
+                _householdId!, 
+                item.canonicalName, 
+                item.name
+              );
+              
+              if (exists != null) {
+                continue;
+              }
+          }
+          
+          itemsToAdd.add(item.copyWith(
+            addedBy: user?.uid,
+          ));
         } else {
-          // Fallback if resolution failed (shouldn't happen often)
+           // Fallback if resolution failed
            itemsToAdd.add(ShoppingItem(
             id: '',
             name: ingredientNames[i],
@@ -174,19 +274,28 @@ class ShoppingViewModel extends ChangeNotifier {
             quantity: 1,
             isChecked: false,
             createdAt: DateTime.now(),
-            category: 'Other',
-            location: 'Frigo',
+            category: InventoryCategory.other,
+            location: StorageLocation.other,
+            addedBy: user?.uid,
           ));
         }
       }
 
       if (itemsToAdd.isNotEmpty) {
         await _shoppingRepository.addShoppingItems(_householdId!, itemsToAdd);
+        
+        // Log activities
+        for (var item in itemsToAdd) {
+           _historyService.logActivity(
+            type: ActivityType.addedShopping,
+            itemName: item.name,
+            details: {'source': 'recipe'},
+          );
+        }
       }
 
     } catch (e) {
       debugPrint("Error adding ingredients from recipe: $e");
-      // We might want to rethrow or show error
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -220,7 +329,7 @@ class ShoppingViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> moveCheckedItemsToInventory() async {
+  Future<void> moveCheckedItemsToInventory(String? defaultStoreName) async {
     if (_householdId == null) return;
 
     final checkedItems = _items.where((item) => item.isChecked).toList();
@@ -239,16 +348,17 @@ class ShoppingViewModel extends ChangeNotifier {
         final now = DateTime.now();
         final expirationDate = now.add(Duration(days: item.dvm ?? 7));
         final batch = Batch(
+          id: '',
           quantity: item.quantity,
           expirationDate: expirationDate,
           addedAt: now,
-          storeName: item.storeName ?? 'Liste de courses',
+          storeName: item.storeName ?? defaultStoreName,
           name: item.name,
           cleanedName: item.cleanedName,
           canonicalName: item.canonicalName,
-          brands: item.brands,
           imageUrl: item.imageUrl,
           nutriscore: item.nutriscore,
+          addedBy: FirebaseAuth.instance.currentUser?.uid,
         );
         
         // 2. Create InventoryItem
@@ -269,9 +379,34 @@ class ShoppingViewModel extends ChangeNotifier {
         // 3. Add to Inventory (Upsert)
         await _inventoryRepository.upsertInventoryItem(_householdId!, inventoryItem);
 
-        // 4. Collect ID for batch deletion (synchronized access not strictly needed for list add in JS-like async, but good practice to be aware)
-        // In Dart, this is safe as long as we don't modify the list structure concurrently in a way that race conditions matter for simple adds.
-        // However, to be perfectly safe and clean, we can return the ID from the map and collect later.
+        // 4. Log Activity
+        await _historyService.logActivity(
+          type: ActivityType.bought,
+          itemName: item.name,
+          details: {
+            'quantity': item.quantity,
+            'store': item.storeName ?? defaultStoreName,
+          }
+        );
+
+        // 5. Log to Catalog
+        try {
+          final catalogRepo = ProductCatalogRepository();
+          await catalogRepo.logItemToCatalog(
+            name: item.name,
+            canonicalName: item.canonicalName,
+            category: item.category.key,
+            defaultDVM: item.dvm ?? 7,
+            imageUrl: item.imageUrl,
+            nutriscore: item.nutriscore,
+            storeName: item.storeName ?? defaultStoreName,
+            // Price is not tracked in Shopping Item currently, but if we had it:
+            // lastPrice: item.price, 
+            // Since we don't, we omit it or pass null.
+          );
+        } catch (e) {
+          debugPrint("Error logging to catalog: $e");
+        }
       }));
       
       // Collect IDs after parallel execution

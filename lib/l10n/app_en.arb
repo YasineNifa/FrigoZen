@@ -157,7 +157,9 @@
   "settingsRestoreFail": "Restore failed: {error}",
   "@settingsRestoreFail": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "settingsFamilyHeader": "FAMILY & HOUSEHOLD",
@@ -174,59 +176,77 @@
   "shoppingDuplicateAlert": "💡 Attention! You already have \"{itemName}\" in your inventory!",
   "@shoppingDuplicateAlert": {
     "placeholders": {
-      "itemName": { "type": "String" }
+      "itemName": {
+        "type": "String"
+      }
     }
   },
   "shoppingAddAnyway": "Add Anyway",
   "shoppingErrorGeneric": "Error: {error}",
   "@shoppingErrorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "shoppingMovedSuccess": "{count} item(s) moved to Inventory successfully!",
   "@shoppingMovedSuccess": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "shoppingMoveError": "Error moving items: {error}",
   "@shoppingMoveError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "shoppingAddingBtn": "Adding...",
   "shoppingMoveBtn": "Add {count} item(s) to Inventory",
   "@shoppingMoveBtn": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "@_VALIDATION_SCREEN": {},
   "validationTitle": "Validate items ({count})",
   "@validationTitle": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "validationCancelBtn": "Cancel",
   "validationAddBtn": "Add {count} items",
   "@validationAddBtn": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "validationSuccess": "{count} items added to inventory!",
   "@validationSuccess": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "validationError": "Error adding items: {error}",
   "@validationError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "shoppingListEmptyTitle": "Your shopping list is empty",
@@ -236,7 +256,9 @@
   "editBatchesTitle": "Manage dates : {itemName}",
   "@editBatchesTitle": {
     "placeholders": {
-      "itemName": { "type": "String" }
+      "itemName": {
+        "type": "String"
+      }
     }
   },
   "editBatchesSubtitle": "Click the pencil to change a batch date.",
@@ -247,7 +269,9 @@
   "editBatchesError": "Error: {error}",
   "@editBatchesError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@_MEAL_PLANNER_SCREEN": {},
@@ -270,7 +294,9 @@
   "mealPlannerAddedIngredients": "{count} ingredients added to the list!",
   "@mealPlannerAddedIngredients": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerViewList": "VIEW",
@@ -296,7 +322,9 @@
   "daysLeftLabel": "D-{days}",
   "@daysLeftLabel": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statsTopCategories": "Top Categories",
@@ -304,21 +332,24 @@
   "statsScoreLabel": "Score {score}",
   "@statsScoreLabel": {
     "placeholders": {
-      "score": { "type": "String" }
+      "score": {
+        "type": "String"
+      }
     }
   },
   "statsPremiumLabel": "Premium Statistics",
   "statsUnlockBtn": "Unlock",
   "statsStorageDistribution": "Storage Distribution",
   "statsFavoriteStores": "Your Favorite Stores",
-  "@_INVENTORY_SCREEN": {},
   "recipeFinding": "Finding recipes...",
   "inventoryEmpty": "Your inventory is empty!",
   "recipesNotFound": "No recipes found.",
   "errorGeneric": "Error: {error}",
   "@errorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "renameProductTitle": "Rename product",
@@ -329,7 +360,9 @@
   "addedOnDate": "Added on {date}",
   "@addedOnDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "editBatchTitle": "Edit batch",
@@ -351,7 +384,9 @@
   "statusExpiresInDays": "Expires in {days} days",
   "@statusExpiresInDays": {
     "placeholders": {
-      "days": { "type": "int" }
+      "days": {
+        "type": "int"
+      }
     }
   },
   "statusFresh": "Fresh",
@@ -360,14 +395,18 @@
   "productAdded": "{name} added!",
   "@productAdded": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "productNotFoundOFF": "Product not found in Open Food Facts.",
   "serverErrorOFF": "OFF Server Error ({code})",
   "@serverErrorOFF": {
     "placeholders": {
-      "code": { "type": "Object" }
+      "code": {
+        "type": "Object"
+      }
     }
   },
   "proBadge": "PRO",
@@ -375,7 +414,9 @@
   "shoppingItemAlreadyInStockMessage": "You already have '{itemName}' in your inventory. Do you want to add it to the shopping list anyway?",
   "@shoppingItemAlreadyInStockMessage": {
     "placeholders": {
-      "itemName": { "type": "String" }
+      "itemName": {
+        "type": "String"
+      }
     }
   },
   "shoppingDialogNo": "No",
@@ -409,7 +450,9 @@
   "recipeAddError": "Error adding items: {error}",
   "@recipeAddError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recipeMealTypeTitle": "Which meal?",
@@ -422,7 +465,9 @@
   "recipeError": "Error: {error}",
   "@recipeError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "recipeIngredientsTitle": "Ingredients",
@@ -446,7 +491,9 @@
   "settingsErrorGeneric": "Error: {error}",
   "@settingsErrorGeneric": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "householdNameRequired": "Household name is required",
@@ -454,7 +501,9 @@
   "recipeMissingIngredientsCount": "Missing: {count}",
   "@recipeMissingIngredientsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "mealPlannerIngredientsAddedMessage": "Ingredients have been added to your shopping list.",
@@ -488,5 +537,49 @@
   "searchProductTitle": "Search a product",
   "searchProductHint": "Product name (e.g. Nutella)",
   "searchProductNoResults": "No results found",
-  "searchProductEmpty": "Type a product name..."
+  "searchProductEmpty": "Type a product name...",
+  "defaultStoreName": "Quick Add",
+  "defaultUserName": "User",
+  "priceLabel": "Price",
+  "shoppingInventoryCheckDisabled": "Inventory ?",
+  "sortPriority": "Priority",
+  "sortCategory": "Category",
+  "sortList": "List",
+  "householdFullError": "This household has reached the limit of 5 members.",
+  "settingsEditAvatar": "Edit Avatar",
+  "settingsSelectAvatar": "Select an avatar",
+  "historyTitle": "Activity",
+  "activityAddedShopping": "{user} added {item} to the list",
+  "activityBought": "{user} bought {item}",
+  "activityConsumed": "{user} consumed {item}",
+  "activityTrashed": "{user} threw away {item}",
+  "activityEmpty": "No recent activity",
+  "timeJustNow": "Just now",
+  "timeMinutesAgo": "{minutes} min ago",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeTodayAt": "{time}",
+  "@timeTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeDateAt": "{date} {time}",
+  "@timeDateAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

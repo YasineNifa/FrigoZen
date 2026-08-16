@@ -4,6 +4,9 @@ import 'package:frigo_zen/models/batch.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/services/open_food_facts_service.dart';
+import 'package:frigo_zen/screens/core/premium_guard.dart';
+import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:provider/provider.dart';
 
 class EditBatchDialog extends StatefulWidget {
   final Batch batch;
@@ -23,6 +26,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
   late TextEditingController _nameController;
   late TextEditingController _brandController;
   late TextEditingController _storeController;
+  late TextEditingController _priceController;
   late int _quantity;
   late DateTime _expirationDate;
   String? _nutriscore;
@@ -41,6 +45,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
     _nameController = TextEditingController(text: widget.batch.name ?? '');
     _brandController = TextEditingController(text: widget.batch.brands ?? '');
     _storeController = TextEditingController(text: widget.batch.storeName ?? '');
+    _priceController = TextEditingController(text: widget.batch.price?.toString() ?? '');
     _quantity = widget.batch.quantity;
     _expirationDate = widget.batch.expirationDate;
     _nutriscore = widget.batch.nutriscore?.toUpperCase();
@@ -55,6 +60,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
     _nameController.dispose();
     _brandController.dispose();
     _storeController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -162,6 +168,7 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
       images: _images,
       cleanedName: _cleanedName,
       canonicalName: _canonicalName,
+      price: double.tryParse(_priceController.text.replaceAll(',', '.').trim()),
     );
     widget.onSave(updatedBatch);
     Navigator.pop(context);
@@ -179,12 +186,35 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
            Flexible(child: Text(l10n.editBatchTitle)),
-           IconButton(
-             icon: _isLoading 
-                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)) 
-                : const Icon(Icons.qr_code_scanner),
-             onPressed: _isLoading ? null : _scanProduct,
-             tooltip: l10n.scanBarcodeTitle,
+           Consumer<RevenueProvider>(
+             builder: (context, revenue, child) {
+               final isPro = revenue.isPro;
+               return Stack(
+                 alignment: Alignment.center,
+                 children: [
+                   IconButton(
+                     icon: _isLoading 
+                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)) 
+                        : Icon(
+                            Icons.qr_code_scanner, 
+                            color: isPro ? null : Colors.grey, // Grey out if locked
+                          ),
+                     onPressed: _isLoading ? null : () async {
+                       if (await PremiumGuard.checkPremiumStatus(context)) {
+                         _scanProduct();
+                       }
+                     },
+                     tooltip: isPro ? l10n.scanBarcodeTitle : "${l10n.scanBarcodeTitle} (Pro)",
+                   ),
+                   if (!isPro && !_isLoading)
+                     const Positioned(
+                       right: 8,
+                       bottom: 8,
+                       child: Icon(Icons.lock, size: 12, color: Colors.amber),
+                     ),
+                 ],
+               );
+             },
            )
         ],
       ),
@@ -229,6 +259,19 @@ class _EditBatchDialogState extends State<EditBatchDialog> {
                 prefixIcon: const Icon(Icons.store_outlined),
               ),
               textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 16),
+
+            // Prix
+            TextField(
+              controller: _priceController,
+              decoration: InputDecoration(
+                labelText: l10n.priceLabel, // Make sure to add this key or reuse generic
+                hintText: "0.00",
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.euro_symbol),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 16),
 

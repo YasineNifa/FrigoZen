@@ -17,6 +17,7 @@ import 'package:confetti/confetti.dart';
 import 'package:frigo_zen/services/ocr_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:frigo_zen/screens/core/premium_guard.dart';
 
 class ShoppingScreen extends StatefulWidget {
   const ShoppingScreen({super.key});
@@ -107,12 +108,17 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
         final canonicalName = resolvedItem.canonicalName;
         final nameToCheck = resolvedItem.name;
 
-        // 2. Check for duplicates
-        final existsInInventory = inventoryVM.items.any((item) {
-            final match = item.canonicalName.toLowerCase() == canonicalName.toLowerCase() ||
-                          item.name.toLowerCase() == nameToCheck.toLowerCase();
-            return match;
-        });
+        // 2. Check for duplicates (ONLY FOR PRO USERS)
+        final isPro = context.read<RevenueProvider>().isPro;
+        bool existsInInventory = false;
+
+        if (isPro) {
+          existsInInventory = inventoryVM.items.any((item) {
+              final match = item.canonicalName.toLowerCase() == canonicalName.toLowerCase() ||
+                            item.name.toLowerCase() == nameToCheck.toLowerCase();
+              return match;
+          });
+        }
         
         if (existsInInventory) {
           // Hide loading before dialog
@@ -191,6 +197,10 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 textController: _textController,
                 isAdding: vm.isLoading || _isLocalLoading,
                 onAdd: _addItem,
+                showPremiumLock: !context.watch<RevenueProvider>().isPro,
+                onPremiumLockTap: () {
+                  PremiumGuard.checkPremiumStatus(context);
+                },
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -279,7 +289,7 @@ class _ShoppingScreenState extends State<ShoppingScreen> {
                 }
 
                 try {
-                  await vm.moveCheckedItemsToInventory();
+                  await vm.moveCheckedItemsToInventory(null);
                   if (!context.mounted) return;
                   
                   _confettiController.play();

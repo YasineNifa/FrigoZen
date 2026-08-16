@@ -1063,4 +1063,79 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchProductEmpty => 'اكتب اسم المنتج...';
+
+  @override
+  String get defaultStoreName => 'إضافة سريعة';
+
+  @override
+  String get defaultUserName => 'مستخدم';
+
+  @override
+  String get priceLabel => 'سعر';
+
+  @override
+  String get shoppingInventoryCheckDisabled => 'المخزون ؟';
+
+  @override
+  String get sortPriority => 'أولوية';
+
+  @override
+  String get sortCategory => 'فئة';
+
+  @override
+  String get sortList => 'قائمة';
+
+  @override
+  String get householdFullError =>
+      'وصلت هذه العائلة إلى الحد الأقصى وهو 5 أعضاء.';
+
+  @override
+  String get settingsEditAvatar => 'تعديل الصورة الرمزية';
+
+  @override
+  String get settingsSelectAvatar => 'اختيار الصورة الرمزية';
+
+  @override
+  String get historyTitle => 'النشاط';
+
+  @override
+  String activityAddedShopping(Object item, Object user) {
+    return 'أضاف $user $item إلى القائمة';
+  }
+
+  @override
+  String activityBought(Object item, Object user) {
+    return 'اشترى $user $item';
+  }
+
+  @override
+  String activityConsumed(Object item, Object user) {
+    return 'استهلك $user $item';
+  }
+
+  @override
+  String activityTrashed(Object item, Object user) {
+    return 'رمى $user $item';
+  }
+
+  @override
+  String get activityEmpty => 'لا يوجد نشاط حديث';
+
+  @override
+  String get timeJustNow => 'الآن';
+
+  @override
+  String timeMinutesAgo(int minutes) {
+    return 'منذ $minutes دقيقة';
+  }
+
+  @override
+  String timeTodayAt(String time) {
+    return '$time';
+  }
+
+  @override
+  String timeDateAt(String date, String time) {
+    return '$date $time';
+  }
 }
