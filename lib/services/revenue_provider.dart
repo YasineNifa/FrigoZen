@@ -5,7 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RevenueProvider with ChangeNotifier {
-  static const String _proEntitlementId = 'frigo_zen Pro';
+  static const String _proEntitlementId = 'frigo Pro';
+  static const String _prodEntitlementId = 'frigo_zen Pro';
 
   CustomerInfo? _customerInfo;
   StreamSubscription? _authSubscription;
@@ -14,7 +15,9 @@ class RevenueProvider with ChangeNotifier {
 
   bool get isPro {
     if (_customerInfo == null) return false;
-    return _customerInfo!.entitlements.active[_proEntitlementId] != null;
+    final active = _customerInfo!.entitlements.active;
+    return active[_proEntitlementId] != null ||
+        active[_prodEntitlementId] != null;
   }
 
   CustomerInfo? get customerInfo => _customerInfo;
@@ -55,14 +58,14 @@ class RevenueProvider with ChangeNotifier {
         .doc(user.uid)
         .snapshots()
         .listen((snapshot) {
-      if (snapshot.exists) {
-        final data = snapshot.data();
-        final householdId = data?['householdId'] as String?;
-        final revenueCatId = householdId ?? user.uid;
-        
-        _identifyRevenueCat(revenueCatId);
-      }
-    });
+          if (snapshot.exists) {
+            final data = snapshot.data();
+            final householdId = data?['householdId'] as String?;
+            final revenueCatId = householdId ?? user.uid;
+
+            _identifyRevenueCat(revenueCatId);
+          }
+        });
   }
 
   Future<void> _handleLogout() async {
@@ -116,7 +119,7 @@ class RevenueProvider with ChangeNotifier {
       debugPrint("Error syncing premium status: $e");
     }
   }
-  
+
   Future<void> restorePurchases() async {
     try {
       final info = await Purchases.restorePurchases();

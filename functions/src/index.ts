@@ -16,7 +16,7 @@ const LOCATION = "us-central1";
 const UNSPLASH_ACCESS_KEY = "SD6Z8wq-qz9w0680m4Yjd2jZStEs_TzB3oeNpOWMjFI";
 const vertexAI = new VertexAI({project: PROJECT_ID, location: LOCATION});
 const generativeModel = vertexAI.getGenerativeModel({
-  model: "gemini-2.0-flash-lite",
+  model: "gemini-2.5-flash-lite",
   generationConfig: {
     temperature: 0.3,
   },
