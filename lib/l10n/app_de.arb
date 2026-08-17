@@ -122,9 +122,6 @@
   "recipeDetailRemoved": "Rezept aus Favoriten entfernt.",
   "recipeDetailError": "Fehler: {error}",
   "@_RECIPE_SUGGESTION_SCREEN": {},
-  "recipeSuggestionTitle": "Rezeptideen",
-  "recipeSuggestionEmpty": "Keine Rezepte für diese Kombination gefunden. :(",
-  "recipeSuggestionUntitled": "Unbenanntes Rezept",
   "@_SETTINGS_SCREEN_UPDATED": {},
   "settingsTitle": "Einstellungen",
   "settingsAccountInfo": "Kontoinformationen",
@@ -210,7 +207,6 @@
   "mealPlannerCardTitle": "Mein Wochenplan",
   "mealPlannerCardSubtitle": "Planen Sie Ihre Wochenmahlzeiten",
   "expiringSoonTitle": "Bald essen!",
-  "cookWithFridgeBtn": "Kochen mit meinem Kühlschrank",
   "summaryTotal": "Gesamt",
   "summaryToEat": "Zu essen",
   "summaryShopping": "Einkaufen",
@@ -238,9 +234,7 @@
   "statsUnlockBtn": "Freischalten",
   "statsStorageDistribution": "Verteilung nach Lagerort",
   "statsFavoriteStores": "Ihre Lieblingsgeschäfte",
-  "recipeFinding": "Rezepte werden gesucht...",
   "inventoryEmpty": "Ihr Inventar ist leer!",
-  "recipesNotFound": "Keine Rezepte gefunden.",
   "errorGeneric": "Fehler: {error}",
   "@errorGeneric": {
     "placeholders": {
@@ -333,10 +327,6 @@
   "recipeTitle": "Rezepte",
   "recipeTabDiscover": "Entdecken",
   "recipeTabCatalog": "Katalog",
-  "recipeTabAI": "KI-Chef",
-  "recipeAITitle": "Kochen mit dem Kühlschrank",
-  "recipeAIDesc": "Lassen Sie unseren KI-Chef köstliche Rezepte basierend auf Ihrem Inventar generieren.",
-  "recipeAIBtn": "Rezepte generieren",
   "recipeTabFavorites": "Favoriten",
   "recipeSearchHint": "Rezept suchen...",
   "recipeNoResults": "Keine Rezepte gefunden.",
@@ -371,10 +361,6 @@
   "recipeIngredientsTitle": "Zutaten",
   "recipeAddIngredientsBtn": "Zur Einkaufsliste",
   "recipeFilterTitle": "Chef-Präferenzen",
-  "recipeFilterMealType": "Mahlzeitentyp",
-  "recipeFilterDiet": "Diät",
-  "recipeFilterDifficulty": "Schwierigkeit",
-  "recipeFilterGenerate": "Generieren",
   "recipeFilterCancel": "Abbrechen",
   "settingsSubscriptionHeader": "Abonnement",
   "settingsAboutHeader": "Über",
@@ -476,5 +462,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "recipeTabAI": "KI-Chef",
+  "recipeAITitle": "Kochen mit dem Kühlschrank",
+  "recipeAIDesc": "Lassen Sie unseren KI-Chef köstliche Rezepte basierend auf Ihrem Inventar generieren.",
+  "recipeAIBtn": "Rezepte generieren"
 }

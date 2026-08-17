@@ -360,16 +360,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get recipeSuggestionTitle => 'Idées Recettes';
-
-  @override
-  String get recipeSuggestionEmpty =>
-      'Aucune recette trouvée pour cette combinaison. :(';
-
-  @override
-  String get recipeSuggestionUntitled => 'Recette sans titre';
-
-  @override
   String get settingsTitle => 'Paramètres';
 
   @override
@@ -623,9 +613,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get expiringSoonTitle => 'À Manger Vite !';
 
   @override
-  String get cookWithFridgeBtn => 'Cuisiner avec mon frigo';
-
-  @override
   String get summaryTotal => 'Total';
 
   @override
@@ -669,13 +656,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statsFavoriteStores => 'Vos Magasins Préférés';
 
   @override
-  String get recipeFinding => 'Recherche de recettes...';
-
-  @override
   String get inventoryEmpty => 'Votre inventaire est vide !';
-
-  @override
-  String get recipesNotFound => 'Aucune recette trouvée.';
 
   @override
   String errorGeneric(String error) {
@@ -838,19 +819,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get recipeTabCatalog => 'Catalogue';
 
   @override
-  String get recipeTabAI => 'Chef IA';
-
-  @override
-  String get recipeAITitle => 'Cuisinez avec votre frigo';
-
-  @override
-  String get recipeAIDesc =>
-      'Laissez notre Chef IA générer des recettes délicieuses basées sur votre inventaire.';
-
-  @override
-  String get recipeAIBtn => 'Générer des recettes';
-
-  @override
   String get recipeTabFavorites => 'Favoris';
 
   @override
@@ -911,18 +879,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get recipeFilterTitle => 'Préférences du Chef';
-
-  @override
-  String get recipeFilterMealType => 'Type de plat';
-
-  @override
-  String get recipeFilterDiet => 'Régime';
-
-  @override
-  String get recipeFilterDifficulty => 'Difficulté';
-
-  @override
-  String get recipeFilterGenerate => 'Générer';
 
   @override
   String get recipeFilterCancel => 'Annuler';
@@ -1146,4 +1102,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String timeDateAt(String date, String time) {
     return '$date $time';
   }
+
+  @override
+  String get recipeTabAI => 'Chef IA';
+
+  @override
+  String get recipeAITitle => 'Cuisinez avec votre frigo';
+
+  @override
+  String get recipeAIDesc =>
+      'Laissez notre Chef IA générer des recettes délicieuses basées sur votre inventaire.';
+
+  @override
+  String get recipeAIBtn => 'Générer des recettes';
 }

@@ -358,16 +358,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get recipeSuggestionTitle => 'Recipe Ideas';
-
-  @override
-  String get recipeSuggestionEmpty =>
-      'No recipes found for this combination. :(';
-
-  @override
-  String get recipeSuggestionUntitled => 'Untitled Recipe';
-
-  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -616,9 +606,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expiringSoonTitle => 'Eat Soon!';
 
   @override
-  String get cookWithFridgeBtn => 'Cook with my fridge';
-
-  @override
   String get summaryTotal => 'Total';
 
   @override
@@ -662,13 +649,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsFavoriteStores => 'Your Favorite Stores';
 
   @override
-  String get recipeFinding => 'Finding recipes...';
-
-  @override
   String get inventoryEmpty => 'Your inventory is empty!';
-
-  @override
-  String get recipesNotFound => 'No recipes found.';
 
   @override
   String errorGeneric(String error) {
@@ -831,19 +812,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recipeTabCatalog => 'Catalog';
 
   @override
-  String get recipeTabAI => 'AI Chef';
-
-  @override
-  String get recipeAITitle => 'Cook with your fridge';
-
-  @override
-  String get recipeAIDesc =>
-      'Let our AI Chef generate delicious recipes based on your inventory.';
-
-  @override
-  String get recipeAIBtn => 'Generate Recipes';
-
-  @override
   String get recipeTabFavorites => 'Favorites';
 
   @override
@@ -904,18 +872,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipeFilterTitle => 'Chef Preferences';
-
-  @override
-  String get recipeFilterMealType => 'Meal Type';
-
-  @override
-  String get recipeFilterDiet => 'Diet';
-
-  @override
-  String get recipeFilterDifficulty => 'Difficulty';
-
-  @override
-  String get recipeFilterGenerate => 'Generate';
 
   @override
   String get recipeFilterCancel => 'Cancel';
@@ -1140,4 +1096,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String timeDateAt(String date, String time) {
     return '$date $time';
   }
+
+  @override
+  String get recipeTabAI => 'AI Chef';
+
+  @override
+  String get recipeAITitle => 'Cook with your fridge';
+
+  @override
+  String get recipeAIDesc =>
+      'Let our AI Chef generate delicious recipes based on your inventory.';
+
+  @override
+  String get recipeAIBtn => 'Generate Recipes';
 }

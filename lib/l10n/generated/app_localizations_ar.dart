@@ -357,16 +357,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get recipeSuggestionTitle => 'أفكار وصفات';
-
-  @override
-  String get recipeSuggestionEmpty =>
-      'لم يتم العثور على وصفات لهذه المجموعة. :(';
-
-  @override
-  String get recipeSuggestionUntitled => 'وصفة بدون عنوان';
-
-  @override
   String get settingsTitle => 'الإعدادات';
 
   @override
@@ -614,9 +604,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get expiringSoonTitle => 'تأكل قريبا!';
 
   @override
-  String get cookWithFridgeBtn => 'اطبخ مع ثلاجتي';
-
-  @override
   String get summaryTotal => 'المجموع';
 
   @override
@@ -660,13 +647,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get statsFavoriteStores => 'متاجرك المفضلة';
 
   @override
-  String get recipeFinding => 'جاري البحث عن وصفات...';
-
-  @override
   String get inventoryEmpty => 'مخزونك فارغ!';
-
-  @override
-  String get recipesNotFound => 'لم يتم العثور على وصفات.';
 
   @override
   String errorGeneric(String error) {
@@ -829,19 +810,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recipeTabCatalog => 'كتالوج';
 
   @override
-  String get recipeTabAI => 'طاهي الذكاء الاصطناعي';
-
-  @override
-  String get recipeAITitle => 'اطبخ بمحتويات ثلاجتك';
-
-  @override
-  String get recipeAIDesc =>
-      'دع طاهي الذكاء الاصطناعي يولد وصفات لذيذة بناءً على مخزونك.';
-
-  @override
-  String get recipeAIBtn => 'توليد وصفات';
-
-  @override
   String get recipeTabFavorites => 'المفضلة';
 
   @override
@@ -902,18 +870,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get recipeFilterTitle => 'تفضيلات الطاهي';
-
-  @override
-  String get recipeFilterMealType => 'نوع الوجبة';
-
-  @override
-  String get recipeFilterDiet => 'النظام الغذائي';
-
-  @override
-  String get recipeFilterDifficulty => 'الصعوبة';
-
-  @override
-  String get recipeFilterGenerate => 'توليد';
 
   @override
   String get recipeFilterCancel => 'إلغاء';
@@ -1138,4 +1094,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String timeDateAt(String date, String time) {
     return '$date $time';
   }
+
+  @override
+  String get recipeTabAI => 'طاهي الذكاء الاصطناعي';
+
+  @override
+  String get recipeAITitle => 'اطبخ بمحتويات ثلاجتك';
+
+  @override
+  String get recipeAIDesc =>
+      'دع طاهي الذكاء الاصطناعي يولد وصفات لذيذة بناءً على مخزونك.';
+
+  @override
+  String get recipeAIBtn => 'توليد وصفات';
 }

@@ -361,16 +361,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get recipeSuggestionTitle => 'Rezeptideen';
-
-  @override
-  String get recipeSuggestionEmpty =>
-      'Keine Rezepte für diese Kombination gefunden. :(';
-
-  @override
-  String get recipeSuggestionUntitled => 'Unbenanntes Rezept';
-
-  @override
   String get settingsTitle => 'Einstellungen';
 
   @override
@@ -623,9 +613,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get expiringSoonTitle => 'Bald essen!';
 
   @override
-  String get cookWithFridgeBtn => 'Kochen mit meinem Kühlschrank';
-
-  @override
   String get summaryTotal => 'Gesamt';
 
   @override
@@ -669,13 +656,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get statsFavoriteStores => 'Ihre Lieblingsgeschäfte';
 
   @override
-  String get recipeFinding => 'Rezepte werden gesucht...';
-
-  @override
   String get inventoryEmpty => 'Ihr Inventar ist leer!';
-
-  @override
-  String get recipesNotFound => 'Keine Rezepte gefunden.';
 
   @override
   String errorGeneric(String error) {
@@ -838,19 +819,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recipeTabCatalog => 'Katalog';
 
   @override
-  String get recipeTabAI => 'KI-Chef';
-
-  @override
-  String get recipeAITitle => 'Kochen mit dem Kühlschrank';
-
-  @override
-  String get recipeAIDesc =>
-      'Lassen Sie unseren KI-Chef köstliche Rezepte basierend auf Ihrem Inventar generieren.';
-
-  @override
-  String get recipeAIBtn => 'Rezepte generieren';
-
-  @override
   String get recipeTabFavorites => 'Favoriten';
 
   @override
@@ -911,18 +879,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get recipeFilterTitle => 'Chef-Präferenzen';
-
-  @override
-  String get recipeFilterMealType => 'Mahlzeitentyp';
-
-  @override
-  String get recipeFilterDiet => 'Diät';
-
-  @override
-  String get recipeFilterDifficulty => 'Schwierigkeit';
-
-  @override
-  String get recipeFilterGenerate => 'Generieren';
 
   @override
   String get recipeFilterCancel => 'Abbrechen';
@@ -1147,4 +1103,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String timeDateAt(String date, String time) {
     return '$date $time';
   }
+
+  @override
+  String get recipeTabAI => 'KI-Chef';
+
+  @override
+  String get recipeAITitle => 'Kochen mit dem Kühlschrank';
+
+  @override
+  String get recipeAIDesc =>
+      'Lassen Sie unseren KI-Chef köstliche Rezepte basierend auf Ihrem Inventar generieren.';
+
+  @override
+  String get recipeAIBtn => 'Rezepte generieren';
 }

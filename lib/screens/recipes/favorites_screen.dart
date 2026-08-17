@@ -40,11 +40,18 @@ class FavoritesTab extends StatelessWidget {
 
         final docs = snapshot.data!.docs;
 
+        // TODO(cook-with-ai): Filtrer les anciens favoris IA (sans champ 'id' TheMealDB).
+        // Quand "Cuisiner avec IA" sera réactivé, retirer ce filtre.
+        final catalogDocs = docs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return data['id'] != null && data['id'].toString().isNotEmpty;
+        }).toList();
+
         return ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: docs.length,
+          itemCount: catalogDocs.length,
           itemBuilder: (context, index) {
-            final data = docs[index].data() as Map<String, dynamic>;
+            final data = catalogDocs[index].data() as Map<String, dynamic>;
             return _buildFavoriteCard(context, data);
           },
         );

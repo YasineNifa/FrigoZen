@@ -1,5 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
+
+// TODO(cook-with-ai): Dialog de sélection des filtres pour la génération de recettes IA.
+// Pour réactiver la fonctionnalité "Cuisiner avec IA" dans une future version :
+// 1. Remplacer tout le contenu de ce fichier par le code original ci-dessous.
+// 2. Le code original se trouve dans la branche feature/cook-with-ai.
+
+class RecipeFiltersDialog extends StatefulWidget {
+  const RecipeFiltersDialog({super.key});
+
+  @override
+  State<RecipeFiltersDialog> createState() => _RecipeFiltersDialogState();
+}
+
+class _RecipeFiltersDialogState extends State<RecipeFiltersDialog> {
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(l10n.recipeFilterTitle),
+      content: const Text('Feature coming soon'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.recipeFilterCancel),
+        ),
+      ],
+    );
+  }
+}
+
+/*
+// TODO(cook-with-ai): CODE ORIGINAL — Décommenter pour réactiver.
+
+import 'package:flutter/material.dart';
+import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/theme/app_theme.dart';
 
 class RecipeFiltersDialog extends StatefulWidget {
@@ -103,3 +139,5 @@ class _RecipeFiltersDialogState extends State<RecipeFiltersDialog> {
     );
   }
 }
+
+*/

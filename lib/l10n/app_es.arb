@@ -122,9 +122,6 @@
   "recipeDetailRemoved": "Receta eliminada de Favoritos.",
   "recipeDetailError": "Error: {error}",
   "@_RECIPE_SUGGESTION_SCREEN": {},
-  "recipeSuggestionTitle": "Ideas de Recetas",
-  "recipeSuggestionEmpty": "No se encontraron recetas para esta combinación. :(",
-  "recipeSuggestionUntitled": "Receta sin título",
   "@_SETTINGS_SCREEN_UPDATED": {},
   "settingsTitle": "Ajustes",
   "settingsAccountInfo": "Información de la cuenta",
@@ -210,7 +207,6 @@
   "mealPlannerCardTitle": "Mi planificador",
   "mealPlannerCardSubtitle": "Planifica tus comidas de la semana",
   "expiringSoonTitle": "¡Comer pronto!",
-  "cookWithFridgeBtn": "Cocinar con mi nevera",
   "summaryTotal": "Total",
   "summaryToEat": "Para comer",
   "summaryShopping": "Compras",
@@ -238,9 +234,7 @@
   "statsUnlockBtn": "Desbloquear",
   "statsStorageDistribution": "Distribución por Almacenamiento",
   "statsFavoriteStores": "Tus Tiendas Favoritas",
-  "recipeFinding": "Buscando recetas...",
   "inventoryEmpty": "¡Tu inventario está vacío!",
-  "recipesNotFound": "No se encontraron recetas.",
   "errorGeneric": "Error: {error}",
   "@errorGeneric": {
     "placeholders": {
@@ -333,10 +327,6 @@
   "recipeTitle": "Recetas",
   "recipeTabDiscover": "Descubrir",
   "recipeTabCatalog": "Catálogo",
-  "recipeTabAI": "Chef IA",
-  "recipeAITitle": "Cocina con tu nevera",
-  "recipeAIDesc": "Deja que nuestro Chef IA genere recetas deliciosas basadas en tu inventario.",
-  "recipeAIBtn": "Generar Recetas",
   "recipeTabFavorites": "Favoritos",
   "recipeSearchHint": "Buscar una receta...",
   "recipeNoResults": "No se encontraron recetas.",
@@ -371,10 +361,6 @@
   "recipeIngredientsTitle": "Ingredientes",
   "recipeAddIngredientsBtn": "Añadir a la lista de compras",
   "recipeFilterTitle": "Preferencias del Chef",
-  "recipeFilterMealType": "Tipo de comida",
-  "recipeFilterDiet": "Dieta",
-  "recipeFilterDifficulty": "Dificultad",
-  "recipeFilterGenerate": "Generar",
   "recipeFilterCancel": "Cancelar",
   "settingsSubscriptionHeader": "Suscripción",
   "settingsAboutHeader": "Acerca de",
@@ -476,5 +462,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "recipeTabAI": "Chef IA",
+  "recipeAITitle": "Cocina con tu nevera",
+  "recipeAIDesc": "Deja que nuestro Chef IA genere recetas deliciosas basadas en tu inventario.",
+  "recipeAIBtn": "Generar Recetas"
 }

@@ -119,9 +119,6 @@
   "recipeDetailRemoved": "Recette retirée des Favoris.",
   "recipeDetailError": "Erreur : {error}",
   "@_RECIPE_SUGGESTION_SCREEN": {},
-  "recipeSuggestionTitle": "Idées Recettes",
-  "recipeSuggestionEmpty": "Aucune recette trouvée pour cette combinaison. :(",
-  "recipeSuggestionUntitled": "Recette sans titre",
   "@_SETTINGS_SCREEN_UPDATED": {},
   "settingsTitle": "Paramètres",
   "settingsAccountInfo": "Informations du compte",
@@ -208,7 +205,6 @@
   "mealPlannerCardTitle": "Mon Semainier",
   "mealPlannerCardSubtitle": "Planifiez vos repas de la semaine",
   "expiringSoonTitle": "À Manger Vite !",
-  "cookWithFridgeBtn": "Cuisiner avec mon frigo",
   "summaryTotal": "Total",
   "summaryToEat": "À manger",
   "summaryShopping": "Courses",
@@ -236,9 +232,7 @@
   "statsUnlockBtn": "Débloquer",
   "statsStorageDistribution": "Répartition par Lieu",
   "statsFavoriteStores": "Vos Magasins Préférés",
-  "recipeFinding": "Recherche de recettes...",
   "inventoryEmpty": "Votre inventaire est vide !",
-  "recipesNotFound": "Aucune recette trouvée.",
   "errorGeneric": "Erreur : {error}",
   "@errorGeneric": {
     "placeholders": {
@@ -331,10 +325,6 @@
   "recipeTitle": "Recettes",
   "recipeTabDiscover": "Découvrir",
   "recipeTabCatalog": "Catalogue",
-  "recipeTabAI": "Chef IA",
-  "recipeAITitle": "Cuisinez avec votre frigo",
-  "recipeAIDesc": "Laissez notre Chef IA générer des recettes délicieuses basées sur votre inventaire.",
-  "recipeAIBtn": "Générer des recettes",
   "recipeTabFavorites": "Favoris",
   "recipeSearchHint": "Rechercher une recette...",
   "recipeNoResults": "Aucune recette trouvée.",
@@ -368,10 +358,6 @@
   "recipeIngredientsTitle": "Ingrédients",
   "recipeAddIngredientsBtn": "Ajouter à la liste de courses",
   "recipeFilterTitle": "Préférences du Chef",
-  "recipeFilterMealType": "Type de plat",
-  "recipeFilterDiet": "Régime",
-  "recipeFilterDifficulty": "Difficulté",
-  "recipeFilterGenerate": "Générer",
   "recipeFilterCancel": "Annuler",
   "settingsSubscriptionHeader": "Abonnement",
   "settingsAboutHeader": "À propos",
@@ -476,5 +462,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "recipeTabAI": "Chef IA",
+  "recipeAITitle": "Cuisinez avec votre frigo",
+  "recipeAIDesc": "Laissez notre Chef IA générer des recettes délicieuses basées sur votre inventaire.",
+  "recipeAIBtn": "Générer des recettes"
 }

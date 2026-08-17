@@ -764,24 +764,6 @@ abstract class AppLocalizations {
   /// **'Error: {error}'**
   String recipeDetailError(String error);
 
-  /// No description provided for @recipeSuggestionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Recipe Ideas'**
-  String get recipeSuggestionTitle;
-
-  /// No description provided for @recipeSuggestionEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No recipes found for this combination. :('**
-  String get recipeSuggestionEmpty;
-
-  /// No description provided for @recipeSuggestionUntitled.
-  ///
-  /// In en, this message translates to:
-  /// **'Untitled Recipe'**
-  String get recipeSuggestionUntitled;
-
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
@@ -1220,12 +1202,6 @@ abstract class AppLocalizations {
   /// **'Eat Soon!'**
   String get expiringSoonTitle;
 
-  /// No description provided for @cookWithFridgeBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'Cook with my fridge'**
-  String get cookWithFridgeBtn;
-
   /// No description provided for @summaryTotal.
   ///
   /// In en, this message translates to:
@@ -1304,23 +1280,11 @@ abstract class AppLocalizations {
   /// **'Your Favorite Stores'**
   String get statsFavoriteStores;
 
-  /// No description provided for @recipeFinding.
-  ///
-  /// In en, this message translates to:
-  /// **'Finding recipes...'**
-  String get recipeFinding;
-
   /// No description provided for @inventoryEmpty.
   ///
   /// In en, this message translates to:
   /// **'Your inventory is empty!'**
   String get inventoryEmpty;
-
-  /// No description provided for @recipesNotFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No recipes found.'**
-  String get recipesNotFound;
 
   /// No description provided for @errorGeneric.
   ///
@@ -1616,30 +1580,6 @@ abstract class AppLocalizations {
   /// **'Catalog'**
   String get recipeTabCatalog;
 
-  /// No description provided for @recipeTabAI.
-  ///
-  /// In en, this message translates to:
-  /// **'AI Chef'**
-  String get recipeTabAI;
-
-  /// No description provided for @recipeAITitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Cook with your fridge'**
-  String get recipeAITitle;
-
-  /// No description provided for @recipeAIDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Let our AI Chef generate delicious recipes based on your inventory.'**
-  String get recipeAIDesc;
-
-  /// No description provided for @recipeAIBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'Generate Recipes'**
-  String get recipeAIBtn;
-
   /// No description provided for @recipeTabFavorites.
   ///
   /// In en, this message translates to:
@@ -1753,30 +1693,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Chef Preferences'**
   String get recipeFilterTitle;
-
-  /// No description provided for @recipeFilterMealType.
-  ///
-  /// In en, this message translates to:
-  /// **'Meal Type'**
-  String get recipeFilterMealType;
-
-  /// No description provided for @recipeFilterDiet.
-  ///
-  /// In en, this message translates to:
-  /// **'Diet'**
-  String get recipeFilterDiet;
-
-  /// No description provided for @recipeFilterDifficulty.
-  ///
-  /// In en, this message translates to:
-  /// **'Difficulty'**
-  String get recipeFilterDifficulty;
-
-  /// No description provided for @recipeFilterGenerate.
-  ///
-  /// In en, this message translates to:
-  /// **'Generate'**
-  String get recipeFilterGenerate;
 
   /// No description provided for @recipeFilterCancel.
   ///
@@ -2179,6 +2095,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{date} {time}'**
   String timeDateAt(String date, String time);
+
+  /// No description provided for @recipeTabAI.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Chef'**
+  String get recipeTabAI;
+
+  /// No description provided for @recipeAITitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cook with your fridge'**
+  String get recipeAITitle;
+
+  /// No description provided for @recipeAIDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Let our AI Chef generate delicious recipes based on your inventory.'**
+  String get recipeAIDesc;
+
+  /// No description provided for @recipeAIBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Recipes'**
+  String get recipeAIBtn;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import 'package:frigo_zen/screens/recipes/recipe_suggestion_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
@@ -12,8 +10,9 @@ import 'package:frigo_zen/screens/inventory/components/inventory_list.dart';
 import 'package:frigo_zen/screens/inventory/components/location_filter_pills.dart';
 
 import 'package:frigo_zen/screens/inventory/components/scan_options_sheet.dart';
-import 'package:frigo_zen/services/recipe_generation_service.dart';
-import 'package:frigo_zen/screens/recipes/components/recipe_filters_dialog.dart';
+// TODO(cook-with-ai): Décommenter pour réactiver la génération de recettes IA
+// import 'package:frigo_zen/services/recipe_generation_service.dart';
+// import 'package:frigo_zen/screens/recipes/components/recipe_filters_dialog.dart';
 import 'package:frigo_zen/screens/core/premium_guard.dart';
 import 'package:frigo_zen/screens/planning/meal_planner_screen.dart';
 
@@ -28,7 +27,6 @@ class InventoryScreen extends StatefulWidget {
 
 class _InventoryScreenState extends State<InventoryScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<dynamic> _localRecipeCache = [];
   InventoryViewMode _viewMode = InventoryViewMode.priority;
 
   @override
@@ -65,9 +63,10 @@ class _InventoryScreenState extends State<InventoryScreen> {
     context.read<InventoryViewModel>().setSearchQuery(_searchController.text.trim());
   }
 
-  void _triggerRecipeGeneration(BuildContext context) {
-    RecipeGenerationService.triggerRecipeGeneration(context);
-  }
+  // TODO(cook-with-ai): Décommenter pour réactiver la génération de recettes IA
+  // void _triggerRecipeGeneration(BuildContext context) {
+  //   RecipeGenerationService.triggerRecipeGeneration(context);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -82,16 +81,17 @@ class _InventoryScreenState extends State<InventoryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Row(
               children: [
-                Expanded(
-                  child: _buildHeaderButton(
-                    context,
-                    icon: Icons.restaurant_menu,
-                    label: l10n.cookWithFridgeBtn,
-                    color: Theme.of(context).primaryColor,
-                    onTap: () => _triggerRecipeGeneration(context),
-                  ),
-                ),
-                const SizedBox(width: 12),
+                // TODO(cook-with-ai): Décommenter pour réactiver le bouton "Cuisiner avec mon frigo"
+                // Expanded(
+                //   child: _buildHeaderButton(
+                //     context,
+                //     icon: Icons.restaurant_menu,
+                //     label: l10n.cookWithFridgeBtn,
+                //     color: Theme.of(context).primaryColor,
+                //     onTap: () => RecipeGenerationService.triggerRecipeGeneration(context),
+                //   ),
+                // ),
+                // const SizedBox(width: 12),
                 Expanded(
                   child: _buildHeaderButton(
                     context,
