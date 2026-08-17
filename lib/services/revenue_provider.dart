@@ -14,6 +14,7 @@ class RevenueProvider with ChangeNotifier {
   String? _currentRevenueCatId;
 
   bool get isPro {
+    if (!kReleaseMode) return true;
     if (_customerInfo == null) return false;
     final active = _customerInfo!.entitlements.active;
     return active[_proEntitlementId] != null ||

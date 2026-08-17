@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/core/auth_gate.dart';
 import 'package:frigo_zen/providers_setup.dart';
@@ -19,6 +20,8 @@ import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/screens/core/navigation_controller.dart';
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
 import 'package:frigo_zen/viewmodels/recipes_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // 2. Créer un "Provider" simple pour notre inventaire : REMOVED (Dead Code)
 
@@ -32,16 +35,29 @@ Future<void> main() async {
   await FirebaseMessaging.instance.requestPermission();
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-  await Purchases.configure(
-    PurchasesConfiguration(
-      "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
-    ), //test_khYjXVBlKWQdgHIghJZqvHlaXyV // goog_jffnkmLisnUHGaDInMHpqQUcLra
-  );
+
+  if (kReleaseMode) {
+    await Purchases.configure(
+      PurchasesConfiguration("appl_TO_BE_FILLED"),
+    );
+  }
 
   setupLocator();
 
   final revenueProvider = locator<RevenueProvider>();
-  await revenueProvider.init();
+  if (kReleaseMode) {
+    await revenueProvider.init();
+  } else {
+    debugPrint("RevenueCat skipped (non-release mode). isPro forced to true.");
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null) {
+        FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'isPremium': true,
+          'lastPremiumSync': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+    });
+  }
 
   runApp(
     MultiProvider(
