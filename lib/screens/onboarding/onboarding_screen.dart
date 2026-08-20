@@ -231,6 +231,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                     ),
+
+                    // "J'ai déjà un compte" — inside card, reserved space on all pages
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 24,
+                      child: _currentPage == 2
+                          ? TextButton(
+                              onPressed: _finishOnboarding,
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: Text(
+                                l10n.onboardingHaveAccount,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.white,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   ],
                 ),
               ),
@@ -238,24 +262,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           
           const SizedBox(height: 20),
-          
-          if (_currentPage == 2)
-            TextButton(
-              onPressed: _finishOnboarding,
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-              ),
-              child: Text(
-                l10n.onboardingHaveAccount,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.underline,
-                  decorationColor: Colors.white,
-                ),
-              ),
-            ),
-            
+
           const Spacer(flex: 1),
         ],
       ),
