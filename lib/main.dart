@@ -4,6 +4,7 @@ import 'package:frigo_zen/screens/core/auth_gate.dart';
 import 'package:frigo_zen/providers_setup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:frigo_zen/screens/onboarding/onboarding_screen.dart';
+import 'package:frigo_zen/screens/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
@@ -147,7 +148,7 @@ class FrigoZenApp extends StatelessWidget {
         Locale('es'),
         Locale('ar'),
       ],
-      home: hasSeenOnboarding ? const AuthGate() : const OnboardingScreen(),
+      home: SplashScreen(hasSeenOnboarding: hasSeenOnboarding),
       // home: const OnboardingScreen(),
     );
   }
