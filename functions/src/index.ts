@@ -755,7 +755,6 @@ async function runExpirationCheck(targetHouseholdId?: string) {
               preheader: "Some items in your fridge need attention",
               title: "Expiration Alert",
               intro: "The following items in your fridge are about to expire. Here's a chance to use them before they go to waste.",
-              actionBtn: "Open FrigoZen",
               tip: "Tip: Check your recipes for inspiration on how to use these ingredients!",
               footer: "You received this email because you have expiration alerts enabled in FrigoZen.",
               team: "The FrigoZen Team",
@@ -765,7 +764,6 @@ async function runExpirationCheck(targetHouseholdId?: string) {
               preheader: "Certains produits de votre frigo nécessitent une attention",
               title: "Alerte d'expiration",
               intro: "Les produits suivants dans votre frigo sont sur le point d'expirer. C'est l'occasion de les utiliser avant le gaspillage.",
-              actionBtn: "Ouvrir FrigoZen",
               tip: "Astuce : Consultez vos recettes pour trouver l'inspiration afin d'utiliser ces ingrédients !",
               footer: "Vous avez reçu cet email car vous avez activé les alertes d'expiration dans FrigoZen.",
               team: "L'équipe FrigoZen",
@@ -775,7 +773,6 @@ async function runExpirationCheck(targetHouseholdId?: string) {
               preheader: "Einige Artikel in Ihrem Kühlschrank benötigen Aufmerksamkeit",
               title: "Ablaufwarnung",
               intro: "Folgende Artikel in Ihrem Kühlschrank laufen bald ab. Nutzen Sie die Gelegenheit, sie vor der Verschwendung zu verwenden.",
-              actionBtn: "FrigoZen öffnen",
               tip: "Tipp: Schauen Sie in Ihre Rezepte für Inspiration, wie Sie diese Zutaten verwenden können!",
               footer: "Sie haben diese E-Mail erhalten, weil Sie Ablaufwarnungen in FrigoZen aktiviert haben.",
               team: "Das FrigoZen Team",
@@ -785,7 +782,6 @@ async function runExpirationCheck(targetHouseholdId?: string) {
               preheader: "Algunos artículos de su nevera necesitan atención",
               title: "Alerta de caducidad",
               intro: "Los siguientes artículos de su nevera están a punto de caducar. Aproveche para usarlos antes de que se desperdicien.",
-              actionBtn: "Abrir FrigoZen",
               tip: "Consejo: ¡Revise sus recetas para encontrar inspiración y usar estos ingredientes!",
               footer: "Recibió este correo porque tiene activadas las alertas de caducidad en FrigoZen.",
               team: "El equipo FrigoZen",
@@ -795,7 +791,6 @@ async function runExpirationCheck(targetHouseholdId?: string) {
               preheader: "بعض العناصر في ثلاجتك تحتاج إلى اهتمام",
               title: "تنبيه انتهاء الصلاحية",
               intro: "العناصر التالية في ثلاجتك على وشك انتهاء صلاحيتها. استغل الفرصة لاستخدامها قبل أن تُهدَر.",
-              actionBtn: "فتح FrigoZen",
               tip: "نصيحة: تحقق من وصفاتك للحصول على إلهام لكيفية استخدام هذه المكونات!",
               footer: "تلقى هذا البريد الإلكتروني لأنك قمت بتفعيل تنبيهات انتهاء الصلاحية في FrigoZen.",
               team: "فريق FrigoZen",
@@ -862,23 +857,6 @@ async function runExpirationCheck(targetHouseholdId?: string) {
                 </tr>
                 <tr><td height="8"></td></tr>
                 `).join("")}
-              </table>
-
-              <!-- CTA Button -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                <tr>
-                  <td align="center">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                      <tr>
-                        <td style="background: linear-gradient(135deg, #3D6B35, #6B9C5F); border-radius: 12px;">
-                          <a href="https://frigozen.page.link/open" style="display:inline-block; padding: 14px 32px; color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; letter-spacing: 0.3px;">
-                            ${t.actionBtn} &rarr;
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
               </table>
 
               <!-- Tip -->
