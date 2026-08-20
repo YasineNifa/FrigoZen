@@ -391,22 +391,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
              },
            ),
            _buildSettingsTile(
-             context,
-             icon: Icons.data_usage,
-             title: "Générer Données Test (Prix)",
-             subtitle: "Ajoute 20 entrées pour tester le graphe",
-             onTap: () async {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text("Génération en cours...")),
-                 );
-                 await locator<HistoryService>().generateFakeData();
-                 if (context.mounted) {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                       const SnackBar(content: Text("Données générées ! Allez voir le graphe.")),
-                   );
-                 }
-             },
-           ),
+              context,
+              icon: Icons.data_usage,
+              title: "Générer Données Test (Prix)",
+              subtitle: "Ajoute 20 entrées pour tester le graphe",
+              onTap: () async {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Génération en cours...")),
+                  );
+                  await locator<HistoryService>().generateFakeData();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Données générées ! Allez voir le graphe.")),
+                    );
+                  }
+              },
+            ),
+            _buildSettingsTile(
+              context,
+              icon: Icons.email_outlined,
+              title: "Tester l'Email d'Expiration",
+              subtitle: "Envoie l'email de gaspillage à votre foyer",
+              onTap: () async {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Envoi de l'email de test...")),
+                );
+                try {
+                  final callable = FirebaseFunctions.instance
+                      .httpsCallable('testExpirationAlerts');
+                  final result = await callable.call();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Email envoyé ! (${result.data})",
+                        ),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Erreur : $e"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
 
           const SizedBox(height: 32),
 
