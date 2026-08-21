@@ -3,8 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:frigo_zen/viewmodels/recipes_view_model.dart';
 import 'package:frigo_zen/screens/recipes/favorites_screen.dart';
 import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
-import 'package:frigo_zen/screens/core/premium_guard.dart';
-import 'package:frigo_zen/services/recipe_generation_service.dart';
+// TODO(cook-with-ai): Décommenter pour réactiver la génération de recettes IA
+// import 'package:frigo_zen/screens/core/premium_guard.dart';
+// import 'package:frigo_zen/services/recipe_generation_service.dart';
 
 import 'package:frigo_zen/models/recipe.dart';
 import 'package:frigo_zen/components/skeleton.dart';
@@ -19,7 +20,8 @@ class RecipesScreen extends StatefulWidget {
 
 class _RecipesScreenState extends State<RecipesScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<dynamic> _localRecipeCache = [];
+  // TODO(cook-with-ai): Décommenter pour réactiver la génération de recettes IA
+  // List<dynamic> _localRecipeCache = [];
 
   @override
   void initState() {
@@ -39,16 +41,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
     context.read<RecipesViewModel>().searchRecipes(query);
   }
 
-  void _triggerRecipeGeneration(BuildContext context) {
-    RecipeGenerationService.triggerRecipeGeneration(context);
-  }
+  // TODO(cook-with-ai): Décommenter pour réactiver la génération de recettes IA
+  // void _triggerRecipeGeneration(BuildContext context) {
+  //   RecipeGenerationService.triggerRecipeGeneration(context);
+  // }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return DefaultTabController(
-      length: 3,
+      length: 2, // TODO(cook-with-ai): Remettre 3 quand l'onglet "Chef IA" sera réactivé
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.recipeTitle),
@@ -58,7 +61,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
             unselectedLabelColor: Colors.grey,
             tabs: [
               Tab(text: l10n.recipeTabCatalog),
-              Tab(text: l10n.recipeTabAI),
+              // TODO(cook-with-ai): Décommenter pour réactiver l'onglet "Chef IA"
+              // Tab(text: l10n.recipeTabAI),
               Tab(text: l10n.recipeTabFavorites),
             ],
           ),
@@ -66,7 +70,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
         body: TabBarView(
           children: [
             _buildDiscoverTab(context),
-            _buildAITab(context),
+            // TODO(cook-with-ai): Décommenter pour réactiver l'onglet "Chef IA"
+            // _buildAITab(context),
             const FavoritesTab(),
           ],
         ),
@@ -74,47 +79,49 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
-  Widget _buildAITab(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.auto_awesome, size: 80, color: Theme.of(context).primaryColor),
-            const SizedBox(height: 24),
-            Text(
-              l10n.recipeAITitle,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.recipeAIDesc,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () => _triggerRecipeGeneration(context),
-              icon: const Icon(Icons.restaurant_menu),
-              label: Text(l10n.recipeAIBtn),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // TODO(cook-with-ai): Décommenter cette méthode pour réactiver l'onglet "Chef IA".
+  // Elle affiche l'écran de lancement de la génération de recettes IA.
+  // void _buildAITab(BuildContext context) {
+  //   final l10n = AppLocalizations.of(context)!;
+  //   return Center(
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(24.0),
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           Icon(Icons.auto_awesome, size: 80, color: Theme.of(context).primaryColor),
+  //           const SizedBox(height: 24),
+  //           Text(
+  //             l10n.recipeAITitle,
+  //             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+  //             textAlign: TextAlign.center,
+  //           ),
+  //           const SizedBox(height: 12),
+  //           Text(
+  //             l10n.recipeAIDesc,
+  //             style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+  //             textAlign: TextAlign.center,
+  //           ),
+  //           const SizedBox(height: 32),
+  //           ElevatedButton.icon(
+  //             onPressed: () => _triggerRecipeGeneration(context),
+  //             icon: const Icon(Icons.restaurant_menu),
+  //             label: Text(l10n.recipeAIBtn),
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: Theme.of(context).primaryColor,
+  //               foregroundColor: Colors.white,
+  //               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+  //               textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(16),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildDiscoverTab(BuildContext context) {
     final viewModel = context.watch<RecipesViewModel>();

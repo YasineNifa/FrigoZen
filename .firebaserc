@@ -1,5 +1,13 @@
 {
   "projects": {
     "default": "frigozen-app"
+  },
+  "targets": {},
+  "etags": {
+    "frigozen-app": {
+      "extensionInstances": {
+        "firestore-send-email": "086347c5cfa7fdc1240985663492c877635c4a4ef1731870e40e3947a8725c09"
+      }
+    }
   }
 }

@@ -1,4 +1,30 @@
 import 'package:flutter/material.dart';
+
+// TODO(cook-with-ai): Écran d'affichage des recettes générées par l'IA.
+// Pour réactiver la fonctionnalité "Cuisiner avec IA" dans une future version :
+// 1. Remplacer tout le contenu de ce fichier par le code original ci-dessous.
+// 2. Le code original se trouve dans la branche feature/cook-with-ai.
+// 3. La Cloud Function `generateRecipes` est toujours déployée côté backend.
+
+class RecipeSuggestionScreen extends StatelessWidget {
+  final List<dynamic> recipes;
+
+  const RecipeSuggestionScreen({super.key, required this.recipes});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text('Feature coming soon'),
+      ),
+    );
+  }
+}
+
+/*
+// TODO(cook-with-ai): CODE ORIGINAL — Décommenter pour réactiver.
+
+import 'package:flutter/material.dart';
 import 'package:frigo_zen/screens/recipes/recipe_detail_screen.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 
@@ -237,3 +263,5 @@ class RecipeGridTile extends StatelessWidget {
     );
   }
 }
+
+*/

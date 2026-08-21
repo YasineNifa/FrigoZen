@@ -499,23 +499,41 @@ export const testExpirationAlerts = onCall(
       throw new HttpsError("unauthenticated", "Login required.");
     }
 
-    // Get the user's householdId
     const db = getFirestore();
-    const userDoc = await db.collection("users").doc(request.auth.uid).get();
-    const householdId = userDoc.data()?.householdId;
+    const uid = request.auth.uid;
+    logger.info(`[TEST] uid=${uid}`);
+
+    const userDoc = await db.collection("users").doc(uid).get();
+    const userData = userDoc.data();
+    if (!userData) {
+      throw new HttpsError("not-found", "User document not found.");
+    }
+
+    const householdId = userData.householdId;
+    logger.info(`[TEST] householdId=${householdId || "NONE"}`);
+    logger.info(`[TEST] email=${userData.email || "NONE"}, ` +
+      `emailVerified=${userData.emailVerified}, ` +
+      `isPremium=${userData.isPremium}`);
 
     if (!householdId) {
       throw new HttpsError("failed-precondition", "No household found.");
     }
 
-    // Run check specifically for this household, bypassing premium check
-    // for testing if desired,
-    // or just run standard logic.
-    // For testing, we might want to force it even if not premium?
-    // Let's keep it consistent with production logic for now, but maybe
-    // log more info.
+    // Diagnostic: check inventory items directly
+    const invSnap = await db.collection("households")
+      .doc(householdId).collection("inventory").get();
+    logger.info(`[TEST] Total inventory items: ${invSnap.size}`);
+    invSnap.docs.forEach((doc) => {
+      const d = doc.data();
+      const exp = d.earliestExpirationDate ?
+        d.earliestExpirationDate.toDate().toISOString() :
+        "NONE";
+      logger.info(`[TEST]   item=${d.name || "?"} exp=${exp}`);
+    });
 
     const result = await runExpirationCheck(householdId);
+    logger.info("[TEST] runExpirationCheck result: " +
+      JSON.stringify(result));
     return {success: true, ...result};
   }
 );
@@ -733,76 +751,145 @@ async function runExpirationCheck(targetHouseholdId?: string) {
 
           const translations: { [key: string]: any } = {
             en: {
-              subject: "⚠️ Waste Alert - FrigoZen",
-              title: "Waste Alert!",
-              intro: "The following items are expiring soon in your fridge:",
-              action: "Cook them fast!",
-              team: "The FrigoZen Team 🌿",
+              subject: "Your FrigoZen expiration alert",
+              preheader: "Some items in your fridge need attention",
+              title: "Expiration Alert",
+              intro: "The following items in your fridge are about to expire. Here's a chance to use them before they go to waste.",
+              tip: "Tip: Check your recipes for inspiration on how to use these ingredients!",
+              footer: "You received this email because you have expiration alerts enabled in FrigoZen.",
+              team: "The FrigoZen Team",
             },
             fr: {
-              subject: "⚠️ Gaspillage imminent - FrigoZen",
-              title: "Attention au gaspillage !",
-              intro: "Les produits suivants expirent bientôt " +
-                "dans votre frigo :",
-              action: "Cuisinez-les vite !",
-              team: "L'équipe FrigoZen 🌿",
+              subject: "Votre alerte d'expiration FrigoZen",
+              preheader: "Certains produits de votre frigo nécessitent une attention",
+              title: "Alerte d'expiration",
+              intro: "Les produits suivants dans votre frigo sont sur le point d'expirer. C'est l'occasion de les utiliser avant le gaspillage.",
+              tip: "Astuce : Consultez vos recettes pour trouver l'inspiration afin d'utiliser ces ingrédients !",
+              footer: "Vous avez reçu cet email car vous avez activé les alertes d'expiration dans FrigoZen.",
+              team: "L'équipe FrigoZen",
             },
             de: {
-              subject: "⚠️ Verschwendungswarnung - FrigoZen",
-              title: "Achtung Verschwendung!",
-              intro: "Folgende Artikel laufen bald ab:",
-              action: "Schnell kochen!",
-              team: "Das FrigoZen Team 🌿",
+              subject: "Ihr FrigoZen Ablaufwarnung",
+              preheader: "Einige Artikel in Ihrem Kühlschrank benötigen Aufmerksamkeit",
+              title: "Ablaufwarnung",
+              intro: "Folgende Artikel in Ihrem Kühlschrank laufen bald ab. Nutzen Sie die Gelegenheit, sie vor der Verschwendung zu verwenden.",
+              tip: "Tipp: Schauen Sie in Ihre Rezepte für Inspiration, wie Sie diese Zutaten verwenden können!",
+              footer: "Sie haben diese E-Mail erhalten, weil Sie Ablaufwarnungen in FrigoZen aktiviert haben.",
+              team: "Das FrigoZen Team",
             },
             es: {
-              subject: "⚠️ Alerta de Desperdicio - FrigoZen",
-              title: "¡Alerta de Desperdicio!",
-              intro: "Los siguientes artículos caducan pronto:",
-              action: "¡Cocínalos rápido!",
-              team: "El equipo FrigoZen 🌿",
+              subject: "Su alerta de caducidad FrigoZen",
+              preheader: "Algunos artículos de su nevera necesitan atención",
+              title: "Alerta de caducidad",
+              intro: "Los siguientes artículos de su nevera están a punto de caducar. Aproveche para usarlos antes de que se desperdicien.",
+              tip: "Consejo: ¡Revise sus recetas para encontrar inspiración y usar estos ingredientes!",
+              footer: "Recibió este correo porque tiene activadas las alertas de caducidad en FrigoZen.",
+              team: "El equipo FrigoZen",
             },
             ar: {
-              subject: "⚠️ تنبيه هدر - FrigoZen",
-              title: "تنبيه هدر!",
-              intro: "العناصر التالية ستنتهي صلاحيتها قريبًا:",
-              action: "اطبخها بسرعة!",
-              team: "فريق FrigoZen 🌿",
+              subject: "تنبيه انتهاء الصلاحية - FrigoZen",
+              preheader: "بعض العناصر في ثلاجتك تحتاج إلى اهتمام",
+              title: "تنبيه انتهاء الصلاحية",
+              intro: "العناصر التالية في ثلاجتك على وشك انتهاء صلاحيتها. استغل الفرصة لاستخدامها قبل أن تُهدَر.",
+              tip: "نصيحة: تحقق من وصفاتك للحصول على إلهام لكيفية استخدام هذه المكونات!",
+              footer: "تلقى هذا البريد الإلكتروني لأنك قمت بتفعيل تنبيهات انتهاء الصلاحية في FrigoZen.",
+              team: "فريق FrigoZen",
             },
           };
 
           const t = translations[userLang] || translations["en"];
 
-          // Professional HTML Template
+          // Professional HTML Email Template
+          const logoBase64 = "iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAIAAAC2BqGFAAAAXNSR0IArs4c6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAA8mVYSWZNTQAqAAAACAAGARIAAwAAAAEAAQAAARoABQAAAAEAAABWARsABQAAAAEAAABeASgAAwAAAAEAAgAAATEAAgAAAAcAAABmh2kABAAAAAEAAABuAAAAAAAAAEgAAAABAAAASAAAAAFQaWNhc2EAAAAGkAAABwAAAAQwMjIwQAMAAgAAABQAAAC8gAQAAwAAAAEAAQAAgAIAAAABAAAB4gAMAAAEAAAABAAAA";
+
           const htmlContent = `
-            <div style="font-family: Arial, sans-serif; color: #333; 
-              max-width: 600px; margin: 0 auto; 
-              border: 1px solid #e0e0e0; 
-              border-radius: 8px; overflow: hidden;">
-              <div style="background-color: #4CAF50; padding: 20px; 
-                text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 24px;">
-                  ${t.title}
-                </h1>
-              </div>
-              <div style="padding: 20px;">
-                <p style="font-size: 16px;">${t.intro}</p>
-                <ul style="background-color: #f9f9f9; padding: 15px 20px; 
-                  border-radius: 5px; list-style-position: inside;">
-                  ${items.map((i) =>
-    `<li style="margin-bottom: 5px; font-weight: bold;">
-                      ${i}
-                    </li>`
-  ).join("")}
-                </ul>
-                <p style="font-size: 16px; color: #d32f2f; font-weight: bold;">
-                  ${t.action}
-                </p>
-                <hr style="border: 0; border-top: 1px solid #eee; 
-                  margin: 20px 0;">
-                <p style="font-size: 14px; color: #777;">${t.team}</p>
-              </div>
-            </div>
-          `;
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <!-- Preheader (hidden preview text) -->
+  <div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">${t.preheader}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f4f6f8;">
+    <tr>
+      <td align="center" style="padding: 40px 16px;">
+        <!-- Main Card -->
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; width:100%; background-color:#ffffff; border-radius:16px; overflow:hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+
+          <!-- Header with gradient -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #3D6B35 0%, #5A8E4F 50%, #6B9C5F 100%); padding: 40px 32px; text-align: center;">
+              <!-- Logo -->
+              <img src="data:image/png;base64,${logoBase64}" alt="FrigoZen" width="72" height="72" style="display:block; margin: 0 auto 16px; border-radius: 16px;">
+              <!-- Title -->
+              <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: 0.5px;">
+                ${t.title}
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 32px;">
+              <!-- Intro text -->
+              <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #4a5568;">
+                ${t.intro}
+              </p>
+
+              <!-- Items list -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 24px;">
+                ${items.map((item: string) => `
+                <tr>
+                  <td style="padding: 12px 16px; background-color: #f0faf0; border-left: 4px solid #6B9C5F; border-radius: 8px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td width="28" valign="middle">
+                          <span style="display:inline-block; width:8px; height:8px; background-color:#6B9C5F; border-radius:50%;"></span>
+                        </td>
+                        <td style="padding-left: 8px; font-size: 15px; font-weight: 600; color: #2d3748;">
+                          ${item}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr><td height="8"></td></tr>
+                `).join("")}
+              </table>
+
+              <!-- Tip -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px;">
+                <tr>
+                  <td style="padding: 16px; background-color: #fffbeb; border-radius: 10px; border: 1px solid #f6e05e;">
+                    <span style="font-size: 14px; color: #744210; line-height: 1.5;">
+                      ${t.tip}
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 32px; background-color: #f9fafb; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 8px; font-size: 12px; color: #a0aec0; text-align: center; line-height: 1.5;">
+                ${t.footer}
+              </p>
+              <p style="margin: 0; font-size: 13px; color: #6B9C5F; text-align: center; font-weight: 600;">
+                ${t.team} &#127807;
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 
           const mailRef = db.collection("mail").doc();
           batch.set(mailRef, {

@@ -1,5 +1,6 @@
 # frigo_zen
 
+test
 
 🎉 C'est une victoire technique ! Le fait que vous ayez ces messages signifie que l'upload a fonctionné (plus d'erreur de signature). Votre fichier .aab est bien accepté par Google.
 

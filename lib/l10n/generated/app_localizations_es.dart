@@ -115,6 +115,42 @@ class AppLocalizationsEs extends AppLocalizations {
       'La contraseña debe tener al menos 6 caracteres.';
 
   @override
+  String get authConfirmPasswordLabel => 'Confirmar contraseña';
+
+  @override
+  String get authPasswordsDontMatch => 'Las contraseñas no coinciden.';
+
+  @override
+  String get verifyEmailTitle => 'Verifica tu correo electrónico';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'Hemos enviado un enlace de verificación a $email.';
+  }
+
+  @override
+  String get verifyEmailBody =>
+      'Abre el enlace para activar tu cuenta y luego vuelve aquí para continuar.';
+
+  @override
+  String get verifyEmailResend => 'Reenviar correo';
+
+  @override
+  String verifyEmailResendIn(int seconds) {
+    return 'Puedes reenviar en $seconds s';
+  }
+
+  @override
+  String get verifyEmailCheckBtn => 'Ya he verificado mi correo';
+
+  @override
+  String get verifyEmailNotVerifiedYet =>
+      'Tu correo aún no está verificado. Haz clic en el enlace que te hemos enviado.';
+
+  @override
+  String get verifyEmailSignOut => 'Cerrar sesión';
+
+  @override
   String get householdWelcome => '¡Bienvenido a casa!';
 
   @override
@@ -357,16 +393,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String recipeDetailError(String error) {
     return 'Error: $error';
   }
-
-  @override
-  String get recipeSuggestionTitle => 'Ideas de Recetas';
-
-  @override
-  String get recipeSuggestionEmpty =>
-      'No se encontraron recetas para esta combinación. :(';
-
-  @override
-  String get recipeSuggestionUntitled => 'Receta sin título';
 
   @override
   String get settingsTitle => 'Ajustes';
@@ -622,9 +648,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get expiringSoonTitle => '¡Comer pronto!';
 
   @override
-  String get cookWithFridgeBtn => 'Cocinar con mi nevera';
-
-  @override
   String get summaryTotal => 'Total';
 
   @override
@@ -668,13 +691,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get statsFavoriteStores => 'Tus Tiendas Favoritas';
 
   @override
-  String get recipeFinding => 'Buscando recetas...';
-
-  @override
   String get inventoryEmpty => '¡Tu inventario está vacío!';
-
-  @override
-  String get recipesNotFound => 'No se encontraron recetas.';
 
   @override
   String errorGeneric(String error) {
@@ -837,19 +854,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get recipeTabCatalog => 'Catálogo';
 
   @override
-  String get recipeTabAI => 'Chef IA';
-
-  @override
-  String get recipeAITitle => 'Cocina con tu nevera';
-
-  @override
-  String get recipeAIDesc =>
-      'Deja que nuestro Chef IA genere recetas deliciosas basadas en tu inventario.';
-
-  @override
-  String get recipeAIBtn => 'Generar Recetas';
-
-  @override
   String get recipeTabFavorites => 'Favoritos';
 
   @override
@@ -910,18 +914,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get recipeFilterTitle => 'Preferencias del Chef';
-
-  @override
-  String get recipeFilterMealType => 'Tipo de comida';
-
-  @override
-  String get recipeFilterDiet => 'Dieta';
-
-  @override
-  String get recipeFilterDifficulty => 'Dificultad';
-
-  @override
-  String get recipeFilterGenerate => 'Generar';
 
   @override
   String get recipeFilterCancel => 'Cancelar';
@@ -1146,4 +1138,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String timeDateAt(String date, String time) {
     return '$date $time';
   }
+
+  @override
+  String get recipeTabAI => 'Chef IA';
+
+  @override
+  String get recipeAITitle => 'Cocina con tu nevera';
+
+  @override
+  String get recipeAIDesc =>
+      'Deja que nuestro Chef IA genere recetas deliciosas basadas en tu inventario.';
+
+  @override
+  String get recipeAIBtn => 'Generar Recetas';
 }

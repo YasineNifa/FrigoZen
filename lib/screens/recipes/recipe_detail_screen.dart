@@ -205,17 +205,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     List<String> ingredients = [];
     if (_fullRecipe != null) {
       ingredients = _fullRecipe!.ingredients.map((e) => e['name']!).toList();
-    } else {
-      final usedItems = widget.recipeData?['usedItems'] ?? [];
-      final missingItems = widget.recipeData?['missingItems'] ?? [];
-      
-      for (var item in usedItems) {
-        if (item is Map) ingredients.add(item['name']);
-      }
-      for (var item in missingItems) {
-        if (item is Map) ingredients.add(item['name']);
-      }
     }
+    // TODO(cook-with-ai): Restaurer le fallback recipeData (usedItems/missingItems) quand
+    // "Cuisiner avec IA" sera réactivé.
+    // } else {
+    //   final usedItems = widget.recipeData?['usedItems'] ?? [];
+    //   final missingItems = widget.recipeData?['missingItems'] ?? [];
+    //   for (var item in usedItems) {
+    //     if (item is Map) ingredients.add(item['name']);
+    //   }
+    //   for (var item in missingItems) {
+    //     if (item is Map) ingredients.add(item['name']);
+    //   }
 
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -309,9 +310,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     final String description = _fullRecipe?.category ?? widget.recipeData?['description'] ?? ''; 
     final String? imageUrl = _fullRecipe?.imageUrl ?? widget.recipeData?['imageUrl'];
     
-    // Smart Recipe Data
-    final List<dynamic> usedItems = widget.recipeData?['usedItems'] ?? [];
-    final List<dynamic> missingItems = widget.recipeData?['missingItems'] ?? [];
+    // Smart Recipe Data (kept for backward compatibility with existing favorites)
+    // TODO(cook-with-ai): La vue "Smart Recipe" avec usedItems/missingItems sera rétablie
+    // quand la fonctionnalité "Cuisiner avec IA" sera réactivée.
+    // final List<dynamic> usedItems = widget.recipeData?['usedItems'] ?? [];
+    // final List<dynamic> missingItems = widget.recipeData?['missingItems'] ?? [];
     
     // API Recipe Data
     final List<Map<String, String>> apiIngredients = _fullRecipe?.ingredients ?? [];
@@ -454,41 +457,65 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           ),
                         ),
                       ] else ...[
-                        // Smart Recipe View (Fridge + Missing)
-                        // Ingrédients Possédés
-                        _buildIngredientsSection(
-                          context,
-                          l10n.recipeDetailFridge,
-                          usedItems,
-                          true,
-                        ),
-
-                        if (missingItems.isNotEmpty) ...[
-                          const SizedBox(height: 24),
-                          // Ingrédients Manquants
-                          _buildIngredientsSection(
-                            context,
-                            l10n.recipeDetailToBuy,
-                            missingItems,
-                            false,
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: () => _addMissingItemsToShoppingList(missingItems),
-                              icon: const Icon(Icons.add_shopping_cart),
-                              label: Text(l10n.recipeAddIngredientsBtn),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Theme.of(context).primaryColor,
-                                side: BorderSide(color: Theme.of(context).primaryColor),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
+                        // TODO(cook-with-ai): La vue "Smart Recipe" avec ingrédients possessed/missing
+                        // sera rétablie quand "Cuisiner avec IA" sera réactivée.
+                        // Pour l'instant, afficher les ingrédients depuis recipeData si disponible.
+                        // if (usedItems.isNotEmpty || missingItems.isNotEmpty) ...[
+                        //   _buildIngredientsSection(
+                        //     context,
+                        //     l10n.recipeDetailFridge,
+                        //     usedItems,
+                        //     true,
+                        //   ),
+                        //   if (missingItems.isNotEmpty) ...[
+                        //     const SizedBox(height: 24),
+                        //     _buildIngredientsSection(
+                        //       context,
+                        //       l10n.recipeDetailToBuy,
+                        //       missingItems,
+                        //       false,
+                        //     ),
+                        //     const SizedBox(height: 16),
+                        //     SizedBox(
+                        //       width: double.infinity,
+                        //       child: OutlinedButton.icon(
+                        //         onPressed: () => _addMissingItemsToShoppingList(missingItems),
+                        //         icon: const Icon(Icons.add_shopping_cart),
+                        //         label: Text(l10n.recipeAddIngredientsBtn),
+                        //         style: OutlinedButton.styleFrom(
+                        //           foregroundColor: Theme.of(context).primaryColor,
+                        //           side: BorderSide(color: Theme.of(context).primaryColor),
+                        //           padding: const EdgeInsets.symmetric(vertical: 12),
+                        //           shape: RoundedRectangleBorder(
+                        //             borderRadius: BorderRadius.circular(12),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ],
+                        if (widget.recipeData != null) ...[
+                          Text(
+                            l10n.recipeIngredientsTitle,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                              letterSpacing: 1.2,
                             ),
                           ),
+                          const SizedBox(height: 12),
+                          ...apiIngredients.map((ing) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.circle, size: 8, color: Colors.green),
+                                const SizedBox(width: 8),
+                                Expanded(child: Text("${ing['measure']} ${ing['name']}", style: const TextStyle(fontSize: 16))),
+                              ],
+                            ),
+                          )),
+                          const SizedBox(height: 16),
                         ],
                       ],
 
