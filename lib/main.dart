@@ -37,11 +37,14 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
-  if (kReleaseMode) {
-    await Purchases.configure(
-      PurchasesConfiguration("appl_TO_BE_FILLED"),
-    );
-  }
+  // Always configure RevenueCat to prevent native SDK crash
+  await Purchases.configure(
+    PurchasesConfiguration(
+      kReleaseMode ?
+        "appl_TO_BE_FILLED" :
+        "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
+    ),
+  );
 
   setupLocator();
 
