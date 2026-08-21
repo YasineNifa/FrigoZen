@@ -56,6 +56,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   Future<void> _resendEmail() async {
     final l10n = AppLocalizations.of(context)!;
     try {
+      // Template dans la langue de l'app.
+      await _auth.setLanguageCode(
+        Localizations.localeOf(context).languageCode,
+      );
       await _auth.currentUser?.sendEmailVerification();
       _startCooldown();
       if (mounted) _showSnack(l10n.authVerifyEmailSent, Colors.green);

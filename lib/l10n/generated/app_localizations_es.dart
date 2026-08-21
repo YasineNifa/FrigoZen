@@ -115,6 +115,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'La contraseña debe tener al menos 6 caracteres.';
 
   @override
+  String get authConfirmPasswordLabel => 'Confirmar contraseña';
+
+  @override
+  String get authPasswordsDontMatch => 'Las contraseñas no coinciden.';
+
+  @override
   String get verifyEmailTitle => 'Verifica tu correo electrónico';
 
   @override

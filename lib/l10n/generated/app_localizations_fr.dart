@@ -116,6 +116,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le mot de passe doit faire plus de 6 caractères.';
 
   @override
+  String get authConfirmPasswordLabel => 'Confirmer le mot de passe';
+
+  @override
+  String get authPasswordsDontMatch =>
+      'Les mots de passe ne correspondent pas.';
+
+  @override
   String get verifyEmailTitle => 'Vérifiez votre email';
 
   @override

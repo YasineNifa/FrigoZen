@@ -37,6 +37,8 @@
   "authFieldRequired": "هذا الحقل مطلوب.",
   "authInvalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
   "authShortPassword": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+  "authConfirmPasswordLabel": "تأكيد كلمة المرور",
+  "authPasswordsDontMatch": "كلمتا المرور غير متطابقتين.",
   "@_VERIFY_EMAIL_SCREEN": {},
   "verifyEmailTitle": "تحقق من بريدك الإلكتروني",
   "verifyEmailSubtitle": "لقد أرسلنا رابط تحقق إلى {email}.",

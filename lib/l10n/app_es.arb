@@ -34,6 +34,8 @@
   "authFieldRequired": "Este campo es obligatorio.",
   "authInvalidEmail": "Por favor ingresa un correo válido.",
   "authShortPassword": "La contraseña debe tener al menos 6 caracteres.",
+  "authConfirmPasswordLabel": "Confirmar contraseña",
+  "authPasswordsDontMatch": "Las contraseñas no coinciden.",
   "@_VERIFY_EMAIL_SCREEN": {},
   "verifyEmailTitle": "Verifica tu correo electrónico",
   "verifyEmailSubtitle": "Hemos enviado un enlace de verificación a {email}.",

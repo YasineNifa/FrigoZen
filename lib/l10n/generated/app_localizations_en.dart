@@ -114,6 +114,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'The password must be at least 6 characters long.';
 
   @override
+  String get authConfirmPasswordLabel => 'Confirm password';
+
+  @override
+  String get authPasswordsDontMatch => 'Passwords do not match.';
+
+  @override
   String get verifyEmailTitle => 'Verify your email';
 
   @override

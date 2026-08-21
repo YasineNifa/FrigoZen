@@ -16,6 +16,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _isLoginMode = true;
   bool _isLoading = false;
@@ -56,6 +57,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     _animController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -116,6 +118,12 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           password: _passwordController.text.trim(),
         );
       } else {
+        // L'email de vérification partira dans la langue de l'app
+        // (template correspondant défini dans la console Firebase).
+        await _auth.setLanguageCode(
+          Localizations.localeOf(context).languageCode,
+        );
+
         // Création directe sur l'app principale : l'utilisateur est
         // connecté immédiatement et atterrit sur VerifyEmailScreen
         // (géré par AuthGate) jusqu'à la vérification de son email.
@@ -286,6 +294,22 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                     icon: Icons.lock_outline,
                                     isPassword: true,
                                   ),
+                                  if (!_isLoginMode) ...[
+                                    const SizedBox(height: 16),
+                                    _buildTextField(
+                                      controller: _confirmPasswordController,
+                                      label: l10n.authConfirmPasswordLabel,
+                                      icon: Icons.lock_outline,
+                                      isPassword: true,
+                                      validator: (value) {
+                                        if (value?.trim() !=
+                                            _passwordController.text.trim()) {
+                                          return l10n.authPasswordsDontMatch;
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
                                   const SizedBox(height: 32),
                                   
                                   if (_isLoading)
@@ -324,6 +348,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                                           onPressed: () {
                                             setState(() {
                                               _isLoginMode = !_isLoginMode;
+                                              _confirmPasswordController.clear();
                                               _animController.reset();
                                               _animController.forward();
                                             });
@@ -409,6 +434,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     required IconData icon,
     bool isPassword = false,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
     final l10n = AppLocalizations.of(context)!;
 
@@ -442,18 +468,19 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return l10n.authFieldRequired;
-        }
-        if (label == l10n.authEmailLabel && !value.contains('@')) {
-          return l10n.authInvalidEmail;
-        }
-        if (isPassword && value.length < 6) {
-          return l10n.authShortPassword;
-        }
-        return null;
-      },
+      validator: validator ??
+          (value) {
+            if (value == null || value.trim().isEmpty) {
+              return l10n.authFieldRequired;
+            }
+            if (label == l10n.authEmailLabel && !value.contains('@')) {
+              return l10n.authInvalidEmail;
+            }
+            if (isPassword && value.length < 6) {
+              return l10n.authShortPassword;
+            }
+            return null;
+          },
     );
   }
 }

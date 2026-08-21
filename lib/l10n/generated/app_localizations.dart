@@ -308,6 +308,18 @@ abstract class AppLocalizations {
   /// **'The password must be at least 6 characters long.'**
   String get authShortPassword;
 
+  /// No description provided for @authConfirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get authConfirmPasswordLabel;
+
+  /// No description provided for @authPasswordsDontMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get authPasswordsDontMatch;
+
   /// No description provided for @verifyEmailTitle.
   ///
   /// In en, this message translates to:

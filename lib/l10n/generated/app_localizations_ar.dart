@@ -115,6 +115,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.';
 
   @override
+  String get authConfirmPasswordLabel => 'تأكيد كلمة المرور';
+
+  @override
+  String get authPasswordsDontMatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
   String get verifyEmailTitle => 'تحقق من بريدك الإلكتروني';
 
   @override

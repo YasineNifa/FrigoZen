@@ -34,6 +34,8 @@
   "authFieldRequired": "Ce champ est requis.",
   "authInvalidEmail": "Veuillez entrer un email valide.",
   "authShortPassword": "Le mot de passe doit faire plus de 6 caractères.",
+  "authConfirmPasswordLabel": "Confirmer le mot de passe",
+  "authPasswordsDontMatch": "Les mots de passe ne correspondent pas.",
   "@_VERIFY_EMAIL_SCREEN": {},
   "verifyEmailTitle": "Vérifiez votre email",
   "verifyEmailSubtitle": "Nous avons envoyé un lien de vérification à {email}.",

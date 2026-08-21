@@ -116,6 +116,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Passwort muss mindestens 6 Zeichen lang sein.';
 
   @override
+  String get authConfirmPasswordLabel => 'Passwort bestätigen';
+
+  @override
+  String get authPasswordsDontMatch => 'Die Passwörter stimmen nicht überein.';
+
+  @override
   String get verifyEmailTitle => 'Bestätigen Sie Ihre E-Mail';
 
   @override
