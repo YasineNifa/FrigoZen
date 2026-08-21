@@ -37,6 +37,29 @@
   "authFieldRequired": "هذا الحقل مطلوب.",
   "authInvalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
   "authShortPassword": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+  "@_VERIFY_EMAIL_SCREEN": {},
+  "verifyEmailTitle": "تحقق من بريدك الإلكتروني",
+  "verifyEmailSubtitle": "لقد أرسلنا رابط تحقق إلى {email}.",
+  "@verifyEmailSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailBody": "افتح الرابط لتفعيل حسابك، ثم عد هنا للمتابعة.",
+  "verifyEmailResend": "إعادة إرسال البريد الإلكتروني",
+  "verifyEmailResendIn": "يمكنك إعادة الإرسال بعد {seconds} ثانية",
+  "@verifyEmailResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyEmailCheckBtn": "لقد تحققت من بريدي الإلكتروني",
+  "verifyEmailNotVerifiedYet": "لم يتم التحقق من بريدك الإلكتروني بعد. يرجى النقر على الرابط الذي أرسلناه لك.",
+  "verifyEmailSignOut": "تسجيل الخروج",
   "@_HOUSEHOLD_SCREEN": {},
   "householdWelcome": "مرحبًا بك في منزلك!",
   "householdSubtitle": "للبدء، أنشئ مساحتك العائلية أو انضم إلى مساحة موجودة.",

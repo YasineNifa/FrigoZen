@@ -114,6 +114,36 @@ class AppLocalizationsEn extends AppLocalizations {
       'The password must be at least 6 characters long.';
 
   @override
+  String get verifyEmailTitle => 'Verify your email';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'We sent a verification link to $email.';
+  }
+
+  @override
+  String get verifyEmailBody =>
+      'Open the link to activate your account, then come back and continue.';
+
+  @override
+  String get verifyEmailResend => 'Resend email';
+
+  @override
+  String verifyEmailResendIn(int seconds) {
+    return 'You can resend in ${seconds}s';
+  }
+
+  @override
+  String get verifyEmailCheckBtn => 'I\'ve verified my email';
+
+  @override
+  String get verifyEmailNotVerifiedYet =>
+      'Your email isn\'t verified yet. Please click the link we sent you.';
+
+  @override
+  String get verifyEmailSignOut => 'Log out';
+
+  @override
   String get householdWelcome => 'Welcome home!';
 
   @override

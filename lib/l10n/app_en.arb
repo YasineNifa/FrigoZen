@@ -34,6 +34,29 @@
   "authFieldRequired": "This field is required.",
   "authInvalidEmail": "Please enter a valid email.",
   "authShortPassword": "The password must be at least 6 characters long.",
+  "@_VERIFY_EMAIL_SCREEN": {},
+  "verifyEmailTitle": "Verify your email",
+  "verifyEmailSubtitle": "We sent a verification link to {email}.",
+  "@verifyEmailSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailBody": "Open the link to activate your account, then come back and continue.",
+  "verifyEmailResend": "Resend email",
+  "verifyEmailResendIn": "You can resend in {seconds}s",
+  "@verifyEmailResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyEmailCheckBtn": "I've verified my email",
+  "verifyEmailNotVerifiedYet": "Your email isn't verified yet. Please click the link we sent you.",
+  "verifyEmailSignOut": "Log out",
   "@_HOUSEHOLD_SCREEN": {},
   "householdWelcome": "Welcome home!",
   "householdSubtitle": "To get started, create your family space or join an existing one.",

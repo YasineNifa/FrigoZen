@@ -34,6 +34,29 @@
   "authFieldRequired": "Dieses Feld ist erforderlich.",
   "authInvalidEmail": "Bitte geben Sie eine gültige E-Mail ein.",
   "authShortPassword": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+  "@_VERIFY_EMAIL_SCREEN": {},
+  "verifyEmailTitle": "Bestätigen Sie Ihre E-Mail",
+  "verifyEmailSubtitle": "Wir haben einen Bestätigungslink an {email} gesendet.",
+  "@verifyEmailSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailBody": "Öffnen Sie den Link, um Ihr Konto zu aktivieren, und kehren Sie dann hierher zurück.",
+  "verifyEmailResend": "E-Mail erneut senden",
+  "verifyEmailResendIn": "Erneutes Senden möglich in {seconds} s",
+  "@verifyEmailResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyEmailCheckBtn": "Ich habe meine E-Mail bestätigt",
+  "verifyEmailNotVerifiedYet": "Ihre E-Mail ist noch nicht bestätigt. Bitte klicken Sie auf den gesendeten Link.",
+  "verifyEmailSignOut": "Abmelden",
   "@_HOUSEHOLD_SCREEN": {},
   "householdWelcome": "Willkommen zu Hause!",
   "householdSubtitle": "Erstellen Sie Ihren Familienbereich oder treten Sie einem bestehenden bei.",

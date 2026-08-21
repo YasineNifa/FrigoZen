@@ -1,8 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:frigo_zen/firebase_options.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/services/auth_service.dart';
 
@@ -69,19 +67,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
 
     try {
       final authService = AuthService();
-      final userCredential = await authService.signInWithGoogle();
-      
-      if (userCredential != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.authSuccess),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
-    } on FirebaseAuthException catch (error) {
+      await authService.signInWithGoogle();
+      // En cas de succès, AuthGate bascule automatiquement vers l'app.
+    } on FirebaseAuthException catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -128,42 +116,17 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           password: _passwordController.text.trim(),
         );
       } else {
-        final FirebaseApp tempApp = await Firebase.initializeApp(
-          name: 'tempRegister',
-          options: DefaultFirebaseOptions.currentPlatform,
+        // Création directe sur l'app principale : l'utilisateur est
+        // connecté immédiatement et atterrit sur VerifyEmailScreen
+        // (géré par AuthGate) jusqu'à la vérification de son email.
+        final userCredential = await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
 
-        try {
-          await FirebaseAuth.instanceFor(
-            app: tempApp,
-          ).createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
-
-          // Send verification email
-          final user = FirebaseAuth.instanceFor(app: tempApp).currentUser;
-          if (user != null && !user.emailVerified) {
-            await user.sendEmailVerification();
-          }
-
-          if (mounted) {
-            setState(() {
-              _isLoginMode = true;
-              _passwordController.clear();
-            });
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("${l10n.authSuccess}. ${l10n.authVerifyEmailSent ?? 'Please verify your email.'}"),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            );
-          }
-        } finally {
-          await tempApp.delete();
+        if (userCredential.user != null &&
+            !userCredential.user!.emailVerified) {
+          await userCredential.user!.sendEmailVerification();
         }
       }
     } on FirebaseAuthException catch (error) {

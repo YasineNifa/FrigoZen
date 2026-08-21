@@ -116,6 +116,36 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le mot de passe doit faire plus de 6 caractères.';
 
   @override
+  String get verifyEmailTitle => 'Vérifiez votre email';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'Nous avons envoyé un lien de vérification à $email.';
+  }
+
+  @override
+  String get verifyEmailBody =>
+      'Ouvrez le lien pour activer votre compte, puis revenez ici pour continuer.';
+
+  @override
+  String get verifyEmailResend => 'Renvoyer l\'email';
+
+  @override
+  String verifyEmailResendIn(int seconds) {
+    return 'Nouvel envoi possible dans $seconds s';
+  }
+
+  @override
+  String get verifyEmailCheckBtn => 'J\'ai vérifié mon email';
+
+  @override
+  String get verifyEmailNotVerifiedYet =>
+      'Votre email n\'est pas encore vérifié. Merci de cliquer sur le lien que nous vous avons envoyé.';
+
+  @override
+  String get verifyEmailSignOut => 'Se déconnecter';
+
+  @override
   String get householdWelcome => 'Bienvenue chez vous !';
 
   @override

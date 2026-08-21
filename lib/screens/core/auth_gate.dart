@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:frigo_zen/screens/auth/auth_screen.dart';
+import 'package:frigo_zen/screens/auth/verify_email_screen.dart';
 import 'package:frigo_zen/screens/core/household_setup_screen.dart';
 import 'package:frigo_zen/screens/core/navigation_shell.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -18,8 +19,10 @@ class _AuthGateState extends State<AuthGate> {
 
   @override
   Widget build(BuildContext context) {
+    // userChanges (et non authStateChanges) : se déclenche aussi après
+    // user.reload(), donc quand emailVerified passe à true.
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot) {
         // 1. Chargement initial
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -33,6 +36,11 @@ class _AuthGateState extends State<AuthGate> {
           debugPrint("AuthGate: User is logged in: ${snapshot.data?.uid}");
 
           final user = snapshot.data!;
+
+          // --- 0. Sécurité : email non vérifié → écran de vérification ---
+          if (!user.emailVerified) {
+            return const VerifyEmailScreen();
+          }
 
           // --- A. Notifications & Sync (Une seule fois) ---
           if (!_notificationsSetupDone) {

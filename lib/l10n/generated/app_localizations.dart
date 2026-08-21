@@ -308,6 +308,54 @@ abstract class AppLocalizations {
   /// **'The password must be at least 6 characters long.'**
   String get authShortPassword;
 
+  /// No description provided for @verifyEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email'**
+  String get verifyEmailTitle;
+
+  /// No description provided for @verifyEmailSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a verification link to {email}.'**
+  String verifyEmailSubtitle(String email);
+
+  /// No description provided for @verifyEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the link to activate your account, then come back and continue.'**
+  String get verifyEmailBody;
+
+  /// No description provided for @verifyEmailResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend email'**
+  String get verifyEmailResend;
+
+  /// No description provided for @verifyEmailResendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You can resend in {seconds}s'**
+  String verifyEmailResendIn(int seconds);
+
+  /// No description provided for @verifyEmailCheckBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve verified my email'**
+  String get verifyEmailCheckBtn;
+
+  /// No description provided for @verifyEmailNotVerifiedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email isn\'t verified yet. Please click the link we sent you.'**
+  String get verifyEmailNotVerifiedYet;
+
+  /// No description provided for @verifyEmailSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get verifyEmailSignOut;
+
   /// No description provided for @householdWelcome.
   ///
   /// In en, this message translates to:

@@ -116,6 +116,36 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Passwort muss mindestens 6 Zeichen lang sein.';
 
   @override
+  String get verifyEmailTitle => 'Bestätigen Sie Ihre E-Mail';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'Wir haben einen Bestätigungslink an $email gesendet.';
+  }
+
+  @override
+  String get verifyEmailBody =>
+      'Öffnen Sie den Link, um Ihr Konto zu aktivieren, und kehren Sie dann hierher zurück.';
+
+  @override
+  String get verifyEmailResend => 'E-Mail erneut senden';
+
+  @override
+  String verifyEmailResendIn(int seconds) {
+    return 'Erneutes Senden möglich in $seconds s';
+  }
+
+  @override
+  String get verifyEmailCheckBtn => 'Ich habe meine E-Mail bestätigt';
+
+  @override
+  String get verifyEmailNotVerifiedYet =>
+      'Ihre E-Mail ist noch nicht bestätigt. Bitte klicken Sie auf den gesendeten Link.';
+
+  @override
+  String get verifyEmailSignOut => 'Abmelden';
+
+  @override
   String get householdWelcome => 'Willkommen zu Hause!';
 
   @override

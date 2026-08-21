@@ -115,6 +115,35 @@ class AppLocalizationsAr extends AppLocalizations {
       'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.';
 
   @override
+  String get verifyEmailTitle => 'تحقق من بريدك الإلكتروني';
+
+  @override
+  String verifyEmailSubtitle(String email) {
+    return 'لقد أرسلنا رابط تحقق إلى $email.';
+  }
+
+  @override
+  String get verifyEmailBody => 'افتح الرابط لتفعيل حسابك، ثم عد هنا للمتابعة.';
+
+  @override
+  String get verifyEmailResend => 'إعادة إرسال البريد الإلكتروني';
+
+  @override
+  String verifyEmailResendIn(int seconds) {
+    return 'يمكنك إعادة الإرسال بعد $seconds ثانية';
+  }
+
+  @override
+  String get verifyEmailCheckBtn => 'لقد تحققت من بريدي الإلكتروني';
+
+  @override
+  String get verifyEmailNotVerifiedYet =>
+      'لم يتم التحقق من بريدك الإلكتروني بعد. يرجى النقر على الرابط الذي أرسلناه لك.';
+
+  @override
+  String get verifyEmailSignOut => 'تسجيل الخروج';
+
+  @override
   String get householdWelcome => 'مرحبًا بك في منزلك!';
 
   @override
