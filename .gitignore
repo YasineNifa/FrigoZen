@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase extension params contain secrets (SMTP credentials, API keys)
+extensions/*.env

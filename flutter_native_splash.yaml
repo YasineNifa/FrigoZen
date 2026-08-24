@@ -1,7 +1,5 @@
 flutter_native_splash:
-  color: "#6B9C5F" # Primary Green Color
-  image: assets/images/zen.png
-  # branding: assets/images/zen.jpg
+  color: "#FFFFFF" # White — invisible while Flutter boots, SplashScreen Flutter takes over
   android_12:
-    color: "#6B9C5F"
+    color: "#FFFFFF"
   web: false

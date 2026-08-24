@@ -34,6 +34,31 @@
   "authFieldRequired": "This field is required.",
   "authInvalidEmail": "Please enter a valid email.",
   "authShortPassword": "The password must be at least 6 characters long.",
+  "authConfirmPasswordLabel": "Confirm password",
+  "authPasswordsDontMatch": "Passwords do not match.",
+  "@_VERIFY_EMAIL_SCREEN": {},
+  "verifyEmailTitle": "Verify your email",
+  "verifyEmailSubtitle": "We sent a verification link to {email}.",
+  "@verifyEmailSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailBody": "Open the link to activate your account, then come back and continue.",
+  "verifyEmailResend": "Resend email",
+  "verifyEmailResendIn": "You can resend in {seconds}s",
+  "@verifyEmailResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyEmailCheckBtn": "I've verified my email",
+  "verifyEmailNotVerifiedYet": "Your email isn't verified yet. Please click the link we sent you.",
+  "verifyEmailSignOut": "Log out",
   "@_HOUSEHOLD_SCREEN": {},
   "householdWelcome": "Welcome home!",
   "householdSubtitle": "To get started, create your family space or join an existing one.",
@@ -140,9 +165,6 @@
     }
   },
   "@_RECIPE_SUGGESTION_SCREEN": {},
-  "recipeSuggestionTitle": "Recipe Ideas",
-  "recipeSuggestionEmpty": "No recipes found for this combination. :(",
-  "recipeSuggestionUntitled": "Untitled Recipe",
   "@_SETTINGS_SCREEN_UPDATED": {},
   "settingsTitle": "Settings",
   "settingsAccountInfo": "Account Information",
@@ -313,7 +335,6 @@
   "mealPlannerCardTitle": "My Meal Planner",
   "mealPlannerCardSubtitle": "Plan your weekly meals",
   "expiringSoonTitle": "Eat Soon!",
-  "cookWithFridgeBtn": "Cook with my fridge",
   "summaryTotal": "Total",
   "summaryToEat": "To eat",
   "summaryShopping": "Shopping",
@@ -341,9 +362,7 @@
   "statsUnlockBtn": "Unlock",
   "statsStorageDistribution": "Storage Distribution",
   "statsFavoriteStores": "Your Favorite Stores",
-  "recipeFinding": "Finding recipes...",
   "inventoryEmpty": "Your inventory is empty!",
-  "recipesNotFound": "No recipes found.",
   "errorGeneric": "Error: {error}",
   "@errorGeneric": {
     "placeholders": {
@@ -436,10 +455,6 @@
   "recipeTitle": "Recipes",
   "recipeTabDiscover": "Discover",
   "recipeTabCatalog": "Catalog",
-  "recipeTabAI": "AI Chef",
-  "recipeAITitle": "Cook with your fridge",
-  "recipeAIDesc": "Let our AI Chef generate delicious recipes based on your inventory.",
-  "recipeAIBtn": "Generate Recipes",
   "recipeTabFavorites": "Favorites",
   "recipeSearchHint": "Search for a recipe...",
   "recipeNoResults": "No recipes found.",
@@ -473,10 +488,6 @@
   "recipeIngredientsTitle": "Ingredients",
   "recipeAddIngredientsBtn": "Add to shopping list",
   "recipeFilterTitle": "Chef Preferences",
-  "recipeFilterMealType": "Meal Type",
-  "recipeFilterDiet": "Diet",
-  "recipeFilterDifficulty": "Difficulty",
-  "recipeFilterGenerate": "Generate",
   "recipeFilterCancel": "Cancel",
   "settingsSubscriptionHeader": "Subscription",
   "settingsAboutHeader": "About",
@@ -581,5 +592,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "recipeTabAI": "AI Chef",
+  "recipeAITitle": "Cook with your fridge",
+  "recipeAIDesc": "Let our AI Chef generate delicious recipes based on your inventory.",
+  "recipeAIBtn": "Generate Recipes"
 }

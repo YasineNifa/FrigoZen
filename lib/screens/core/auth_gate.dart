@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frigo_zen/screens/auth/auth_screen.dart';
-import 'package:frigo_zen/screens/core/household_setup_screen.dart';
-import 'package:frigo_zen/screens/core/navigation_shell.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:frigo_zen/screens/auth/verify_email_screen.dart';
+import 'package:frigo_zen/screens/auth/auth_screen.dart';
+import 'package:frigo_zen/screens/core/navigation_shell.dart';
+import 'package:frigo_zen/screens/core/household_setup_screen.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
@@ -18,8 +21,10 @@ class _AuthGateState extends State<AuthGate> {
 
   @override
   Widget build(BuildContext context) {
+    // userChanges (et non authStateChanges) : se déclenche aussi après
+    // user.reload(), donc quand emailVerified passe à true.
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot) {
         // 1. Chargement initial
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -33,6 +38,11 @@ class _AuthGateState extends State<AuthGate> {
           debugPrint("AuthGate: User is logged in: ${snapshot.data?.uid}");
 
           final user = snapshot.data!;
+
+          // --- 0. Sécurité : email non vérifié → écran de vérification ---
+          if (!user.emailVerified) {
+            return const VerifyEmailScreen();
+          }
 
           // --- A. Notifications & Sync (Une seule fois) ---
           if (!_notificationsSetupDone) {
@@ -115,11 +125,13 @@ class _AuthGateState extends State<AuthGate> {
 
   Future<void> _syncUserData(User user) async {
     try {
+      final String timezone = (await FlutterTimezone.getLocalTimezone()).identifier;
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'email': user.email,
         'emailVerified': user.emailVerified,
         'lastLogin': FieldValue.serverTimestamp(),
         'language': Localizations.localeOf(context).languageCode,
+        'timezone': timezone,
       }, SetOptions(merge: true));
     } catch (e) {
       debugPrint("User sync error: $e");

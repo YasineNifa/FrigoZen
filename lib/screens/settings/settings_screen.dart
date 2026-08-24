@@ -11,12 +11,8 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/components/skeleton.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:frigo_zen/screens/settings/privacy_screen.dart';
-import 'package:frigo_zen/repositories/product_catalog_repository.dart' as frigo_zen;
-import 'package:frigo_zen/locator.dart';
-import 'package:frigo_zen/services/history_service.dart';
 import 'package:frigo_zen/screens/analysis/analysis_screen.dart';
 import 'package:currency_picker/currency_picker.dart';
 
@@ -361,6 +357,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
            /* 
             * Debug section removed for production. 
             */
+           // --- SECTION: MAINTENANCE (HIDDEN) ---
+           /*
            _buildSectionHeader(context, "MINTENANCE (TEMP)"),
            _buildSettingsTile(
              context,
@@ -372,8 +370,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                    ScaffoldMessenger.of(context).showSnackBar(
                      const SnackBar(content: Text("Migration en cours... (ça peut être long)")),
                    );
-                   // Accessing repo usually via Provider or direct instance? 
-                   // Since it's a repository not a provider, let's instantiate.
                    final count = await frigo_zen.ProductCatalogRepository().populateCatalogFromHistory();
                    
                    if (context.mounted) {
@@ -391,22 +387,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
              },
            ),
            _buildSettingsTile(
-             context,
-             icon: Icons.data_usage,
-             title: "Générer Données Test (Prix)",
-             subtitle: "Ajoute 20 entrées pour tester le graphe",
-             onTap: () async {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text("Génération en cours...")),
-                 );
-                 await locator<HistoryService>().generateFakeData();
-                 if (context.mounted) {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                       const SnackBar(content: Text("Données générées ! Allez voir le graphe.")),
-                   );
-                 }
-             },
-           ),
+              context,
+              icon: Icons.data_usage,
+              title: "Générer Données Test (Prix)",
+              subtitle: "Ajoute 20 entrées pour tester le graphe",
+              onTap: () async {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Génération en cours...")),
+                  );
+                  await locator<HistoryService>().generateFakeData();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Données générées ! Allez voir le graphe.")),
+                    );
+                  }
+              },
+            ),
+            */
 
           const SizedBox(height: 32),
 

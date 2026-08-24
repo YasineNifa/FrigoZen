@@ -4,6 +4,7 @@ import 'package:frigo_zen/screens/core/auth_gate.dart';
 import 'package:frigo_zen/providers_setup.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:frigo_zen/screens/onboarding/onboarding_screen.dart';
+import 'package:frigo_zen/screens/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
@@ -20,8 +21,6 @@ import 'package:frigo_zen/locator.dart';
 import 'package:frigo_zen/screens/core/navigation_controller.dart';
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart';
 import 'package:frigo_zen/viewmodels/recipes_view_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 // 2. Créer un "Provider" simple pour notre inventaire : REMOVED (Dead Code)
 
@@ -36,11 +35,14 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
-  if (kReleaseMode) {
-    await Purchases.configure(
-      PurchasesConfiguration("appl_TO_BE_FILLED"),
-    );
-  }
+  // Always configure RevenueCat to prevent native SDK crash
+  await Purchases.configure(
+    PurchasesConfiguration(
+      kReleaseMode ?
+        "appl_TO_BE_FILLED" :
+        "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
+    ),
+  );
 
   setupLocator();
 
@@ -48,15 +50,10 @@ Future<void> main() async {
   if (kReleaseMode) {
     await revenueProvider.init();
   } else {
+    // Debug : pas d'init RevenueCat et AUCUNE écriture Firestore.
+    // RevenueProvider.isPro renvoie simplement true en mémoire,
+    // ce qui permet de tester les fonctions Premium sans achat.
     debugPrint("RevenueCat skipped (non-release mode). isPro forced to true.");
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) {
-        FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'isPremium': true,
-          'lastPremiumSync': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
-    });
   }
 
   runApp(
@@ -147,7 +144,7 @@ class FrigoZenApp extends StatelessWidget {
         Locale('es'),
         Locale('ar'),
       ],
-      home: hasSeenOnboarding ? const AuthGate() : const OnboardingScreen(),
+      home: SplashScreen(hasSeenOnboarding: hasSeenOnboarding),
       // home: const OnboardingScreen(),
     );
   }

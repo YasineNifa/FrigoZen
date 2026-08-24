@@ -1,6 +1,6 @@
 {
-    "name": "frigo_zen",
-    "short_name": "frigo_zen",
+    "name": "FrigoZen",
+    "short_name": "FrigoZen",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",

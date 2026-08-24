@@ -37,6 +37,31 @@
   "authFieldRequired": "هذا الحقل مطلوب.",
   "authInvalidEmail": "يرجى إدخال بريد إلكتروني صالح.",
   "authShortPassword": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+  "authConfirmPasswordLabel": "تأكيد كلمة المرور",
+  "authPasswordsDontMatch": "كلمتا المرور غير متطابقتين.",
+  "@_VERIFY_EMAIL_SCREEN": {},
+  "verifyEmailTitle": "تحقق من بريدك الإلكتروني",
+  "verifyEmailSubtitle": "لقد أرسلنا رابط تحقق إلى {email}.",
+  "@verifyEmailSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyEmailBody": "افتح الرابط لتفعيل حسابك، ثم عد هنا للمتابعة.",
+  "verifyEmailResend": "إعادة إرسال البريد الإلكتروني",
+  "verifyEmailResendIn": "يمكنك إعادة الإرسال بعد {seconds} ثانية",
+  "@verifyEmailResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyEmailCheckBtn": "لقد تحققت من بريدي الإلكتروني",
+  "verifyEmailNotVerifiedYet": "لم يتم التحقق من بريدك الإلكتروني بعد. يرجى النقر على الرابط الذي أرسلناه لك.",
+  "verifyEmailSignOut": "تسجيل الخروج",
   "@_HOUSEHOLD_SCREEN": {},
   "householdWelcome": "مرحبًا بك في منزلك!",
   "householdSubtitle": "للبدء، أنشئ مساحتك العائلية أو انضم إلى مساحة موجودة.",
@@ -122,9 +147,6 @@
   "recipeDetailRemoved": "تمت إزالة الوصفة من المفضلة.",
   "recipeDetailError": "خطأ: {error}",
   "@_RECIPE_SUGGESTION_SCREEN": {},
-  "recipeSuggestionTitle": "أفكار وصفات",
-  "recipeSuggestionEmpty": "لم يتم العثور على وصفات لهذه المجموعة. :(",
-  "recipeSuggestionUntitled": "وصفة بدون عنوان",
   "@_SETTINGS_SCREEN_UPDATED": {},
   "settingsTitle": "الإعدادات",
   "settingsAccountInfo": "معلومات الحساب",
@@ -210,7 +232,6 @@
   "mealPlannerCardTitle": "مخطط وجباتي",
   "mealPlannerCardSubtitle": "خطط لوجباتك الأسبوعية",
   "expiringSoonTitle": "تأكل قريبا!",
-  "cookWithFridgeBtn": "اطبخ مع ثلاجتي",
   "summaryTotal": "المجموع",
   "summaryToEat": "للأكل",
   "summaryShopping": "التسوق",
@@ -238,9 +259,7 @@
   "statsUnlockBtn": "فتح",
   "statsStorageDistribution": "توزيع التخزين",
   "statsFavoriteStores": "متاجرك المفضلة",
-  "recipeFinding": "جاري البحث عن وصفات...",
   "inventoryEmpty": "مخزونك فارغ!",
-  "recipesNotFound": "لم يتم العثور على وصفات.",
   "errorGeneric": "خطأ: {error}",
   "@errorGeneric": {
     "placeholders": {
@@ -333,10 +352,6 @@
   "recipeTitle": "الوصفات",
   "recipeTabDiscover": "اكتشف",
   "recipeTabCatalog": "كتالوج",
-  "recipeTabAI": "طاهي الذكاء الاصطناعي",
-  "recipeAITitle": "اطبخ بمحتويات ثلاجتك",
-  "recipeAIDesc": "دع طاهي الذكاء الاصطناعي يولد وصفات لذيذة بناءً على مخزونك.",
-  "recipeAIBtn": "توليد وصفات",
   "recipeTabFavorites": "المفضلة",
   "recipeSearchHint": "البحث عن وصفة...",
   "recipeNoResults": "لم يتم العثور على وصفات.",
@@ -371,10 +386,6 @@
   "recipeIngredientsTitle": "المكونات",
   "recipeAddIngredientsBtn": "أضف إلى قائمة التسوق",
   "recipeFilterTitle": "تفضيلات الطاهي",
-  "recipeFilterMealType": "نوع الوجبة",
-  "recipeFilterDiet": "النظام الغذائي",
-  "recipeFilterDifficulty": "الصعوبة",
-  "recipeFilterGenerate": "توليد",
   "recipeFilterCancel": "إلغاء",
   "settingsSubscriptionHeader": "الاشتراك",
   "settingsAboutHeader": "حول",
@@ -476,5 +487,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "recipeTabAI": "طاهي الذكاء الاصطناعي",
+  "recipeAITitle": "اطبخ بمحتويات ثلاجتك",
+  "recipeAIDesc": "دع طاهي الذكاء الاصطناعي يولد وصفات لذيذة بناءً على مخزونك.",
+  "recipeAIBtn": "توليد وصفات"
 }
