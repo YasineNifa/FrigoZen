@@ -6,7 +6,7 @@
   "etags": {
     "frigozen-app": {
       "extensionInstances": {
-        "firestore-send-email": "086347c5cfa7fdc1240985663492c877635c4a4ef1731870e40e3947a8725c09"
+        "firestore-send-email": "84d2a1f789eb8bb88c96d317bde172fa423a098ec4b8495c850f61226549803d"
       }
     }
   }

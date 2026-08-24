@@ -487,7 +487,7 @@ export const generateRecipes = onCall(
 // FONCTION 6 : checkExpirations (NOTIFICATIONS - MAISONS)
 // ===================================================================
 export const checkExpiringItems = onSchedule(
-  "every day 10:00",
+  {schedule: "every hour"},
   async (event) => {
     await runExpirationCheck();
   }
@@ -539,6 +539,44 @@ export const testExpirationAlerts = onCall(
 );
 
 /**
+ * Returns the current hour (0-23) in the given IANA timezone.
+ * Returns -1 if the timezone is invalid or unavailable.
+ * @param {string} timezone - IANA timezone identifier (e.g. "Europe/Paris").
+ * @return {number} The current hour (0-23), or -1 on error.
+ */
+function getLocalHour(timezone: string): number {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      hour12: false,
+    });
+    const hour = parseInt(formatter.format(new Date()), 10);
+    return isNaN(hour) ? -1 : hour;
+  } catch (e) {
+    return -1;
+  }
+}
+
+/**
+ * Returns the current date as YYYY-MM-DD in the given IANA timezone.
+ * @param {string} timezone - IANA timezone identifier (e.g. "Europe/Paris").
+ * @return {string} The local date as YYYY-MM-DD, or "" on error.
+ */
+function getLocalDateString(timezone: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+  } catch (e) {
+    return "";
+  }
+}
+
+/**
  * Core logic for checking expirations and sending alerts.
  * @param {string} targetHouseholdId - Optional. If set, only check this
  * household.
@@ -547,6 +585,9 @@ async function runExpirationCheck(targetHouseholdId?: string) {
   const db = getFirestore();
   const messaging = getMessaging();
   const now = new Date();
+  // When a specific household is targeted (test mode), bypass the
+  // "9 AM local time" gate so we always send for diagnostics.
+  const testMode = Boolean(targetHouseholdId);
   // We start looking from "Yesterday" to handle timezone offsets.
   // (e.g. User in UTC+1 has "Today 00:00" stored as "Yesterday 23:00 UTC")
   const startRange = new Date(now);
@@ -572,13 +613,23 @@ async function runExpirationCheck(targetHouseholdId?: string) {
       .get();
   }
 
-  if (snapshot.empty) {
-    logger.info("No expiring items found.");
-    return {message: "No expiring items found."};
-  }
-
   // 2. Group items by household
   const householdItems: { [key: string]: string[] } = {};
+
+  if (snapshot.empty) {
+    logger.info("No expiring items found.");
+    if (testMode && targetHouseholdId) {
+      // In test mode, still send a demo email so the user can verify
+      // delivery end-to-end even without any expiring items.
+      householdItems[targetHouseholdId] = [
+        "Lait (démo)",
+        "Pommes (démo)",
+        "Yaourt (démo)",
+      ];
+    } else {
+      return {message: "No expiring items found."};
+    }
+  }
 
   snapshot.docs.forEach((doc) => {
     // doc.ref.parent is 'inventory' collection
@@ -651,26 +702,46 @@ async function runExpirationCheck(targetHouseholdId?: string) {
         .get();
 
       let isPremiumHousehold = false;
-      const tokensByLang: { [lang: string]: string[] } = {};
-      const recipients: { email: string, language: string }[] = [];
+      const tokensByLang: { [lang: string]: { token: string; userId: string; localDate: string }[] } = {};
+      const recipients: { email: string; language: string; userId: string; localDate: string }[] = [];
 
       usersSnapshot.docs.forEach((userDoc) => {
         const userData = userDoc.data();
-        if (userData.isPremium === true) {
+        const userId = userDoc.id;
+        const timezone: string = userData.timezone || "Europe/Paris";
+
+        if (userData.isPremium === true || testMode) {
           isPremiumHousehold = true;
         }
+
+        // Decide whether to notify this user NOW:
+        // - In test mode, always send.
+        // - Otherwise, only at 9 AM in the user's OWN timezone, once per day.
+        let shouldSend = true;
+        let localDate = "";
+        if (!testMode) {
+          const localHour = getLocalHour(timezone);
+          localDate = getLocalDateString(timezone);
+          const alreadySentToday = userData.lastExpirationEmailDate === localDate;
+          shouldSend = localHour === 9 && !alreadySentToday;
+        }
+
+        if (!shouldSend) return;
+
         if (userData.fcmToken) {
           const lang = userData.language || "en";
           if (!tokensByLang[lang]) {
             tokensByLang[lang] = [];
           }
-          tokensByLang[lang].push(userData.fcmToken);
+          tokensByLang[lang].push({token: userData.fcmToken, userId, localDate});
         }
         // Check for email verification and collect email
-        if (userData.email && userData.emailVerified === true) {
+        if (userData.email && (userData.emailVerified === true || testMode)) {
           recipients.push({
             email: userData.email,
             language: userData.language || "en",
+            userId,
+            localDate,
           });
         }
       });
@@ -689,6 +760,9 @@ async function runExpirationCheck(targetHouseholdId?: string) {
 
       const itemsList = items.slice(0, 3).join(", ") +
         (items.length > 3 ? "..." : "");
+
+      // Batch for mail docs + per-user "already sent today" markers
+      const batch = db.batch();
 
       // A. Send Push Notifications (Grouped by Language)
       for (const [lang, tokens] of Object.entries(tokensByLang)) {
@@ -724,7 +798,7 @@ async function runExpirationCheck(targetHouseholdId?: string) {
           const t = pushTranslations[lang] || pushTranslations["en"];
 
           const message: MulticastMessage = {
-            tokens: tokens,
+            tokens: tokens.map((x) => x.token),
             notification: {
               title: t.title,
               body: t.body,
@@ -740,12 +814,18 @@ async function runExpirationCheck(targetHouseholdId?: string) {
             `Sent ${response.successCount} push notifications (${lang}) to ` +
             `household ${householdId}`
           );
+          if (!testMode) {
+            for (const entry of tokens) {
+              batch.update(db.collection("users").doc(entry.userId), {
+                lastExpirationEmailDate: entry.localDate,
+              });
+            }
+          }
         }
       }
 
       // B. Send Emails (via Trigger Email Extension)
       if (recipients.length > 0) {
-        const batch = db.batch();
         for (const recipient of recipients) {
           const userLang = recipient.language || "en";
 
@@ -899,13 +979,20 @@ async function runExpirationCheck(targetHouseholdId?: string) {
               html: htmlContent,
             },
           });
+          if (!testMode) {
+            batch.update(db.collection("users").doc(recipient.userId), {
+              lastExpirationEmailDate: recipient.localDate,
+            });
+          }
         }
-        await batch.commit();
         logger.info(
           `Queued ${recipients.length} emails for household ${householdId}`
         );
         notificationsSent++;
       }
+      // Commit mail docs + per-user "already sent today" markers
+      // (covers both push and email channels).
+      await batch.commit();
     } catch (error) {
       logger.error(
         `Error sending notification to household ${householdId}:`,

@@ -403,40 +403,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }
               },
             ),
-            _buildSettingsTile(
-              context,
-              icon: Icons.email_outlined,
-              title: "Tester l'Email d'Expiration",
-              subtitle: "Envoie l'email de gaspillage à votre foyer",
-              onTap: () async {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Envoi de l'email de test...")),
-                );
-                try {
-                  final callable = FirebaseFunctions.instance
-                      .httpsCallable('testExpirationAlerts');
-                  final result = await callable.call();
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "Email envoyé ! (${result.data})",
-                        ),
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Erreur : $e"),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              },
-            ),
             */
 
           const SizedBox(height: 32),
