@@ -2179,6 +2179,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Generate Recipes'**
   String get recipeAIBtn;
+
+  /// No description provided for @settingsFreeTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Free trial'**
+  String get settingsFreeTrial;
+
+  /// No description provided for @trialDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial: {days} days left'**
+  String trialDaysLeft(int days);
+
+  /// No description provided for @trialEndedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your free trial has ended. Upgrade to keep all features.'**
+  String get trialEndedSubtitle;
+
+  /// No description provided for @trialReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your FrigoZen trial ends soon'**
+  String get trialReminderTitle;
+
+  /// No description provided for @trialReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {days} days left of your free trial. Upgrade to Pro to keep all features.'**
+  String trialReminderBody(int days);
+
+  /// No description provided for @paywallTrialEndedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your 15-day free trial has ended. Subscribe to keep using Pro features.'**
+  String get paywallTrialEndedSubtitle;
 }
 
 class _AppLocalizationsDelegate

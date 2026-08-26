@@ -491,5 +491,25 @@
   "recipeTabAI": "KI-Chef",
   "recipeAITitle": "Kochen mit dem Kühlschrank",
   "recipeAIDesc": "Lassen Sie unseren KI-Chef köstliche Rezepte basierend auf Ihrem Inventar generieren.",
-  "recipeAIBtn": "Rezepte generieren"
+  "recipeAIBtn": "Rezepte generieren",
+  "settingsFreeTrial": "Kostenlose Testversion",
+  "trialDaysLeft": "Test: {days} Tage übrig",
+  "@trialDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trialEndedSubtitle": "Ihre kostenlose Testversion ist beendet. Werden Sie Pro, um alle Funktionen zu behalten.",
+  "trialReminderTitle": "Ihre FrigoZen-Testversion endet bald",
+  "trialReminderBody": "Sie haben noch {days} Tage der kostenlosen Testversion. Werden Sie Pro, um alle Funktionen zu behalten.",
+  "@trialReminderBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTrialEndedSubtitle": "Ihre 15-tägige Testversion ist beendet. Abonnieren Sie, um Pro-Funktionen weiter zu nutzen."
 }

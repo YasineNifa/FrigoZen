@@ -158,6 +158,8 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final rp = context.watch<RevenueProvider>();
+    final showTrialEnded = !rp.isSubscribed && rp.isTrialExpired;
     return Scaffold(
       backgroundColor: Colors.white,
       body: _isLoading
@@ -222,7 +224,9 @@ class _ModernPaywallScreenState extends State<ModernPaywallScreen> {
 
                               // Subtitle
                               Text(
-                                l10n.paywallSubtitle,
+                                showTrialEnded
+                                    ? l10n.paywallTrialEndedSubtitle
+                                    : l10n.paywallSubtitle,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,

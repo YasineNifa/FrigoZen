@@ -491,5 +491,25 @@
   "recipeTabAI": "Chef IA",
   "recipeAITitle": "Cocina con tu nevera",
   "recipeAIDesc": "Deja que nuestro Chef IA genere recetas deliciosas basadas en tu inventario.",
-  "recipeAIBtn": "Generar Recetas"
+  "recipeAIBtn": "Generar Recetas",
+  "settingsFreeTrial": "Prueba gratuita",
+  "trialDaysLeft": "Prueba: {days} días restantes",
+  "@trialDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trialEndedSubtitle": "Tu prueba gratuita ha terminado. Mejora a Pro para conservar todas las funciones.",
+  "trialReminderTitle": "Tu prueba de FrigoZen termina pronto",
+  "trialReminderBody": "Te quedan {days} días de prueba gratuita. Mejora a Pro para conservar todas las funciones.",
+  "@trialReminderBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTrialEndedSubtitle": "Tu prueba gratuita de 15 días ha terminado. Suscríbete para seguir usando las funciones Pro."
 }

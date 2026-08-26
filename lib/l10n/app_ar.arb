@@ -491,5 +491,25 @@
   "recipeTabAI": "طاهي الذكاء الاصطناعي",
   "recipeAITitle": "اطبخ بمحتويات ثلاجتك",
   "recipeAIDesc": "دع طاهي الذكاء الاصطناعي يولد وصفات لذيذة بناءً على مخزونك.",
-  "recipeAIBtn": "توليد وصفات"
+  "recipeAIBtn": "توليد وصفات",
+  "settingsFreeTrial": "فترة تجريبية مجانية",
+  "trialDaysLeft": "الفترة التجريبية: {days} أيام متبقية",
+  "@trialDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trialEndedSubtitle": "انتهت فترتك التجريبية المجانية. قم بالترقية للاحتفاظ بجميع الميزات.",
+  "trialReminderTitle": "تنتهي فترة تجربة FrigoZen قريبًا",
+  "trialReminderBody": "تبقى لك {days} أيام من الفترة التجريبية المجانية. قم بالترقية إلى Pro للاحتفاظ بجميع الميزات.",
+  "@trialReminderBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTrialEndedSubtitle": "انتهت فترة التجربة المجانية لـ 15 يومًا. اشترك لمواصلة استخدام ميزات Pro."
 }

@@ -11,7 +11,6 @@ import 'package:frigo_zen/services/revenue_provider.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:frigo_zen/components/skeleton.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:frigo_zen/screens/settings/privacy_screen.dart';
 import 'package:frigo_zen/screens/analysis/analysis_screen.dart';
 import 'package:currency_picker/currency_picker.dart';
@@ -34,7 +33,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isPro = context.watch<RevenueProvider>().isPro;
+    final rp = context.watch<RevenueProvider>();
+    final isSubscribed = rp.isSubscribed;
+    final isInTrial = rp.isInTrial;
+    final trialDaysRemaining = rp.trialDaysRemaining;
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
@@ -64,11 +66,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader(context, l10n.settingsSubscriptionHeader),
           _buildSettingsTile(
             context,
-            icon: isPro ? Icons.star : Icons.star_border,
+            icon: isSubscribed ? Icons.star : Icons.star_border,
             iconColor: Colors.amber[700],
-            title: isPro ? l10n.settingsManageSub : l10n.settingsUpgrade,
-            subtitle: isPro ? l10n.settingsProMember : l10n.settingsUnlockFeatures,
-            trailing: isPro 
+            title: isSubscribed
+                ? l10n.settingsManageSub
+                : (isInTrial ? l10n.settingsFreeTrial : l10n.settingsUpgrade),
+            subtitle: isSubscribed
+                ? l10n.settingsProMember
+                : (isInTrial
+                    ? l10n.trialDaysLeft(trialDaysRemaining)
+                    : l10n.trialEndedSubtitle),
+            trailing: isSubscribed
                 ? Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -86,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   )
                 : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
             onTap: () async {
-              if (isPro) {
+              if (isSubscribed) {
                 try {
                   await RevenueCatUI.presentCustomerCenter();
                 } on PurchasesError {
@@ -183,105 +191,88 @@ class _SettingsScreenState extends State<SettingsScreen> {
               final String inviteCode = data['inviteCode'] ?? '...';
               final String householdName = data['name'] ?? l10n.settingsDefaultHouse;
 
-              if (!isPro) {
-                return _buildSettingsTile(
-                  context,
-                  icon: Icons.lock_outline,
-                  title: l10n.settingsInviteMembers,
-                  subtitle: l10n.settingsInvitePremiumHint,
-                  trailing: const Icon(Icons.lock, size: 16, color: Colors.grey),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => const ModernPaywallScreen(),
-                      ),
-                    );
-                  },
-                );
-              } else {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.green[50],
-                            child: Icon(Icons.home, color: Colors.green[700]),
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.green[50],
+                          child: Icon(Icons.home, color: Colors.green[700]),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                householdName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                l10n.settingsInviteCodeLabel,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  householdName,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  l10n.settingsInviteCodeLabel,
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            inviteCode,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
                             ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.copy, size: 20),
+                            color: theme.primaryColor,
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(text: inviteCode));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.settingsCodeCopied)),
+                              );
+                            },
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              inviteCode,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.copy, size: 20),
-                              color: theme.primaryColor,
-                              onPressed: () {
-                                Clipboard.setData(ClipboardData(text: inviteCode));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(l10n.settingsCodeCopied)),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
+                    ),
+                  ],
+                ),
+              );
             },
           ),
           

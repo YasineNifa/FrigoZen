@@ -1142,4 +1142,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get recipeAIBtn => 'توليد وصفات';
+
+  @override
+  String get settingsFreeTrial => 'فترة تجريبية مجانية';
+
+  @override
+  String trialDaysLeft(int days) {
+    return 'الفترة التجريبية: $days أيام متبقية';
+  }
+
+  @override
+  String get trialEndedSubtitle =>
+      'انتهت فترتك التجريبية المجانية. قم بالترقية للاحتفاظ بجميع الميزات.';
+
+  @override
+  String get trialReminderTitle => 'تنتهي فترة تجربة FrigoZen قريبًا';
+
+  @override
+  String trialReminderBody(int days) {
+    return 'تبقى لك $days أيام من الفترة التجريبية المجانية. قم بالترقية إلى Pro للاحتفاظ بجميع الميزات.';
+  }
+
+  @override
+  String get paywallTrialEndedSubtitle =>
+      'انتهت فترة التجربة المجانية لـ 15 يومًا. اشترك لمواصلة استخدام ميزات Pro.';
 }

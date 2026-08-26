@@ -12,6 +12,7 @@ import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:frigo_zen/services/revenue_provider.dart';
+import 'package:frigo_zen/services/notification_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:frigo_zen/l10n/generated/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -38,15 +39,25 @@ Future<void> main() async {
   // Always configure RevenueCat to prevent native SDK crash
   await Purchases.configure(
     PurchasesConfiguration(
-      kReleaseMode ?
-        "appl_TO_BE_FILLED" :
-        "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
+      kReleaseMode ? "appl_TO_BE_FILLED" : "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
     ),
   );
 
   setupLocator();
 
+  // Local notifications (trial reminder). Safe to init on all builds.
+  final notificationService = NotificationService();
+  await notificationService.init();
+
   final revenueProvider = locator<RevenueProvider>();
+
+  // Debug only: simulate the trial state to preview UI/messaging.
+  // - debugTrialOverride: `true` (active trial), `false` (expired), `null` (real).
+  // - debugForceNonPro: `true` makes `isPro` return false in debug too, so the
+  //   paywalls / locked Pro features can be exercised locally.
+  RevenueProvider.debugTrialOverride = null;
+  RevenueProvider.debugForceNonPro = null;
+
   if (kReleaseMode) {
     await revenueProvider.init();
   } else {
@@ -55,6 +66,19 @@ Future<void> main() async {
     // ce qui permet de tester les fonctions Premium sans achat.
     debugPrint("RevenueCat skipped (non-release mode). isPro forced to true.");
   }
+
+  // Schedule / cancel the trial-ending reminder based on the live trial state.
+  void maybeScheduleTrialReminder() {
+    if (revenueProvider.isInTrial && !revenueProvider.isSubscribed) {
+      final end = revenueProvider.trialEndDate;
+      if (end != null) notificationService.scheduleTrialReminder(end);
+    } else if (revenueProvider.isSubscribed) {
+      notificationService.cancelTrialReminder();
+    }
+  }
+
+  revenueProvider.addListener(maybeScheduleTrialReminder);
+  maybeScheduleTrialReminder();
 
   runApp(
     MultiProvider(

@@ -491,5 +491,25 @@
   "recipeTabAI": "Chef IA",
   "recipeAITitle": "Cuisinez avec votre frigo",
   "recipeAIDesc": "Laissez notre Chef IA générer des recettes délicieuses basées sur votre inventaire.",
-  "recipeAIBtn": "Générer des recettes"
+  "recipeAIBtn": "Générer des recettes",
+  "settingsFreeTrial": "Essai gratuit",
+  "trialDaysLeft": "Essai : {days} jours restants",
+  "@trialDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trialEndedSubtitle": "Votre essai gratuit est terminé. Passez à Pro pour garder toutes les fonctionnalités.",
+  "trialReminderTitle": "Votre essai FrigoZen se termine bientôt",
+  "trialReminderBody": "Il vous reste {days} jours d'essai gratuit. Passez à Pro pour garder toutes les fonctionnalités.",
+  "@trialReminderBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTrialEndedSubtitle": "Votre essai gratuit de 15 jours est terminé. Abonnez-vous pour continuer à utiliser les fonctionnalités Pro."
 }

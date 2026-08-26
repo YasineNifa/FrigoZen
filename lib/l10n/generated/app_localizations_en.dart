@@ -1145,4 +1145,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recipeAIBtn => 'Generate Recipes';
+
+  @override
+  String get settingsFreeTrial => 'Free trial';
+
+  @override
+  String trialDaysLeft(int days) {
+    return 'Trial: $days days left';
+  }
+
+  @override
+  String get trialEndedSubtitle =>
+      'Your free trial has ended. Upgrade to keep all features.';
+
+  @override
+  String get trialReminderTitle => 'Your FrigoZen trial ends soon';
+
+  @override
+  String trialReminderBody(int days) {
+    return 'You have $days days left of your free trial. Upgrade to Pro to keep all features.';
+  }
+
+  @override
+  String get paywallTrialEndedSubtitle =>
+      'Your 15-day free trial has ended. Subscribe to keep using Pro features.';
 }

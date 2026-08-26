@@ -596,5 +596,25 @@
   "recipeTabAI": "AI Chef",
   "recipeAITitle": "Cook with your fridge",
   "recipeAIDesc": "Let our AI Chef generate delicious recipes based on your inventory.",
-  "recipeAIBtn": "Generate Recipes"
+  "recipeAIBtn": "Generate Recipes",
+  "settingsFreeTrial": "Free trial",
+  "trialDaysLeft": "Trial: {days} days left",
+  "@trialDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trialEndedSubtitle": "Your free trial has ended. Upgrade to keep all features.",
+  "trialReminderTitle": "Your FrigoZen trial ends soon",
+  "trialReminderBody": "You have {days} days left of your free trial. Upgrade to Pro to keep all features.",
+  "@trialReminderBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTrialEndedSubtitle": "Your 15-day free trial has ended. Subscribe to keep using Pro features."
 }
