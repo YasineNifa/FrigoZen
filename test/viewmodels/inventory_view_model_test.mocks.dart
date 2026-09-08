@@ -25,11 +25,6 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDateTime_0 extends _i1.SmartFake implements DateTime {
-  _FakeDateTime_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
 /// A class which mocks [InventoryRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -40,19 +35,71 @@ class MockInventoryRepository extends _i1.Mock
   }
 
   @override
-  _i3.Stream<List<_i4.InventoryItem>> getInventoryStream(
-    String? householdId, {
-    String? location,
-  }) =>
+  _i3.Stream<List<_i4.InventoryItem>> getInventoryStream(String? householdId) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #getInventoryStream,
-              [householdId],
-              {#location: location},
-            ),
+            Invocation.method(#getInventoryStream, [householdId]),
             returnValue: _i3.Stream<List<_i4.InventoryItem>>.empty(),
           )
           as _i3.Stream<List<_i4.InventoryItem>>);
+
+  @override
+  _i3.Stream<List<_i5.Batch>> getBatchesStream(
+    String? householdId,
+    String? itemId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getBatchesStream, [householdId, itemId]),
+            returnValue: _i3.Stream<List<_i5.Batch>>.empty(),
+          )
+          as _i3.Stream<List<_i5.Batch>>);
+
+  @override
+  _i3.Future<void> addBatch(
+    String? householdId,
+    String? itemId,
+    _i5.Batch? batch,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#addBatch, [householdId, itemId, batch]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> updateBatch(
+    String? householdId,
+    String? itemId,
+    _i5.Batch? batch,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateBatch, [householdId, itemId, batch]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteBatch(
+    String? householdId,
+    String? itemId,
+    String? batchId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteBatch, [householdId, itemId, batchId]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteItem(String? householdId, String? itemId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteItem, [householdId, itemId]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 
   @override
   _i3.Future<void> addInventoryItem(
@@ -79,9 +126,17 @@ class MockInventoryRepository extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<void> deleteInventoryItem(String? householdId, String? itemId) =>
+  _i3.Future<void> decrementItemQuantity(
+    String? householdId,
+    String? itemId,
+    int? quantityToRemove,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteInventoryItem, [householdId, itemId]),
+            Invocation.method(#decrementItemQuantity, [
+              householdId,
+              itemId,
+              quantityToRemove,
+            ]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
@@ -114,15 +169,4 @@ class MockInventoryRepository extends _i1.Mock
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
-
-  @override
-  DateTime getEarliestDate(List<_i5.Batch>? batches) =>
-      (super.noSuchMethod(
-            Invocation.method(#getEarliestDate, [batches]),
-            returnValue: _FakeDateTime_0(
-              this,
-              Invocation.method(#getEarliestDate, [batches]),
-            ),
-          )
-          as DateTime);
 }

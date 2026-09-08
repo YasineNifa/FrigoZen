@@ -6,21 +6,22 @@
 import 'dart:async' as _i4;
 import 'dart:ui' as _i7;
 
-import 'package:firebase_auth/firebase_auth.dart' as _i15;
-import 'package:frigo_zen/models/batch.dart' as _i10;
-import 'package:frigo_zen/models/household.dart' as _i17;
+import 'package:firebase_auth/firebase_auth.dart' as _i16;
+import 'package:frigo_zen/models/batch.dart' as _i11;
+import 'package:frigo_zen/models/frigo_user.dart' as _i10;
+import 'package:frigo_zen/models/household.dart' as _i18;
 import 'package:frigo_zen/models/inventory_item.dart' as _i8;
 import 'package:frigo_zen/models/meal_plan.dart' as _i3;
-import 'package:frigo_zen/models/shopping_item.dart' as _i11;
-import 'package:frigo_zen/repositories/household_repository.dart' as _i16;
-import 'package:frigo_zen/services/auth_service.dart' as _i14;
-import 'package:frigo_zen/services/revenue_provider.dart' as _i12;
+import 'package:frigo_zen/models/shopping_item.dart' as _i12;
+import 'package:frigo_zen/repositories/household_repository.dart' as _i17;
+import 'package:frigo_zen/services/auth_service.dart' as _i15;
+import 'package:frigo_zen/services/revenue_provider.dart' as _i13;
 import 'package:frigo_zen/viewmodels/inventory_view_model.dart' as _i5;
 import 'package:frigo_zen/viewmodels/meal_planner_view_model.dart' as _i2;
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i9;
-import 'package:purchases_flutter/purchases_flutter.dart' as _i13;
+import 'package:purchases_flutter/purchases_flutter.dart' as _i14;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -286,6 +287,20 @@ class MockInventoryViewModel extends _i1.Mock
           as bool);
 
   @override
+  _i10.FrigoUser? getMember(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getMember, [userId]),
+            returnValueForMissingStub: null,
+          )
+          as _i10.FrigoUser?);
+
+  @override
+  void ensureMemberWatched(String? userId) => super.noSuchMethod(
+    Invocation.method(#ensureMemberWatched, [userId]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   void init(String? householdId) => super.noSuchMethod(
     Invocation.method(#init, [householdId]),
     returnValueForMissingStub: null,
@@ -322,18 +337,64 @@ class MockInventoryViewModel extends _i1.Mock
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> deleteItem(String? itemId) =>
+  _i4.Future<void> deleteItem(String? itemId, {bool? logActivity = true}) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteItem, [itemId]),
+            Invocation.method(
+              #deleteItem,
+              [itemId],
+              {#logActivity: logActivity},
+            ),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> incrementItemQuantity(_i8.InventoryItem? item) =>
+  _i4.Stream<List<_i11.Batch>> getBatchesStream(String? itemId) =>
       (super.noSuchMethod(
-            Invocation.method(#incrementItemQuantity, [item]),
+            Invocation.method(#getBatchesStream, [itemId]),
+            returnValue: _i4.Stream<List<_i11.Batch>>.empty(),
+            returnValueForMissingStub: _i4.Stream<List<_i11.Batch>>.empty(),
+          )
+          as _i4.Stream<List<_i11.Batch>>);
+
+  @override
+  _i4.Future<void> incrementItemQuantity(
+    _i8.InventoryItem? item, {
+    required String? defaultStoreName,
+    required String? defaultUserName,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #incrementItemQuantity,
+              [item],
+              {
+                #defaultStoreName: defaultStoreName,
+                #defaultUserName: defaultUserName,
+              },
+            ),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> updateBatchDetails(
+    _i8.InventoryItem? item,
+    _i11.Batch? oldBatch,
+    _i11.Batch? newBatch,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateBatchDetails, [item, oldBatch, newBatch]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteBatch(_i8.InventoryItem? item, _i11.Batch? batch) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteBatch, [item, batch]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -351,7 +412,7 @@ class MockInventoryViewModel extends _i1.Mock
   @override
   _i4.Future<void> updateBatchDate(
     _i8.InventoryItem? item,
-    _i10.Batch? batch,
+    _i11.Batch? batch,
     DateTime? newDate,
   ) =>
       (super.noSuchMethod(
@@ -377,19 +438,6 @@ class MockInventoryViewModel extends _i1.Mock
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateItemCategory, [item, newCategory]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
-          )
-          as _i4.Future<void>);
-
-  @override
-  _i4.Future<void> updateBatchDetails(
-    _i8.InventoryItem? item,
-    _i10.Batch? oldBatch,
-    _i10.Batch? newBatch,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#updateBatchDetails, [item, oldBatch, newBatch]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -434,13 +482,22 @@ class MockInventoryViewModel extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
   @override
-  List<_i11.ShoppingItem> get items =>
+  List<_i12.ShoppingItem> get items =>
       (super.noSuchMethod(
             Invocation.getter(#items),
-            returnValue: <_i11.ShoppingItem>[],
-            returnValueForMissingStub: <_i11.ShoppingItem>[],
+            returnValue: <_i12.ShoppingItem>[],
+            returnValueForMissingStub: <_i12.ShoppingItem>[],
           )
-          as List<_i11.ShoppingItem>);
+          as List<_i12.ShoppingItem>);
+
+  @override
+  Map<String, _i10.FrigoUser> get members =>
+      (super.noSuchMethod(
+            Invocation.getter(#members),
+            returnValue: <String, _i10.FrigoUser>{},
+            returnValueForMissingStub: <String, _i10.FrigoUser>{},
+          )
+          as Map<String, _i10.FrigoUser>);
 
   @override
   bool get isLoading =>
@@ -461,13 +518,16 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
           as bool);
 
   @override
-  void init(String? householdId) => super.noSuchMethod(
-    Invocation.method(#init, [householdId]),
-    returnValueForMissingStub: null,
-  );
+  _i4.Future<void> init(String? householdId) =>
+      (super.noSuchMethod(
+            Invocation.method(#init, [householdId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 
   @override
-  _i4.Future<void> addItem(_i11.ShoppingItem? item) =>
+  _i4.Future<void> addItem(_i12.ShoppingItem? item) =>
       (super.noSuchMethod(
             Invocation.method(#addItem, [item]),
             returnValue: _i4.Future<void>.value(),
@@ -476,7 +536,7 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> updateItem(_i11.ShoppingItem? item) =>
+  _i4.Future<void> updateItem(_i12.ShoppingItem? item) =>
       (super.noSuchMethod(
             Invocation.method(#updateItem, [item]),
             returnValue: _i4.Future<void>.value(),
@@ -503,7 +563,7 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> toggleItemChecked(_i11.ShoppingItem? item) =>
+  _i4.Future<void> toggleItemChecked(_i12.ShoppingItem? item) =>
       (super.noSuchMethod(
             Invocation.method(#toggleItemChecked, [item]),
             returnValue: _i4.Future<void>.value(),
@@ -512,16 +572,16 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<_i11.ShoppingItem?> resolveItemName(
+  _i4.Future<_i12.ShoppingItem?> resolveItemName(
     String? name,
     String? languageCode,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#resolveItemName, [name, languageCode]),
-            returnValue: _i4.Future<_i11.ShoppingItem?>.value(),
-            returnValueForMissingStub: _i4.Future<_i11.ShoppingItem?>.value(),
+            returnValue: _i4.Future<_i12.ShoppingItem?>.value(),
+            returnValueForMissingStub: _i4.Future<_i12.ShoppingItem?>.value(),
           )
-          as _i4.Future<_i11.ShoppingItem?>);
+          as _i4.Future<_i12.ShoppingItem?>);
 
   @override
   _i4.Future<void> addItemByName(String? name, String? languageCode) =>
@@ -535,13 +595,15 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
   @override
   _i4.Future<void> addItemsFromRecipe(
     List<String>? ingredientNames,
-    String? languageCode,
-  ) =>
+    String? languageCode, {
+    bool? checkInventory = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#addItemsFromRecipe, [
-              ingredientNames,
-              languageCode,
-            ]),
+            Invocation.method(
+              #addItemsFromRecipe,
+              [ingredientNames, languageCode],
+              {#checkInventory: checkInventory},
+            ),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -557,9 +619,9 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
           as _i4.Future<void>);
 
   @override
-  _i4.Future<void> moveCheckedItemsToInventory() =>
+  _i4.Future<void> moveCheckedItemsToInventory(String? defaultStoreName) =>
       (super.noSuchMethod(
-            Invocation.method(#moveCheckedItemsToInventory, []),
+            Invocation.method(#moveCheckedItemsToInventory, [defaultStoreName]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -593,7 +655,16 @@ class MockShoppingViewModel extends _i1.Mock implements _i6.ShoppingViewModel {
 /// A class which mocks [RevenueProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRevenueProvider extends _i1.Mock implements _i12.RevenueProvider {
+class MockRevenueProvider extends _i1.Mock implements _i13.RevenueProvider {
+  @override
+  bool get isSubscribed =>
+      (super.noSuchMethod(
+            Invocation.getter(#isSubscribed),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
   @override
   bool get isPro =>
       (super.noSuchMethod(
@@ -602,6 +673,33 @@ class MockRevenueProvider extends _i1.Mock implements _i12.RevenueProvider {
             returnValueForMissingStub: false,
           )
           as bool);
+
+  @override
+  bool get isInTrial =>
+      (super.noSuchMethod(
+            Invocation.getter(#isInTrial),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get isTrialExpired =>
+      (super.noSuchMethod(
+            Invocation.getter(#isTrialExpired),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  int get trialDaysRemaining =>
+      (super.noSuchMethod(
+            Invocation.getter(#trialDaysRemaining),
+            returnValue: 0,
+            returnValueForMissingStub: 0,
+          )
+          as int);
 
   @override
   bool get hasListeners =>
@@ -622,7 +720,7 @@ class MockRevenueProvider extends _i1.Mock implements _i12.RevenueProvider {
           as _i4.Future<void>);
 
   @override
-  void setCustomerInfo(_i13.CustomerInfo? info) => super.noSuchMethod(
+  void setCustomerInfo(_i14.CustomerInfo? info) => super.noSuchMethod(
     Invocation.method(#setCustomerInfo, [info]),
     returnValueForMissingStub: null,
   );
@@ -664,29 +762,38 @@ class MockRevenueProvider extends _i1.Mock implements _i12.RevenueProvider {
 /// A class which mocks [AuthService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthService extends _i1.Mock implements _i14.AuthService {
+class MockAuthService extends _i1.Mock implements _i15.AuthService {
   @override
-  _i4.Stream<_i15.User?> get authStateChanges =>
+  _i4.Stream<_i16.User?> get authStateChanges =>
       (super.noSuchMethod(
             Invocation.getter(#authStateChanges),
-            returnValue: _i4.Stream<_i15.User?>.empty(),
-            returnValueForMissingStub: _i4.Stream<_i15.User?>.empty(),
+            returnValue: _i4.Stream<_i16.User?>.empty(),
+            returnValueForMissingStub: _i4.Stream<_i16.User?>.empty(),
           )
-          as _i4.Stream<_i15.User?>);
+          as _i4.Stream<_i16.User?>);
 
   @override
-  _i4.Future<_i15.UserCredential?> signInWithGoogle() =>
+  _i4.Future<_i16.UserCredential?> signInWithGoogle() =>
       (super.noSuchMethod(
             Invocation.method(#signInWithGoogle, []),
-            returnValue: _i4.Future<_i15.UserCredential?>.value(),
-            returnValueForMissingStub: _i4.Future<_i15.UserCredential?>.value(),
+            returnValue: _i4.Future<_i16.UserCredential?>.value(),
+            returnValueForMissingStub: _i4.Future<_i16.UserCredential?>.value(),
           )
-          as _i4.Future<_i15.UserCredential?>);
+          as _i4.Future<_i16.UserCredential?>);
 
   @override
   _i4.Future<void> sendEmailVerification() =>
       (super.noSuchMethod(
             Invocation.method(#sendEmailVerification, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> updateAvatar(String? assetPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateAvatar, [assetPath]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
@@ -697,7 +804,7 @@ class MockAuthService extends _i1.Mock implements _i14.AuthService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockHouseholdRepository extends _i1.Mock
-    implements _i16.HouseholdRepository {
+    implements _i17.HouseholdRepository {
   @override
   _i4.Future<String?> getHouseholdIdForUser(String? userId) =>
       (super.noSuchMethod(
@@ -708,11 +815,11 @@ class MockHouseholdRepository extends _i1.Mock
           as _i4.Future<String?>);
 
   @override
-  _i4.Stream<_i17.Household?> getHouseholdStream(String? householdId) =>
+  _i4.Stream<_i18.Household?> getHouseholdStream(String? householdId) =>
       (super.noSuchMethod(
             Invocation.method(#getHouseholdStream, [householdId]),
-            returnValue: _i4.Stream<_i17.Household?>.empty(),
-            returnValueForMissingStub: _i4.Stream<_i17.Household?>.empty(),
+            returnValue: _i4.Stream<_i18.Household?>.empty(),
+            returnValueForMissingStub: _i4.Stream<_i18.Household?>.empty(),
           )
-          as _i4.Stream<_i17.Household?>);
+          as _i4.Stream<_i18.Household?>);
 }

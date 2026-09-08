@@ -136,7 +136,7 @@ void main() {
       expect(item.id, 'shop123');
       expect(item.name, 'Bread');
       expect(item.isChecked, false);
-      expect(item.location, 1); // Pantry -> 1
+      expect(item.location.id, 1); // Pantry -> 1
     });
 
     test('should create ShoppingItem from map (integer)', () {
@@ -148,7 +148,7 @@ void main() {
         'isChecked': false,
       };
       final item = ShoppingItem.fromMap(map, 'shop789');
-      expect(item.location, 0);
+      expect(item.location.id, 0);
     });
   });
 

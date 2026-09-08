@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/models/shopping_item.dart';
+import 'package:frigo_zen/models/enums.dart';
 import 'package:frigo_zen/repositories/shopping_repository.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
@@ -162,8 +163,8 @@ void main() {
         isChecked: false,
         quantity: 1,
         createdAt: DateTime.now(),
-        category: 'Other',
-        location: 0,
+        category: InventoryCategory.other,
+        location: StorageLocation.fridge,
       );
       
       await viewModel.addItem(item);
@@ -174,7 +175,7 @@ void main() {
       expect(viewModel.items.length, 1);
       expect(viewModel.items.first.name, 'Milk');
       expect(viewModel.items.first.isChecked, false);
-      expect(viewModel.items.first.location, 0);
+      expect(viewModel.items.first.location, StorageLocation.fridge);
     });
 
     test('toggleItemChecked updates isChecked status', () async {
@@ -186,8 +187,8 @@ void main() {
         isChecked: false,
         quantity: 1,
         createdAt: DateTime.now(),
-        category: 'Other',
-        location: 0,
+        category: InventoryCategory.other,
+        location: StorageLocation.fridge,
       );
       await viewModel.addItem(item);
       await Future.delayed(Duration.zero);
@@ -208,8 +209,8 @@ void main() {
         isChecked: false,
         quantity: 1,
         createdAt: DateTime.now(),
-        category: 'Other',
-        location: 0,
+        category: InventoryCategory.other,
+        location: StorageLocation.fridge,
       );
       await viewModel.addItem(item);
       await Future.delayed(Duration.zero);

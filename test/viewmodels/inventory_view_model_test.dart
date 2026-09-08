@@ -5,6 +5,7 @@ import 'package:frigo_zen/viewmodels/inventory_view_model.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/batch.dart';
+import 'package:frigo_zen/models/enums.dart';
 import 'dart:async';
 
 // Generate Mocks
@@ -29,19 +30,20 @@ void main() {
         int daysUntilExpiration = 10}) {
       final now = DateTime.now();
       final expirationDate = now.add(Duration(days: daysUntilExpiration));
-      
+
       return InventoryItem(
         id: id,
         name: name,
         canonicalName: name.toLowerCase(),
         cleanedName: name,
-        category: 'cat_other',
-        location: location,
+        category: InventoryCategory.other,
+        location: StorageLocation.fromId(location),
         totalQuantity: 1,
         createdAt: now,
         dvm: 7,
         batches: [
           Batch(
+            id: '${id}_batch',
             quantity: 1,
             expirationDate: expirationDate,
             addedAt: now,
@@ -97,7 +99,7 @@ void main() {
       viewModel.setFilter(LocationFilter.pantry);
       expect(viewModel.filteredItems.length, 1);
       expect(viewModel.filteredItems.first.name, 'Pasta');
-      
+
        // Filter Freezer
       viewModel.setFilter(LocationFilter.freezer);
       expect(viewModel.filteredItems.length, 1);

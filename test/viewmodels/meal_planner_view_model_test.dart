@@ -7,6 +7,7 @@ import 'package:frigo_zen/viewmodels/shopping_view_model.dart';
 import 'package:frigo_zen/models/meal_plan.dart';
 import 'package:frigo_zen/models/inventory_item.dart';
 import 'package:frigo_zen/models/shopping_item.dart';
+import 'package:frigo_zen/models/enums.dart';
 import 'package:frigo_zen/repositories/inventory_repository.dart';
 import 'package:frigo_zen/repositories/shopping_repository.dart';
 import 'package:frigo_zen/repositories/meal_planner_repository.dart';
@@ -15,7 +16,7 @@ import 'package:frigo_zen/repositories/meal_planner_repository.dart';
 
 class MockMealPlannerRepository implements MealPlannerRepository {
   final List<MealPlan> _meals = [];
-  
+
   @override
   Stream<List<MealPlan>> getMealPlansStream(String householdId) {
     return Stream.value(_meals);
@@ -62,7 +63,7 @@ class MockShoppingRepository implements ShoppingRepository {
 class MockInventoryViewModel extends InventoryViewModel {
   final List<InventoryItem> _testItems;
 
-  MockInventoryViewModel(this._testItems) 
+  MockInventoryViewModel(this._testItems)
       : super(inventoryRepository: MockInventoryRepository());
 
   @override
@@ -77,11 +78,11 @@ class MockInventoryViewModel extends InventoryViewModel {
 class MockShoppingViewModel extends ShoppingViewModel {
   final List<String> addedItems = [];
 
-  MockShoppingViewModel() 
+  MockShoppingViewModel()
       : super(shoppingRepository: MockShoppingRepository(), inventoryRepository: MockInventoryRepository());
 
   @override
-  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode) async {
+  Future<void> addItemsFromRecipe(List<String> ingredientNames, String languageCode, {bool checkInventory = false}) async {
     addedItems.addAll(ingredientNames);
   }
 
@@ -96,8 +97,8 @@ class MockShoppingViewModel extends ShoppingViewModel {
         quantity: 1,
         isChecked: false,
         createdAt: DateTime.now(),
-        category: 'Veg',
-        location: 'Frigo',
+        category: InventoryCategory.other,
+        location: StorageLocation.fromId('Frigo'),
       );
     }
     return null;
@@ -113,8 +114,8 @@ void main() {
         name: 'Pâtes',
         cleanedName: 'pates',
         canonicalName: 'pates',
-        category: 'Dry',
-        location: 'Pantry',
+        category: InventoryCategory.other,
+        location: StorageLocation.fromId('Pantry'),
         totalQuantity: 1,
         batches: [],
         earliestExpirationDate: DateTime.now(),
@@ -126,8 +127,8 @@ void main() {
         name: 'Oignon',
         cleanedName: 'oignon',
         canonicalName: 'Oignon',
-        category: 'Veg',
-        location: 'Frigo',
+        category: InventoryCategory.other,
+        location: StorageLocation.fromId('Frigo'),
         totalQuantity: 1,
         batches: [],
         earliestExpirationDate: DateTime.now(),
@@ -139,7 +140,7 @@ void main() {
 
     // Setup Shopping
     final shopping = MockShoppingViewModel();
-    
+
     // Setup MealPlanner
     final mockRepository = MockMealPlannerRepository();
     final mealPlanner = MealPlannerViewModel(repository: mockRepository);
@@ -155,7 +156,14 @@ void main() {
     mealPlanner.setMealsForTesting([meal]);
 
     // Execute
-    final count = await mealPlanner.generateShoppingList(inventory, shopping, 'fr', isPro: true);
+    final count = await mealPlanner.generateShoppingList(
+      inventory,
+      shopping,
+      'fr',
+      isPro: true,
+      start: DateTime.now().subtract(const Duration(days: 1)),
+      end: DateTime.now().add(const Duration(days: 1)),
+    );
 
     // Verify
     debugPrint("Added items: ${shopping.addedItems}");
@@ -170,8 +178,8 @@ void main() {
         name: 'Oignon',
         cleanedName: 'oignon',
         canonicalName: 'Oignon',
-        category: 'Veg',
-        location: 'Frigo',
+        category: InventoryCategory.other,
+        location: StorageLocation.fromId('Frigo'),
         totalQuantity: 1,
         batches: [],
         earliestExpirationDate: DateTime.now(),
@@ -183,7 +191,7 @@ void main() {
 
     // Setup Shopping
     final shopping = MockShoppingViewModel();
-    
+
     // Setup MealPlanner
     final mockRepository = MockMealPlannerRepository();
     final mealPlanner = MealPlannerViewModel(repository: mockRepository);
@@ -199,7 +207,14 @@ void main() {
     mealPlanner.setMealsForTesting([meal]);
 
     // Execute with isPro = false
-    final count = await mealPlanner.generateShoppingList(inventory, shopping, 'fr', isPro: false);
+    final count = await mealPlanner.generateShoppingList(
+      inventory,
+      shopping,
+      'fr',
+      isPro: false,
+      start: DateTime.now().subtract(const Duration(days: 1)),
+      end: DateTime.now().add(const Duration(days: 1)),
+    );
 
     // Verify
     expect(count, 1);
@@ -239,8 +254,8 @@ void main() {
         name: 'Oignon',
         cleanedName: 'oignon',
         canonicalName: 'Oignon',
-        category: 'Veg',
-        location: 'Frigo',
+        category: InventoryCategory.other,
+        location: StorageLocation.fromId('Frigo'),
         totalQuantity: 1,
         batches: [],
         earliestExpirationDate: DateTime.now(),
@@ -252,7 +267,7 @@ void main() {
 
     // Setup Shopping
     final shopping = MockShoppingViewModel();
-    
+
     // Setup MealPlanner
     final mockRepository = MockMealPlannerRepository();
     final mealPlanner = MealPlannerViewModel(repository: mockRepository);
@@ -268,7 +283,14 @@ void main() {
     mealPlanner.setMealsForTesting([meal]);
 
     // Execute with isPro = true
-    final count = await mealPlanner.generateShoppingList(inventory, shopping, 'fr', isPro: true);
+    final count = await mealPlanner.generateShoppingList(
+      inventory,
+      shopping,
+      'fr',
+      isPro: true,
+      start: DateTime.now().subtract(const Duration(days: 1)),
+      end: DateTime.now().add(const Duration(days: 1)),
+    );
 
     // Verify
     expect(count, 0);

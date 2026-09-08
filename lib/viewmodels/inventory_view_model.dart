@@ -10,6 +10,7 @@ import 'package:frigo_zen/models/frigo_user.dart';
 import 'package:frigo_zen/services/household_service.dart';
 import 'package:frigo_zen/models/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 enum LocationFilter {
   all,
@@ -20,9 +21,9 @@ enum LocationFilter {
 
 class InventoryViewModel extends ChangeNotifier {
   final InventoryRepository _inventoryRepository;
-  final HistoryService _historyService;
-  final ProductCatalogRepository _catalogRepository;
-  final HouseholdService _householdService; // Added service
+  final HistoryService? _historyService;
+  final ProductCatalogRepository? _catalogRepository;
+  final HouseholdService? _householdService; // Added service
   
   // State
   List<InventoryItem> _items = [];
@@ -44,9 +45,9 @@ class InventoryViewModel extends ChangeNotifier {
 
   InventoryViewModel({
     required InventoryRepository inventoryRepository,
-    required HistoryService historyService,
-    required ProductCatalogRepository catalogRepository,
-    required HouseholdService householdService,
+    HistoryService? historyService,
+    ProductCatalogRepository? catalogRepository,
+    HouseholdService? householdService,
   })  : _inventoryRepository = inventoryRepository,
         _historyService = historyService,
         _catalogRepository = catalogRepository,
@@ -69,7 +70,7 @@ class InventoryViewModel extends ChangeNotifier {
     if (_watchedUserIds.isEmpty) return;
 
     _membersSubscription = _householdService
-        .getHouseholdMembersStream(_watchedUserIds.toList())
+        ?.getHouseholdMembersStream(_watchedUserIds.toList())
         .listen((users) {
       for (var user in users) {
         _members[user.id] = user;
@@ -224,7 +225,7 @@ class InventoryViewModel extends ChangeNotifier {
     await _inventoryRepository.deleteItem(_householdId!, itemId);
 
     if (logActivity) {
-      await _historyService.logActivity(
+      await _historyService?.logActivity(
         type: ActivityType.trashed,
         itemName: itemName,
       );
@@ -244,7 +245,7 @@ class InventoryViewModel extends ChangeNotifier {
     if (_householdId == null) return;
 
     // Log Activity
-    await _historyService.logActivity(
+    await _historyService?.logActivity(
       type: ActivityType.bought,
       itemName: item.name,
       details: {'quantity': 1, 'method': 'quick_add'},
@@ -272,7 +273,7 @@ class InventoryViewModel extends ChangeNotifier {
 
     final now = DateTime.now();
     final expirationDate = now.add(Duration(days: dvm > 0 ? dvm : 7));
-    final user = FirebaseAuth.instance.currentUser;
+    final user = Firebase.apps.isNotEmpty ? FirebaseAuth.instance.currentUser : null;
     
     // Enrich from parent item (cache)
     // Since we don't have immediate access to other batches without async fetch, 
@@ -340,7 +341,7 @@ class InventoryViewModel extends ChangeNotifier {
     await _inventoryRepository.addBatch(_householdId!, item.id, newBatch);
 
     // Sync to Catalog (Log usage + capture latest price/brands if missing)
-    await _catalogRepository.logItemToCatalog(
+    await _catalogRepository?.logItemToCatalog(
       name: item.name,
       canonicalName: item.canonicalName,
       category: item.category.key,
@@ -373,7 +374,7 @@ class InventoryViewModel extends ChangeNotifier {
     }
 
     // Sync rich data to Catalog (Price, Brands, Nutriscore, Store, Image)
-    await _catalogRepository.updateCatalogItem(
+    await _catalogRepository?.updateCatalogItem(
       canonicalName: item.canonicalName,
       lastPrice: newBatch.price,
       brands: newBatch.brands,
@@ -392,7 +393,7 @@ class InventoryViewModel extends ChangeNotifier {
     if (_householdId == null || item.totalQuantity <= 0) return;
 
     // Log Consumption
-    await _historyService.logActivity(
+    await _historyService?.logActivity(
       type: ActivityType.consumed,
       itemName: item.name,
       details: {'quantity': 1},
@@ -425,7 +426,7 @@ class InventoryViewModel extends ChangeNotifier {
     await updateItem(updatedItem);
     
     // Sync to Catalog
-    await _catalogRepository.updateCatalogItem(
+    await _catalogRepository?.updateCatalogItem(
       canonicalName: item.canonicalName,
       name: newName,
     );
@@ -438,7 +439,7 @@ class InventoryViewModel extends ChangeNotifier {
     await updateItem(updatedItem);
     
     // Sync to Catalog
-    await _catalogRepository.updateCatalogItem(
+    await _catalogRepository?.updateCatalogItem(
       canonicalName: item.canonicalName,
       category: newCategory,
     );

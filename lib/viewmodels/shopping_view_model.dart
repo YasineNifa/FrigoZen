@@ -14,12 +14,13 @@ import 'package:frigo_zen/models/frigo_user.dart';
 import 'package:frigo_zen/services/household_service.dart';
 import 'package:frigo_zen/models/enums.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class ShoppingViewModel extends ChangeNotifier {
   final ShoppingRepository _shoppingRepository;
   final InventoryRepository _inventoryRepository;
-  final HistoryService _historyService;
-  final HouseholdService _householdService = HouseholdService(); // Direct instantiation or inject
+  final HistoryService? _historyService;
+  final HouseholdService? _householdService; // Injected; optional for tests
 
   // State
   List<ShoppingItem> _items = [];
@@ -37,10 +38,12 @@ class ShoppingViewModel extends ChangeNotifier {
   ShoppingViewModel({
     required ShoppingRepository shoppingRepository,
     required InventoryRepository inventoryRepository,
-    required HistoryService historyService,
+    HistoryService? historyService,
+    HouseholdService? householdService,
   })  : _shoppingRepository = shoppingRepository,
         _inventoryRepository = inventoryRepository,
-        _historyService = historyService;
+        _historyService = historyService,
+        _householdService = householdService;
 
   Future<void> init(String householdId) async {
     if (_householdId == householdId) return;
@@ -73,7 +76,8 @@ class ShoppingViewModel extends ChangeNotifier {
   Future<void> _initialMemberSetup() async {
       // Get all household members initially
       if (_householdId == null) return;
-       final household = await _householdService.getCurrentHouseholdStream().first;
+      if (_householdService == null) return;
+       final household = await _householdService!.getCurrentHouseholdStream().first;
       if (household != null) {
           final data = household.data() as Map<String, dynamic>;
           final List<String> memberIds = List<String>.from(data['members'] ?? []);
@@ -108,7 +112,7 @@ class ShoppingViewModel extends ChangeNotifier {
   void _subscribeToMembers(List<String> memberIds) {
       if (memberIds.isEmpty) return;
       _membersSubscription?.cancel();
-      _membersSubscription = _householdService.getHouseholdMembersStream(memberIds).listen((users) {
+      _membersSubscription = _householdService?.getHouseholdMembersStream(memberIds).listen((users) {
           for (var user in users) {
              _members[user.id] = user;
           }
@@ -119,14 +123,14 @@ class ShoppingViewModel extends ChangeNotifier {
   Future<void> addItem(ShoppingItem item) async {
     if (_householdId == null) return;
 
-    final user = FirebaseAuth.instance.currentUser;
+    final user = Firebase.apps.isNotEmpty ? FirebaseAuth.instance.currentUser : null;
     final itemWithCreator = item.copyWith(
       addedBy: user?.uid,
     );
     
     await _shoppingRepository.addShoppingItem(_householdId!, itemWithCreator);
     
-    await _historyService.logActivity(
+    await _historyService?.logActivity(
       type: ActivityType.addedShopping,
       itemName: item.name,
     );
@@ -244,7 +248,7 @@ class ShoppingViewModel extends ChangeNotifier {
         ingredientNames.map((name) => resolveItemName(name, languageCode)),
       );
 
-      final user = FirebaseAuth.instance.currentUser;
+      final user = Firebase.apps.isNotEmpty ? FirebaseAuth.instance.currentUser : null;
 
       for (var i = 0; i < results.length; i++) {
         final item = results[i];
@@ -286,7 +290,7 @@ class ShoppingViewModel extends ChangeNotifier {
         
         // Log activities
         for (var item in itemsToAdd) {
-           _historyService.logActivity(
+           _historyService?.logActivity(
             type: ActivityType.addedShopping,
             itemName: item.name,
             details: {'source': 'recipe'},
@@ -358,7 +362,7 @@ class ShoppingViewModel extends ChangeNotifier {
           canonicalName: item.canonicalName,
           imageUrl: item.imageUrl,
           nutriscore: item.nutriscore,
-          addedBy: FirebaseAuth.instance.currentUser?.uid,
+          addedBy: Firebase.apps.isNotEmpty ? FirebaseAuth.instance.currentUser?.uid : null,
         );
         
         // 2. Create InventoryItem
@@ -380,7 +384,7 @@ class ShoppingViewModel extends ChangeNotifier {
         await _inventoryRepository.upsertInventoryItem(_householdId!, inventoryItem);
 
         // 4. Log Activity
-        await _historyService.logActivity(
+        await _historyService?.logActivity(
           type: ActivityType.bought,
           itemName: item.name,
           details: {
