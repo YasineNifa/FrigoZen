@@ -36,10 +36,17 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
 
+  // RevenueCat SDK key. Inject at build time with:
+  //   flutter build appbundle --release --dart-define=REVENUECAT_API_KEY=goog_xxxx
+  // Kept out of source control so the production key is never committed.
+  const revenueCatApiKey = String.fromEnvironment('REVENUECAT_API_KEY');
+
   // Always configure RevenueCat to prevent native SDK crash
   await Purchases.configure(
     PurchasesConfiguration(
-      kReleaseMode ? "appl_TO_BE_FILLED" : "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
+      revenueCatApiKey.isNotEmpty
+          ? revenueCatApiKey
+          : "test_khYjXVBlKWQdgHIghJZqvHlaXyV",
     ),
   );
 
